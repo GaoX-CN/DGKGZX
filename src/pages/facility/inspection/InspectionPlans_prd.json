@@ -1,0 +1,313 @@
+{
+  "pageName": "InspectionPlans",
+  "pageId": "InspectionPlans",
+  "version": "1.0.0",
+  "lastUpdated": "2026-07-05T00:00:00Z",
+  "intent": {
+    "type": "manage",
+    "summary": "管理园区设备巡检计划，定义巡检频段、设备和执行团队，按计划周期自动生成巡检工单"
+  },
+  "overview": "巡检计划管理页面用于创建和维护设备设施的定期巡检计划。用户通过本页面配置巡检计划的名称、负责班组、有效期限、发布信息、巡检频段（每天/每周/每月的指定时间和日期）以及巡检覆盖的设备范围。计划状态根据时间和启停状态自动判定为未开始、进行中、已结束或已停用四种状态，不同状态下提供的操作权限不同。计划生效后系统按频段在指定时间自动生成巡检工单。页面提供计划列表的查询、新增、编辑、删除、启停用、查看详情等功能，设备范围通过独立的选择窗口从园区设备库中按空间、类型、名称筛选后多选关联。",
+  "modules": [
+    {
+      "id": "ip-search",
+      "title": "巡检计划查询",
+      "purpose": "帮助用户快速筛选目标巡检计划",
+      "summary": "支持按计划名称模糊查询、巡检班组筛选和状态筛选（未开始/进行中/已结束/已停用）。提供查询和重置操作。",
+      "requirements": [
+        {
+          "title": "计划名称查询",
+          "priority": "P1",
+          "details": "支持输入计划名称关键词进行模糊匹配查询。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "巡检班组筛选",
+          "priority": "P2",
+          "details": "支持按巡检班组（巡检一组/二组/三组）筛选计划。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "状态筛选",
+          "priority": "P1",
+          "details": "支持按未开始、进行中、已结束、已停用四种状态筛选计划。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        { "name": "keyword", "label": "计划名称", "type": "string", "required": false, "description": "计划名称关键词模糊查询", "source": "ai", "status": "generated" },
+        { "name": "team", "label": "巡检班组", "type": "select", "required": false, "description": "按巡检班组筛选", "source": "ai", "status": "generated" },
+        { "name": "status", "label": "状态", "type": "select", "required": false, "description": "未开始/进行中/已结束/已停用", "source": "ai", "status": "generated" }
+      ],
+      "rules": [
+        "查询和重置时回到第一页"
+      ],
+      "interactions": [
+        { "trigger": "点击查询", "action": "执行筛选", "description": "根据当前筛选条件过滤列表数据并回到第一页。", "source": "ai", "status": "generated" },
+        { "trigger": "点击重置", "action": "清空筛选条件", "description": "清空所有筛选条件，展示全部计划数据。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "ip-table",
+      "title": "巡检计划列表",
+      "purpose": "展示所有巡检计划并提供生命周期管理操作",
+      "summary": "以列表形式展示巡检计划数据，每行包含序号、计划名称、巡检班组、巡检频段、巡检范围、计划有效期、发布部门、发布人、状态和操作按钮。状态根据计划开始时间、结束时间和启停标记自动判定为未开始、进行中、已结束、已停用四种。不同状态下可执行不同操作：未开始支持编辑、删除、停用；进行中支持停用；已结束仅可查看；已停用支持编辑、启用。所有状态均可查看详情。分页导航每页10条。",
+      "requirements": [
+        {
+          "title": "计划列表展示",
+          "priority": "P1",
+          "details": "展示所有巡检计划数据，包含计划名称、巡检班组、巡检频段（如'每天 03:00''每周一、周四 06:00'）、巡检范围（如'4台设备'）、计划有效期（开始日期~结束日期，无结束日期显示'永久'）、发布部门、发布人、状态。列表上方显示总记录数。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "状态自动判定",
+          "priority": "P1",
+          "details": "计划状态根据三个维度自动判定：若已停用则为已停用；若当前时间早于计划开始时间则为未开始；若已填结束时间且当前时间已过结束时间则为已结束；其余情况为进行中。四种状态使用不同颜色标识。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "按状态差异化操作",
+          "priority": "P1",
+          "details": "未开始状态提供编辑、删除、停用按钮。进行中状态仅提供停用按钮（计划执行中不允许编辑和删除）。已结束状态仅提供查看详情按钮。已停用状态提供编辑、启用按钮。所有状态均可查看详情。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "停用与启用",
+          "priority": "P1",
+          "details": "停用计划后立即生效，系统不再为该计划生成工单。已停用的计划可重新启用，启用后按频段恢复工单生成。停用和启用直接在列表操作区执行。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "删除计划",
+          "priority": "P2",
+          "details": "未开始状态下的计划可直接删除，正在进行或已结束的计划不可删除。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "分页导航",
+          "priority": "P2",
+          "details": "支持分页展示，默认每页10条记录，展示总记录数并提供翻页功能。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        { "name": "name", "label": "计划名称", "type": "string", "required": true, "description": "巡检计划的名称标识", "source": "ai", "status": "generated" },
+        { "name": "inspectionTeam", "label": "巡检班组", "type": "select", "required": true, "description": "负责执行该巡检计划的班组", "source": "ai", "status": "generated" },
+        { "name": "frequencyLabel", "label": "巡检频段", "type": "string", "required": true, "description": "巡检执行的周期和时刻，如'每天 03:00''每周一、周四 06:00'", "source": "ai", "status": "generated" },
+        { "name": "scopeLabel", "label": "巡检范围", "type": "string", "required": true, "description": "巡检覆盖的设备数量摘要，如'4台设备'", "source": "ai", "status": "generated" },
+        { "name": "startDate", "label": "计划开始时间", "type": "datetime", "required": true, "description": "计划生效起始时间，在此之前计划状态为未开始", "source": "ai", "status": "generated" },
+        { "name": "endDate", "label": "计划结束时间", "type": "datetime", "required": false, "description": "计划生效截止时间，不填则永久生效", "source": "ai", "status": "generated" },
+        { "name": "dept", "label": "发布部门", "type": "string", "required": true, "description": "发布计划的部门名称", "source": "ai", "status": "generated" },
+        { "name": "publisher", "label": "发布人", "type": "string", "required": true, "description": "发布计划的人员姓名", "source": "ai", "status": "generated" },
+        { "name": "status", "label": "状态", "type": "enum", "required": true, "description": "未开始/进行中/已结束/已停用，自动判定", "source": "ai", "status": "generated" }
+      ],
+      "rules": [
+        "状态由系统根据开始时间、结束时间、停用标记自动判定",
+        "未开始状态可编辑、删除、停用",
+        "进行中状态仅可停用",
+        "已结束状态仅可查看详情",
+        "已停用状态可编辑、启用",
+        "进行中和已结束状态不可删除",
+        "停用后系统停止生成工单",
+        "启用后系统恢复按频段生成工单"
+      ],
+      "interactions": [
+        { "trigger": "点击新建计划", "action": "打开计划编辑页面", "description": "进入新建巡检计划的编辑页面。", "source": "ai", "status": "generated" },
+        { "trigger": "点击编辑", "action": "打开计划编辑页面回填数据", "description": "进入编辑页面并回填该计划的全部信息。", "source": "ai", "status": "generated" },
+        { "trigger": "点击停用", "action": "停用计划", "description": "立即将计划设为停用状态，系统停止为该计划生成工单。", "source": "ai", "status": "generated" },
+        { "trigger": "点击启用", "action": "启用计划", "description": "将已停用计划重新启用，系统恢复按频段生成工单。", "source": "ai", "status": "generated" },
+        { "trigger": "点击删除", "action": "删除计划", "description": "从列表中删除该计划（仅未开始状态可删除）。", "source": "ai", "status": "generated" },
+        { "trigger": "点击详情", "action": "打开详情页面", "description": "查看计划的完整信息以及关联的巡检设备列表。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "ip-form",
+      "title": "新建/编辑巡检计划",
+      "purpose": "配置巡检计划的完整信息，包括基本信息、巡检频段和巡检设备范围",
+      "summary": "在一个页面内完成巡检计划的所有配置。基本信息包括计划名称、巡检班组（从已有班组中选择）、计划开始时间（必填）、计划结束时间（非必填，不填永久生效）、发布部门（默认当前登录部门）和发布人（默认当前登录人）。巡检频段支持三种类型：每天（指定执行时刻）、每周（多选星期几和时刻）、每月（多选日期和时刻）。巡检设备通过独立的选择窗口按空间、类型、名称筛选后多选关联，已选设备以列表展示。",
+      "requirements": [
+        {
+          "title": "基本信息配置",
+          "priority": "P1",
+          "details": "计划名称自由输入。巡检班组从系统已有班组列表中选择。计划开始时间为日期时间选择，必填。计划结束时间非必填，不填时计划永久有效（标注提示文字'不填则永久生效'）。发布部门默认填充当前登录部门名称，发布人默认填充当前登录人姓名，均可修改。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "巡检频段配置",
+          "priority": "P1",
+          "details": "支持三种频段类型互斥选择：每天（选择执行时刻即可）、每周（多选周一至周日中的若干天并指定执行时刻，如每周一和周四06:00执行）、每月（多选1至31日中若干日期并指定执行时刻，如每月1日和15日08:00执行）。切换频段类型时清空已选的星期或日期。生效后系统在指定时刻自动生成巡检工单。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "巡检设备选择",
+          "priority": "P1",
+          "details": "通过独立的选择窗口从园区设备库中选取巡检设备。选择窗口支持按空间（先选建筑再选楼层联动）、设备类型和名称关键词进行多维度筛选。筛选后列表以多选形式展示设备名称、类型和位置。跨空间的选中状态在切换筛选条件后保持。确认后将选中设备同步到编辑页面，以列表展示已选设备的名称、类型和位置，支持逐项移除。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "编辑回填",
+          "priority": "P1",
+          "details": "编辑已有计划时，所有字段回填已有数据，包括基本信息、频段配置和已选设备列表。设备选择窗口打开时自动回显之前已选的设备。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "提交校验",
+          "priority": "P1",
+          "details": "提交前校验计划名称、巡检班组、计划开始时间、发布部门、发布人为必填项。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        { "name": "name", "label": "计划名称", "type": "string", "required": true, "description": "巡检计划名称", "source": "ai", "status": "generated" },
+        { "name": "inspectionTeam", "label": "巡检班组", "type": "select", "required": true, "description": "从系统已有班组中选择", "source": "ai", "status": "generated" },
+        { "name": "startDate", "label": "计划开始时间", "type": "datetime", "required": true, "description": "计划生效起始时间", "source": "ai", "status": "generated" },
+        { "name": "endDate", "label": "计划结束时间", "type": "datetime", "required": false, "description": "计划生效截止时间，非必填，不填永久生效", "source": "ai", "status": "generated" },
+        { "name": "dept", "label": "发布部门", "type": "string", "required": true, "description": "发布部门名称，默认当前登录部门", "source": "ai", "status": "generated" },
+        { "name": "publisher", "label": "发布人", "type": "string", "required": true, "description": "发布人姓名，默认当前登录人", "source": "ai", "status": "generated" },
+        { "name": "freqType", "label": "频段类型", "type": "radio", "required": true, "description": "每天/每周/每月，互斥单选", "source": "ai", "status": "generated" },
+        { "name": "freqTime", "label": "执行时间", "type": "time", "required": true, "description": "巡检执行的时刻 HH:mm", "source": "ai", "status": "generated" },
+        { "name": "freqWeekDays", "label": "执行星期", "type": "checkboxGroup", "required": false, "description": "频段为每周时选择周一至周日，可多选", "source": "ai", "status": "generated" },
+        { "name": "freqMonthDays", "label": "执行日期", "type": "checkboxGroup", "required": false, "description": "频段为每月时选择1-31中的若干日期，可多选", "source": "ai", "status": "generated" },
+        { "name": "scopeDevices", "label": "巡检设备", "type": "array", "required": false, "description": "从设备库中选择的巡检设备列表", "source": "ai", "status": "generated" }
+      ],
+      "rules": [
+        "计划名称、巡检班组、计划开始时间、发布部门、发布人必填",
+        "计划结束时间非必填，不填则永久生效",
+        "频段类型切换时清空星期或日期选择",
+        "发布部门和发布人默认填充当前登录信息",
+        "设备选择支持跨空间多维度筛选",
+        "切换设备筛选条件时已选中的设备保持选中状态"
+      ],
+      "interactions": [
+        { "trigger": "点击新建计划", "action": "进入编辑页面", "description": "打开巡检计划编辑页面，所有字段为空或默认值。", "source": "ai", "status": "generated" },
+        { "trigger": "点击编辑", "action": "进入编辑页面并回填", "description": "打开编辑页面并回填已有计划的数据。", "source": "ai", "status": "generated" },
+        { "trigger": "点击选择巡检设备", "action": "打开设备选择窗口", "description": "打开设备选择窗口，可切换筛选条件从园区设备库中多选设备。", "source": "ai", "status": "generated" },
+        { "trigger": "在设备选择窗口点击确认", "action": "保存设备选择", "description": "将选中的设备列表同步到编辑页面的已选设备区域。", "source": "ai", "status": "generated" },
+        { "trigger": "点击移除设备", "action": "移除单个设备", "description": "从已选设备列表中删除该设备。", "source": "ai", "status": "generated" },
+        { "trigger": "点击完成", "action": "校验并保存", "description": "校验必填字段后保存计划数据。新增计划状态默认为未开始（若开始时间晚于当前）或进行中（若已到开始时间）。", "source": "ai", "status": "generated" },
+        { "trigger": "点击取消", "action": "关闭编辑页面", "description": "关闭编辑页面，不保存修改。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "ip-device-select",
+      "title": "选择巡检设备",
+      "purpose": "从园区设备库中筛选和选取巡检计划覆盖的设备",
+      "summary": "独立的选择窗口，提供多维度筛选能力：按空间（先选建筑联动加载楼层，再选具体楼层）、按设备类型（空调/照明/消防等9种类型）、按设备名称关键词模糊搜索。筛选结果以列表形式展示设备名称、设备类型和安装位置，支持多选。已选中的设备在切换筛选条件后保持选中状态。确认后将选中设备同步回巡检计划编辑页面。",
+      "requirements": [
+        {
+          "title": "空间筛选",
+          "priority": "P1",
+          "details": "提供建筑和楼层两级联动筛选。先选建筑（CT楼/FF楼/海关联检大楼OB），选建筑后加载该建筑下的楼层列表。选楼层后设备列表仅展示该楼层下的设备。支持单独选择建筑（展示该建筑所有设备）或精确到楼层。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "设备类型筛选",
+          "priority": "P2",
+          "details": "支持按9种设备类型（空调/照明/消防/电梯/配电/给排水/门禁/弱电/其他）过滤设备列表。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "名称搜索",
+          "priority": "P2",
+          "details": "支持按设备名称关键词模糊匹配搜索。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "多选设备",
+          "priority": "P1",
+          "details": "设备列表支持多选，每行显示设备名称、类型和安装位置。已选中的设备在切换筛选条件后保持选中，确认后统一返回。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        { "name": "building", "label": "建筑", "type": "select", "required": false, "description": "CT楼/FF楼/海关联检大楼OB", "source": "ai", "status": "generated" },
+        { "name": "floor", "label": "楼层", "type": "select", "required": false, "description": "根据所选建筑联动加载楼层列表", "source": "ai", "status": "generated" },
+        { "name": "deviceType", "label": "设备类型", "type": "select", "required": false, "description": "空调/照明/消防/电梯/配电/给排水/门禁/弱电/其他", "source": "ai", "status": "generated" },
+        { "name": "deviceName", "label": "设备名称", "type": "string", "required": false, "description": "设备名称模糊搜索", "source": "ai", "status": "generated" }
+      ],
+      "rules": [
+        "建筑和楼层联动筛选",
+        "多维度筛选条件可组合使用",
+        "切换筛选条件时已选中设备保持选中状态",
+        "设备库预置28台设备覆盖所有建筑和楼层"
+      ],
+      "interactions": [
+        { "trigger": "选择建筑", "action": "联动加载楼层", "description": "选中建筑后楼层列表自动切换为该建筑下的楼层。", "source": "ai", "status": "generated" },
+        { "trigger": "勾选/取消设备", "action": "添加或移除选择", "description": "点击设备行前的复选框切换选中状态。", "source": "ai", "status": "generated" },
+        { "trigger": "点击确认选择", "action": "确认并返回", "description": "将当前所有选中设备同步到计划编辑页面的已选设备列表，关闭选择窗口。", "source": "ai", "status": "generated" },
+        { "trigger": "点击取消", "action": "关闭选择窗口", "description": "关闭选择窗口，不保存本次选择变更。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "ip-detail",
+      "title": "巡检计划详情",
+      "purpose": "查看巡检计划的完整信息和关联的巡检设备",
+      "summary": "查看计划的完整配置信息，包括计划名称、巡检班组、巡检频段、计划有效期、发布部门、发布人和当前状态。下方展示该计划关联的巡检设备列表，每台设备显示名称、类型和安装位置。",
+      "requirements": [
+        {
+          "title": "计划信息展示",
+          "priority": "P1",
+          "details": "完整展示计划的基本信息和频段配置，包括名称、班组、频段、有效期限、发布部门和发布人、当前状态。结束时间未填时显示'永久生效'。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "关联设备列表",
+          "priority": "P1",
+          "details": "展示该计划关联的所有巡检设备，包含设备名称、类型和位置。设备数据从园区设备库中根据计划保存的设备ID列表匹配完整信息。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        { "name": "name", "label": "计划名称", "type": "string", "required": true, "description": "巡检计划名称", "source": "ai", "status": "generated" },
+        { "name": "inspectionTeam", "label": "巡检班组", "type": "string", "required": true, "description": "负责班组名称", "source": "ai", "status": "generated" },
+        { "name": "frequencyLabel", "label": "巡检频段", "type": "string", "required": true, "description": "巡检周期和时间描述", "source": "ai", "status": "generated" },
+        { "name": "startDate", "label": "计划开始时间", "type": "datetime", "required": true, "description": "计划生效起始时间", "source": "ai", "status": "generated" },
+        { "name": "endDate", "label": "计划结束时间", "type": "datetime", "required": false, "description": "计划截止时间，空显示'永久生效'", "source": "ai", "status": "generated" },
+        { "name": "dept", "label": "发布部门", "type": "string", "required": true, "description": "发布部门名称", "source": "ai", "status": "generated" },
+        { "name": "publisher", "label": "发布人", "type": "string", "required": true, "description": "发布人姓名", "source": "ai", "status": "generated" }
+      ],
+      "rules": [
+        "详情为只读展示，不可编辑"
+      ],
+      "interactions": [
+        { "trigger": "点击详情", "action": "打开计划详情", "description": "查看计划的完整信息和关联设备列表。", "source": "ai", "status": "generated" },
+        { "trigger": "点击关闭", "action": "关闭详情", "description": "关闭详情页面。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    }
+  ]
+}

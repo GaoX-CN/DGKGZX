@@ -1,0 +1,147 @@
+{
+  "pageName": "InspectionTeams",
+  "pageId": "InspectionTeams",
+  "version": "1.1.0",
+  "lastUpdated": "2026-07-07T00:00:00Z",
+  "intent": {
+    "type": "manage",
+    "summary": "管理设备班组的组建与人员配置，为巡检和设备维修提供执行团队"
+  },
+  "overview": "设备班组管理页面用于创建和维护执行巡检和设备维修任务的作业班组。每个班组包含班组名称、班组长和若干班组成员。系统已预置12名来自5个部门的人员可供选择。新建或编辑班组时，在编辑页面中配置班组基本信息和人员组成，人员选择采用双栏布局：左侧显示可选人员（支持按部门筛选和姓名搜索），右侧显示已选人员，通过点击在两栏之间切换成员的加入与移除。班组列表展示班组名称、班组长、成员标签和总人数，支持按名称搜索，支持编辑和删除。",
+  "modules": [
+    {
+      "id": "it-search",
+      "title": "班组查询",
+      "purpose": "按班组名称快速定位目标班组",
+      "summary": "支持按班组名称关键词模糊查询，提供查询和重置操作。",
+      "requirements": [
+        {
+          "title": "班组名称查询",
+          "priority": "P1",
+          "details": "支持输入班组名称关键词进行模糊匹配查询。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        { "name": "keyword", "label": "班组名称", "type": "string", "required": false, "description": "班组名称模糊匹配搜索", "source": "ai", "status": "generated" }
+      ],
+      "rules": ["查询和重置时回到第一页"],
+      "interactions": [
+        { "trigger": "点击查询", "action": "执行筛选", "description": "根据当前筛选条件过滤列表数据并回到第一页。", "source": "ai", "status": "generated" },
+        { "trigger": "点击重置", "action": "清空筛选条件", "description": "清空筛选条件，展示全部班组数据。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "it-table",
+      "title": "班组列表",
+      "purpose": "展示所有巡检班组并提供基本管理操作",
+      "summary": "列表展示班组数据，每行包含序号、班组名称、班组长、班组成员（以标签形式横向排列）、总人数和操作按钮。操作按钮包括编辑和删除。分页默认每页10条。",
+      "requirements": [
+        {
+          "title": "班组数据展示",
+          "priority": "P1",
+          "details": "展示所有班组的名称、班组长、成员列表（以标签形式排列，无人时显示'暂无人员'）、总人数。列表上方提供新建班组按钮。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "编辑班组",
+          "priority": "P1",
+          "details": "点击编辑按钮进入班组编辑页面，回填班组名称、班组长和已有人数成员列表，可修改所有配置项。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "删除班组",
+          "priority": "P2",
+          "details": "直接从列表中删除该班组。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        { "name": "name", "label": "班组名称", "type": "string", "required": true, "description": "班组的唯一名称标识", "source": "ai", "status": "generated" },
+        { "name": "leader", "label": "班组长", "type": "string", "required": true, "description": "班组负责人姓名，从系统人员中选择", "source": "ai", "status": "generated" },
+        { "name": "members", "label": "班组成员", "type": "array", "required": false, "description": "班组成员列表，每组包含姓名、电话、所属部门", "source": "ai", "status": "generated" },
+        { "name": "memberCount", "label": "人数", "type": "number", "required": true, "description": "班组成员总数", "source": "ai", "status": "generated" }
+      ],
+      "rules": [
+        "班组成员以标签形式横向排列",
+        "分页默认每页10条"
+      ],
+      "interactions": [
+        { "trigger": "点击新建班组", "action": "进入编辑页面", "description": "打开班组编辑页面，所有字段为空。", "source": "ai", "status": "generated" },
+        { "trigger": "点击编辑", "action": "进入编辑页面回填数据", "description": "进入编辑页面并回填该班组的名称、班组长和已有人数成员。", "source": "ai", "status": "generated" },
+        { "trigger": "点击删除", "action": "删除班组", "description": "从列表中删除该班组。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "it-form",
+      "title": "新建/编辑设备班组",
+      "purpose": "配置班组的基本信息和人员组成",
+      "summary": "在编辑页面中完成班组的全部配置。基本信息包含班组名称和班组长（从12人系统人员列表中可搜索选择）。人员配置采用双栏布局：左侧为可选人员面板，支持按部门（运维部/工程部/安全部/设备部/管理部共5个部门）筛选和按姓名搜索过滤，点击人员条目将其移入已选；右侧为已选人员面板，点击人员条目将其移除，支持一键清空。编辑已有班组时，已有人数成员自动回填到右侧已选面板。提交时校验班组名称和班组长为必填。",
+      "requirements": [
+        {
+          "title": "基本信息配置",
+          "priority": "P1",
+          "details": "班组名称自由输入。班组长从系统人员列表中选择，支持按姓名模糊搜索。两项均为必填。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "人员双栏选择",
+          "priority": "P1",
+          "details": "左侧面板展示可选人员列表，支持两个维度过滤：按部门下拉筛选（运维部/工程部/安全部/设备部/管理部），按姓名关键词搜索（支持匹配姓名或部门名称）。右侧面板展示已选人员列表，显示姓名和部门信息。点击左侧人员条目将其加入已选，点击右侧人员条目将其移除。已选人员支持一键清空。编辑已有班组时，原有成员自动回填到右侧已选面板。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "部门筛选仅影响可选人员",
+          "priority": "P1",
+          "details": "部门筛选和名称搜索仅作用于左侧可选人员列表，不影响右侧已选人员的展示。已选人员始终完整显示。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "提交校验",
+          "priority": "P1",
+          "details": "提交时校验班组名称和班组长必填，保存班组信息及人员配置。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        { "name": "name", "label": "班组名称", "type": "string", "required": true, "description": "班组名称标识", "source": "ai", "status": "generated" },
+        { "name": "leader", "label": "班组长", "type": "select", "required": true, "description": "从系统人员列表中搜索选择班组长", "source": "ai", "status": "generated" },
+        { "name": "deptFilter", "label": "部门筛选", "type": "select", "required": false, "description": "按部门过滤可选人员列表，仅影响左侧面板", "source": "ai", "status": "generated" },
+        { "name": "searchText", "label": "人员搜索", "type": "string", "required": false, "description": "按姓名或部门关键词搜索可选人员", "source": "ai", "status": "generated" },
+        { "name": "members", "label": "班组成员", "type": "array", "required": false, "description": "选中的班组成员姓名列表", "source": "ai", "status": "generated" }
+      ],
+      "rules": [
+        "班组名称必填",
+        "班组长必选",
+        "部门筛选和姓名搜索仅过滤左侧可选人员",
+        "已选人员始终在右侧完整展示不受筛选影响",
+        "编辑回填时原有成员自动填入右侧面板",
+        "系统预置12名人员和5个部门"
+      ],
+      "interactions": [
+        { "trigger": "点击可选人员", "action": "加入已选", "description": "将该人员从左侧可选面板移入右侧已选面板，左侧不再显示该人员。", "source": "ai", "status": "generated" },
+        { "trigger": "点击已选人员", "action": "移除已选", "description": "将该人员从右侧已选面板移回左侧可选面板。", "source": "ai", "status": "generated" },
+        { "trigger": "点击清空", "action": "移除全部已选人员", "description": "清空右侧已选人员面板，所有人员重新回到左侧可选面板。", "source": "ai", "status": "generated" },
+        { "trigger": "点击确认", "action": "校验并保存", "description": "校验必填字段通过后保存班组名称、班组长和成员列表。", "source": "ai", "status": "generated" },
+        { "trigger": "点击取消", "action": "关闭编辑页面", "description": "关闭编辑页面，不保存修改。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    }
+  ]
+}

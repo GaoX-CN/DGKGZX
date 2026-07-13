@@ -1,0 +1,386 @@
+{
+  "pageName": "InspectionItems",
+  "pageId": "InspectionItems",
+  "version": "1.0.0",
+  "lastUpdated": "2026-07-05T00:00:00Z",
+  "intent": {
+    "type": "manage",
+    "summary": "管理各设备类型的巡检标准项，定义巡检内容和检查方式，为巡检计划与工单提供标准化的检查依据"
+  },
+  "overview": "巡检项管理页面用于维护园区各设备类型下的巡检标准项。页面采用按设备类型分类的组织方式，左侧导航列出所有设备类型（空调、照明、消防、电梯、配电、给排水、门禁、弱电、其他）及各类型下的巡检项数量，点击切换后右侧展示该类型对应的巡检项列表。每条巡检项包含名称、巡检标准描述、巡检方式（目测/仪器测量/数据记录/功能测试）和启用状态。支持新增、编辑、删除、启用停用巡检项，支持按关键词和状态筛选，支持将当前类型的巡检项数据导出为CSV文件。",
+  "modules": [
+    {
+      "id": "ii-type-nav",
+      "title": "设备类型导航",
+      "purpose": "按设备类型分类组织巡检项，方便用户快速切换查看不同类型下的巡检标准",
+      "summary": "左侧区域列出设备类型（空调、照明等），每种类型旁显示该类型下的巡检项数量。选中类型高亮标识，右侧巡检项列表同步切换。",
+      "requirements": [
+        {
+          "title": "设备类型分类展示",
+          "priority": "P1",
+          "details": "以列表形式展示所有设备类型，每种类型显示名称和对应的巡检项数量。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "类型切换联动",
+          "priority": "P1",
+          "details": "点击任一设备类型时高亮选中，右侧巡检项列表即时切换到该类型下的数据。默认选中第一个类型（空调）。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "巡检项数量统计",
+          "priority": "P2",
+          "details": "每种设备类型旁实时显示该类型下的巡检项总数，新增或删除巡检项后数量同步更新。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [],
+      "rules": [
+        "默认选中第一个设备类型",
+        "切换类型时清空右侧筛选条件",
+        "设备类型数据来源为【设备设施管理--设备分类】中的分类树"
+      ],
+      "interactions": [
+        {
+          "trigger": "点击设备类型",
+          "action": "切换右侧巡检项列表",
+          "description": "点击左侧设备类型条目，右侧列表切换展示该类型下的巡检项数据。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "ii-search",
+      "title": "巡检项查询",
+      "purpose": "帮助用户在当前设备类型下快速筛选目标巡检项",
+      "summary": "按名称关键词模糊查询和启用状态筛选。通过查询触发筛选，通过重置清空条件回到全部数据。",
+      "requirements": [
+        {
+          "title": "名称关键词查询",
+          "priority": "P1",
+          "details": "���持按巡检项名称输入关键词进行模糊匹配查询。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "状态筛选",
+          "priority": "P2",
+          "details": "支持按启用和停用两种状态筛选巡检项。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "keyword",
+          "label": "关键词",
+          "type": "string",
+          "required": false,
+          "description": "巡检项名称模糊匹配",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "status",
+          "label": "状态",
+          "type": "select",
+          "required": false,
+          "description": "启用/停用筛选",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "查询、重置时回到第一页"
+      ],
+      "interactions": [
+        {
+          "trigger": "点击查询",
+          "action": "执行筛选",
+          "description": "根据当前筛选条件过滤列表数据并回到第一页。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击重置",
+          "action": "清空筛选条件",
+          "description": "清空名称关键词和状态筛选条件，展示全部数据。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "ii-table",
+      "title": "巡检项列表",
+      "purpose": "展示当前设备类型下的所有巡检项并提供管理操作",
+      "summary": "以表格形式展示巡检项数据，每行包含序号、巡检项名称、巡检标准、巡检方式、启用状态和操作按钮。操作按钮包括编辑、启用/停用、删除。支持分页导航，每页10条记录。列表上方提供新增巡检项按钮和导出CSV按钮。",
+      "requirements": [
+        {
+          "title": "巡检项数据展示",
+          "priority": "P1",
+          "details": "展示当前设备类型下所有巡检项，每行包含序号、巡检项名称、巡检标准（超长时省略并悬浮显示完整内容）、巡检方式（标签形式）、启用状态（绿色启用/灰色停用）。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "新增巡检项",
+          "priority": "P1",
+          "details": "点击新增按钮打开巡检项编辑窗口，设备类型默认填充当前选中的类型。填写巡检项名称、巡检标准、巡检方式后保存，新增的巡检项状态默认为启用。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "编辑巡检项",
+          "priority": "P1",
+          "details": "点击编辑按钮打开编辑窗口回填已有数据，可修改巡检项名称、巡检标准描述、巡检方式和启用状态。修改设备类型时巡检项会归入新类型下。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "启用/停用巡检项",
+          "priority": "P1",
+          "details": "已启用巡检项可停用，停用后仍保留数据但巡检时不显示该项。已停用巡检项可重新启用。直接在列表操作区切换，无需二次确认。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "删除巡检项",
+          "priority": "P2",
+          "details": "直接从列表中删除巡检项，删除后数据不可恢复。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "导出巡检项",
+          "priority": "P2",
+          "details": "将当前设备类型下所有巡检项导出为CSV文件。导出字段包括巡检项名称、巡检标准、巡检方式、状态。文件名包含设备类型名称，CSV文件使用UTF-8 BOM编码以在Excel中正确显示中文。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "分页导航",
+          "priority": "P2",
+          "details": "支持分页展示，默认每页10条记录，展示总记录数并提供前后翻页功能。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "label": "巡检项名称",
+          "type": "string",
+          "required": true,
+          "description": "巡检项的名称标识，如'运行电流检测''冷凝器外观检查'",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "description",
+          "label": "巡检标准",
+          "type": "string",
+          "required": true,
+          "description": "详细的检查标准和合格判定依据，如'用钳形表测量压缩机运行电流应在额定值±10%以内'",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "method",
+          "label": "巡检方式",
+          "type": "select",
+          "required": true,
+          "description": "执行巡检的方法：目测、仪器测量、数据记录、功能测试",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "status",
+          "label": "启用状态",
+          "type": "enum",
+          "required": true,
+          "description": "启用或停用两种状态，启用状态下巡检项参与巡检，停用状态下不参与",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "deviceType",
+          "label": "所属设备类型",
+          "type": "select",
+          "required": true,
+          "description": "该巡检项所属的设备类型：空调/照明/消防/电梯/配电/给排水/门禁/弱电/其他",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "新增巡检项默认状态为启用",
+        "启用和停用操作直接在列表操作区执行",
+        "删除操作直接执行，无需确认",
+        "每页默认显示10条记录",
+        "巡检标准过长时省略显示，悬浮可见完整内容",
+        "导出文件使用UTF-8 BOM编码格式"
+      ],
+      "interactions": [
+        {
+          "trigger": "点击新增巡检项",
+          "action": "打开编辑窗口",
+          "description": "打开巡检项编辑窗口，设备类型默认填充当前选中的类型，新增后默认状态为启用。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击编辑",
+          "action": "打开编辑窗口回填数据",
+          "description": "打开编辑窗口并回填该巡检项的名称、标准、方式和状态，修改后保存。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击启用/停用",
+          "action": "切换巡检项启用状态",
+          "description": "立即切换该巡检项的启用状态，无需确认。启用变为停用，停用变为启用。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击删除",
+          "action": "删除巡检项",
+          "description": "从列表中删除该巡检项，删除后不可恢复。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击导出",
+          "action": "导出当前类型巡检项",
+          "description": "将当前设备类型下所有巡检项导出为CSV文件，文件名含设备类型名称。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "翻页",
+          "action": "翻页导航",
+          "description": "点击上一页或下一页加载对应页数据。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "ii-form",
+      "title": "新增/编辑巡检项",
+      "purpose": "创建或修改巡检项的标准信息",
+      "summary": "以窗口形式提供巡检项的信息录入。字段包括所属设备类型、巡检项名称、巡检标准描述、巡检方式和启用状态。所有字段提交前进行校验，设备类型、名称、标准、方式为必填。编辑时回填所有已有数据。",
+      "requirements": [
+        {
+          "title": "巡检项信息录入",
+          "priority": "P1",
+          "details": "提供巡检项信息的完整录入：所属设备类型从9种类型中选择，巡检项名称为自由文本输入，巡检标准为多行文本输入用于描述详细的检查标准和判定依据，巡检方式从4种方式中选择（目测/仪器测量/数据记录/功能测试），启用状态可开关切换。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "新增与编辑复用",
+          "priority": "P1",
+          "details": "新增和编辑共用同一录入窗口。新增时窗口标题为'新增巡��项'，设备类型默认填充当前左侧选中的类型，其他字段为空。编辑时窗口标题为'编辑巡检项'，所有字段回填已有数据。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "表单校验",
+          "priority": "P1",
+          "details": "提交前校验必填字段，未填写项给出明确提示。设备类型、巡检项名称、巡检标准、巡检方式为必填。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "deviceType",
+          "label": "所属设备类型",
+          "type": "select",
+          "required": true,
+          "description": "巡检项所属设备类型：空调/照明/消防/电梯/配电/给排水/门禁/弱电/其他，新增时默认当前选中类型",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "name",
+          "label": "巡检项名称",
+          "type": "string",
+          "required": true,
+          "description": "巡检项名称标识",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "description",
+          "label": "巡检标准",
+          "type": "textarea",
+          "required": true,
+          "description": "详细的巡检检查标准和合格判定依据，3行文本高度",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "method",
+          "label": "巡检方式",
+          "type": "select",
+          "required": true,
+          "description": "目测/仪器测量/数据记录/功能测试",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "status",
+          "label": "启用状态",
+          "type": "boolean",
+          "required": false,
+          "description": "开关控制启用或停用，新增默认启用",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "设备类型必选",
+        "巡检项名称必填",
+        "巡检标准必填",
+        "巡检方式必选",
+        "新增时设备类型默认当前左侧选中类型",
+        "新增时启用状态默认为启用"
+      ],
+      "interactions": [
+        {
+          "trigger": "点击确认",
+          "action": "校验并保存",
+          "description": "校验所有必填字段通过后保存数据。新增时插入到对应设备类型的巡检项列表，编辑时更新原有数据。保存后关闭窗口刷新列表。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击取消",
+          "action": "关闭窗口",
+          "description": "关闭窗口，不保存任何修改。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    }
+  ]
+}

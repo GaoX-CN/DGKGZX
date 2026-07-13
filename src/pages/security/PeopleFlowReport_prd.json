@@ -1,0 +1,284 @@
+{
+  "pageName": "PeopleFlowReport",
+  "pageId": "PeopleFlowReport",
+  "version": "1.0.0",
+  "lastUpdated": "2026-07-02T00:00:00Z",
+  "intent": {
+    "type": "analysis",
+    "summary": "监控园区各区域人员通行流量并进行趋势分析"
+  },
+  "overview": "人流报表用于监控各区域人员通行流量与分析趋势，支持按日/周/月粒度统计及按建筑→楼层下钻分析，为园区运营管理提供数据支撑。左侧空间结构树可按建筑和楼层筛选区域，右侧展示统计卡片、明细表和趋势折线图。",
+  "modules": [
+    {
+      "id": "pfr-tree",
+      "title": "空间结构树",
+      "purpose": "提供园区建筑→楼层空间结构的下钻筛选能力",
+      "summary": "左侧树形面板展示建筑及楼层两级结构，点击节点可筛选对应区域数据，支持搜索过滤。",
+      "requirements": [
+        {
+          "title": "空间树展示",
+          "priority": "P1",
+          "details": "树形展示全部区域作为根节点，建筑作为二级节点，楼层作为叶子节点。每级点击均可筛选对应区域数据。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "空间搜索",
+          "priority": "P2",
+          "details": "搜索框支持按空间名称模糊匹配树节点。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "重置选择",
+          "priority": "P2",
+          "details": "提供重置按钮，点击恢复到全部区域。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [],
+      "rules": [
+        "默认选中全部区域展示园区整体数据",
+        "选中区域后右侧卡片/明细表/趋势图联动更新",
+        "搜索支持模糊匹配"
+      ],
+      "interactions": [
+        {
+          "trigger": "点击树节点",
+          "action": "筛选区域数据",
+          "description": "选中后右侧所有统计组件联动更新为该区域数据。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "pfr-stats",
+      "title": "统计卡片",
+      "purpose": "快速概览当前区域的通行关键指标",
+      "summary": "四张统计卡片分别展示当前人数、今日通行总量、今日进入和今日离开四个指标，数据随区域选择联动更新。",
+      "requirements": [
+        {
+          "title": "展示核心指标",
+          "priority": "P1",
+          "details": "四张卡片展示当前人数、今日通行总量、今日进入、今日离开，每张卡片带对应图标和颜色。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "区域联动",
+          "priority": "P1",
+          "details": "卡片数据随左侧空间树选中节点联动更新，显示对应区域标签。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "currentInPark",
+          "label": "当前人数",
+          "type": "number",
+          "required": true,
+          "description": "该区域当前在园人数",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "todayTotal",
+          "label": "今日通行总量",
+          "type": "number",
+          "required": true,
+          "description": "今日进入+离开总量",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "todayEntry",
+          "label": "今日进入",
+          "type": "number",
+          "required": true,
+          "description": "今日进入人数",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "todayExit",
+          "label": "今日离开",
+          "type": "number",
+          "required": true,
+          "description": "今日离开人数",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "数据来源于便捷通行系统门禁记录",
+        "随区域选择实时联动更新"
+      ],
+      "interactions": [
+        {
+          "trigger": "区域选择变更",
+          "action": "刷新卡片数据",
+          "description": "左侧树节点选中变更后，卡片数据自动重新计算。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "pfr-table",
+      "title": "统计明细表",
+      "purpose": "展示选定区域的逐日通行明细数据",
+      "summary": "表格按日期维度展示进入、离开、环比增长率和高峰时段/流量，支持排序和分页。",
+      "requirements": [
+        {
+          "title": "明细数据展示",
+          "priority": "P1",
+          "details": "表格列：日期、进入、离开、环比（带正负箭头和百分比）、高峰时段、高峰流量。支持按日期/进入/离开/高峰流量排序。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "环比计算",
+          "priority": "P2",
+          "details": "环比 = (本期值 - 上期值) / 上期值 × 100%，首期无上期数据显示—。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "查询条件",
+          "priority": "P1",
+          "details": "支持统计周期（日期范围）和时间粒度（按日/���周/按月）筛选。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "导出报表",
+          "priority": "P2",
+          "details": "支持将当前统计报表导出为 Excel 文件。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "date",
+          "label": "日期",
+          "type": "string",
+          "required": true,
+          "description": "统计日期",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "entry",
+          "label": "进入",
+          "type": "number",
+          "required": true,
+          "description": "当日进入人数",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "exit",
+          "label": "离开",
+          "type": "number",
+          "required": true,
+          "description": "当日离开人数",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "mom",
+          "label": "环比",
+          "type": "number",
+          "required": false,
+          "description": "环比增长率百分比",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "peakHour",
+          "label": "高峰时段",
+          "type": "string",
+          "required": true,
+          "description": "当日人流高峰时间段",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "peakFlow",
+          "label": "高峰流量",
+          "type": "number",
+          "required": true,
+          "description": "高峰时段通行人数",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "按日粒度展示近30天趋势",
+        "按周/按月展示对应周期数据",
+        "导出包含区域筛选条件和数据范围"
+      ],
+      "interactions": [
+        {
+          "trigger": "点击查询",
+          "action": "刷新数据",
+          "description": "根据选定周期和粒度重新加载统计明细。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "���击导出报表",
+          "action": "导出 Excel",
+          "description": "导出当前统计报表为 Excel 文件。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "pfr-chart",
+      "title": "人流趋势图",
+      "purpose": "可视化展示选定区域的人流变化趋势",
+      "summary": "SVG 折线图展示选定区域在选定周期内的进入和离开人数变化趋势，蓝色折线代表进入，橙色代表离开。",
+      "requirements": [
+        {
+          "title": "折线图展示",
+          "priority": "P1",
+          "details": "双折线图展示进入(蓝色)和离开(橙色)的趋势变化，Y轴自动按最大值调整，X轴按粒度显示日期标签。hover 数据点可查看具体数值。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "粒度切换",
+          "priority": "P1",
+          "details": "按日/按周/按月切换时折线图数据自动重新聚合展示。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [],
+      "rules": [
+        "进入折线蓝色#409eff，离开折线橙色#e6a23c",
+        "Y轴自动缩放至最大值的整十倍数",
+        "数据点圆圈 hover 显示tooltip"
+      ],
+      "interactions": [],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    }
+  ]
+}

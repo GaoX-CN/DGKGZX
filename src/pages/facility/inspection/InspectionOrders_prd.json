@@ -1,0 +1,142 @@
+{
+  "pageName": "InspectionOrders",
+  "pageId": "InspectionOrders",
+  "version": "1.0.0",
+  "lastUpdated": "2026-07-05T00:00:00Z",
+  "intent": {
+    "type": "workflow",
+    "summary": "管理巡检工单的接收与处置流程，闭环巡检任务执行"
+  },
+  "overview": "巡检工单管理页面用于处理由巡检计划按时自动生成的工单。工单生命周期为：待接收（工单生成后等待班组人员接收）→ 待处置（人员接收后准备执行巡检）→ 处置中（执行巡检过程中暂存进度）→ 已处置（完成所有巡检项并提交）。工单列表展示工单号、来源计划、巡检范围、计划执行时间、巡检班组、执行人和状态。待接收状态下仅允许班组内人员接收（需二次确认），待处置状态下可退回工单或开始处置，处置过程中可暂存进度或提交，提交时须所有巡检项均已评定且异常项已选择处理方式。处置页面按设备逐个巡检，每个设备下展示其巡检项名称、巡检标准和评定结果（正常/异常），异常项须选择现场处理或需维修并描述处理方式。详情页面以相同布局展示完整的巡检结果。",
+  "modules": [
+    {
+      "id": "io-search",
+      "title": "工单查询",
+      "purpose": "帮助用户快速筛选目标巡检工单",
+      "summary": "支持按工单号、来源巡检计划、状态（待接收/待处置/处置中/已处置）和计划执行日期范围进行多维度筛选。提供查询和重置操作。",
+      "requirements": [
+        { "title": "工单号查询", "priority": "P1", "details": "支持输入工单号进行模糊匹配查询。", "source": "ai", "status": "generated" },
+        { "title": "巡检计划筛选", "priority": "P2", "details": "支持按工单来源的巡检计划名称筛选。", "source": "ai", "status": "generated" },
+        { "title": "状态筛选", "priority": "P1", "details": "支持按待接收、待处置、处置中、已处置四种状态筛选。", "source": "ai", "status": "generated" },
+        { "title": "日期范围筛选", "priority": "P2", "details": "支持选择计划执行日期范围筛选该时段内的工单。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [
+        { "name": "orderNo", "label": "工单号", "type": "string", "required": false, "description": "工单号模糊查询", "source": "ai", "status": "generated" },
+        { "name": "plan", "label": "巡检计划", "type": "select", "required": false, "description": "来源计划名称筛选", "source": "ai", "status": "generated" },
+        { "name": "status", "label": "状态", "type": "select", "required": false, "description": "待接收/待处置/处置中/已处置", "source": "ai", "status": "generated" },
+        { "name": "dateRange", "label": "计划时间范围", "type": "dateRange", "required": false, "description": "计划执行日期起止范围", "source": "ai", "status": "generated" }
+      ],
+      "rules": ["查询和重置时回到第一页"],
+      "interactions": [
+        { "trigger": "点击查询", "action": "执行筛选", "description": "根据当前筛选条件过滤列表数据并回到第一页。", "source": "ai", "status": "generated" },
+        { "trigger": "点击重置", "action": "清空筛选条件", "description": "清空所有筛选条件展示全部工单数据。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "io-table",
+      "title": "巡检工单列表",
+      "purpose": "展示所有工单并根据状态提供对应操作",
+      "summary": "列表展示工单数据，每行包含序号、工单号、巡检计划、巡检范围、计划执行时间、巡检班组、执行人、状态和操作按钮。待接收状态下显示接收按钮（需二次确认）；待处置状态下显示退回和处置按钮；处置中状态下显示处置按钮；已处置状态仅可查看详情。所有状态均可查看详情。",
+      "requirements": [
+        { "title": "工单列表展示", "priority": "P1", "details": "展示所有工单数据，包含工单号、巡检计划、巡检范围、计划执行时间、巡检班组（未接收时显示班组名称）、执行人（未接收时为空）、状态。", "source": "ai", "status": "generated" },
+        { "title": "按状态差异化操作", "priority": "P1", "details": "待接收：接收（需二次确认）+ 详情。待处置：退回 + 处置 + 详情。处置中：处置 + 详情。已处置：仅详情。", "source": "ai", "status": "generated" },
+        { "title": "接收工单二次确认", "priority": "P1", "details": "点击接收后弹出确认提示'接收后由您负责执行巡检'，确认后工单状态变为待处置，执行人记录为当前登录人。", "source": "ai", "status": "generated" },
+        { "title": "退回工单", "priority": "P1", "details": "待处置状态下可退回工单，需二次确认。退回后状态回到待接收，清空执行人，由组内其他人员重新接收。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [
+        { "name": "orderNo", "label": "工单号", "type": "string", "required": true, "description": "XJ+yyyyMMdd+NNNN格式", "source": "ai", "status": "generated" },
+        { "name": "planName", "label": "巡检计划", "type": "string", "required": true, "description": "工单来源的巡检计划名称", "source": "ai", "status": "generated" },
+        { "name": "scopeLabel", "label": "巡检范围", "type": "string", "required": true, "description": "巡检覆盖的设备数量摘要", "source": "ai", "status": "generated" },
+        { "name": "scheduledTime", "label": "计划执行时间", "type": "datetime", "required": true, "description": "计划指定的巡检执行时间", "source": "ai", "status": "generated" },
+        { "name": "inspectionTeam", "label": "巡检班组", "type": "string", "required": true, "description": "负责该工单的巡检班组名称", "source": "ai", "status": "generated" },
+        { "name": "assignee", "label": "执行人", "type": "string", "required": false, "description": "接收工单的执行人员姓名", "source": "ai", "status": "generated" },
+        { "name": "status", "label": "状态", "type": "enum", "required": true, "description": "待接收/待处置/处置中/已处置", "source": "ai", "status": "generated" }
+      ],
+      "rules": [
+        "工单由计划按时自动生成",
+        "只有班组内人员可接收工单",
+        "接收需二次确认",
+        "退回需二次确认，退回后执行人清空",
+        "退回仅待处置状态可用"
+      ],
+      "interactions": [
+        { "trigger": "点击接收", "action": "二次确认后接收工单", "description": "弹出确认提示后接收工单，状态变为待处置，记录执行人。", "source": "ai", "status": "generated" },
+        { "trigger": "点击退回", "action": "二次确认后退回工单", "description": "弹出确认提示后退回工单，状态变为待接收，清空执行人。", "source": "ai", "status": "generated" },
+        { "trigger": "点击处置", "action": "进入处置页面", "description": "打开巡检处置页面，对每个设备的巡检项逐一评定。", "source": "ai", "status": "generated" },
+        { "trigger": "点击详情", "action": "查看工单详情", "description": "查看工单的完整信息和巡检结果。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "io-handle",
+      "title": "巡检处置",
+      "purpose": "逐设备执行巡检项的评定与异常处理",
+      "summary": "处置页面采用双栏布局。左栏列出巡检工单覆盖的所有巡检设备，每台设备显示名称、类型和位置，设备条目旁显示状态图标（全部正常显示绿色对勾，存在异常显示红色叹号，未完成显示灰色圆圈）。点击设备后右栏展示该设备下所有巡检项，每个巡检项列出名称和巡检标准，支持标注正常或异常。异常项须选择处理方式（现场处理/需维修）并填写处理说明。每个设备支持一键全部正常。提交处置时校验所有巡检项已评定且异常项已选择处理方式。支持暂存当前处置进度，状态变为处置中。",
+      "requirements": [
+        { "title": "设备列表导航", "priority": "P1", "details": "左栏列出所有待巡检设备，显示设备名称、类型和安装位置。每台设备旁用图标标识状态：全部完成且正常为绿色对勾，完成但存在异常为红色叹号，未完成为灰色圆圈。点击设备切换右侧巡检项列表。完成和未完成的设备视觉上有明确区分。", "source": "ai", "status": "generated" },
+        { "title": "巡检项逐项评定", "priority": "P1", "details": "右栏展示当前选中设备的所有巡检项，每项显示巡检项名称和巡检标准细则（如'用红外测温仪检测各开关触点温度≤70℃'），巡检员对照标准逐项评定为正常或异常。", "source": "ai", "status": "generated" },
+        { "title": "异常处理", "priority": "P1", "details": "异常巡检项须进一步选择处理方式：现场处理（巡检员当场处理完毕）或需维修（需转报修流程）。同时填写处理方式或异常情况的文字说明。", "source": "ai", "status": "generated" },
+        { "title": "一键全部正常", "priority": "P2", "details": "每个设备支持一键将本设备下所有巡检项标注为正常，提升巡检效率。", "source": "ai", "status": "generated" },
+        { "title": "暂存进度", "priority": "P1", "details": "处置过程中可随时暂存，保存当前已评定的巡检项结果，工单状态变为处置中。后续可重新打开继续处置。", "source": "ai", "status": "generated" },
+        { "title": "提交校验", "priority": "P1", "details": "提交时两重校验：所有巡检项必须已标注结果（不能有空），异常巡检项必须已选择处理方式（现场处理或需维修）。校验不通过给出明确提示，通过后可提交完成，工单状态变为已处置。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [
+        { "name": "deviceName", "label": "设备名称", "type": "string", "required": true, "description": "巡检设备名称", "source": "ai", "status": "generated" },
+        { "name": "deviceType", "label": "设备类型", "type": "string", "required": true, "description": "设备所属类型:空调/配电/消防等", "source": "ai", "status": "generated" },
+        { "name": "deviceLocation", "label": "安装位置", "type": "string", "required": true, "description": "设备安装的物理位置", "source": "ai", "status": "generated" },
+        { "name": "itemName", "label": "巡检项名称", "type": "string", "required": true, "description": "巡检项标准名称", "source": "ai", "status": "generated" },
+        { "name": "itemStandard", "label": "巡检标准", "type": "string", "required": true, "description": "检查标准和合格判定依据", "source": "ai", "status": "generated" },
+        { "name": "result", "label": "评定结果", "type": "radio", "required": true, "description": "正常/异常二选一", "source": "ai", "status": "generated" },
+        { "name": "fixType", "label": "处理方式", "type": "radio", "required": false, "description": "异常巡检项须选择:现场处理/需维修", "source": "ai", "status": "generated" },
+        { "name": "fixDesc", "label": "处理说明", "type": "string", "required": false, "description": "描述处理方式或异常情况的文字说明", "source": "ai", "status": "generated" }
+      ],
+      "rules": [
+        "每个巡检项默认为未评定状态",
+        "异常项必须选择处理方式并填写处理说明",
+        "提交时校验：所有巡检项已评定 + 异常项处理方式已选择",
+        "支持暂存：保存当前进度不校验完整性",
+        "处置中状态可继续处置或退回"
+      ],
+      "interactions": [
+        { "trigger": "点击设备", "action": "切换巡检项列表", "description": "从左栏点击设备名称，右栏切换为该设备的巡检项列表。", "source": "ai", "status": "generated" },
+        { "trigger": "选择正常/异常", "action": "评定巡检项", "description": "对该巡检项标注正常或异常，异常时展开处理方式选项。", "source": "ai", "status": "generated" },
+        { "trigger": "点击全部正常", "action": "批量标注正常", "description": "将当前设备下所有巡检项标注为正常。", "source": "ai", "status": "generated" },
+        { "trigger": "点击暂存", "action": "保存处置进度", "description": "保存当前已评定的所有巡检项结果，工单状态变为处置中。", "source": "ai", "status": "generated" },
+        { "trigger": "点击提交处置", "action": "校验并提交", "description": "校验所有巡检项完整性后提交，工单状态变为已处置。", "source": "ai", "status": "generated" },
+        { "trigger": "点击取消", "action": "关闭处置页面", "description": "关闭处置页面，未暂存的评定结果不保留。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "io-detail",
+      "title": "工单详情",
+      "purpose": "查看工单的完整信息和巡检执行结果",
+      "summary": "详情页面展示工单基本信息和巡检设备列表。基本信息包含巡检计划、巡检班组、执行人、计划时间和状态。巡检结果采用与处置页面相同的双栏布局：左栏列出所有巡检设备（有异常的设备标注'异常N项'红色标签），右栏展示当前设备的巡检项评定详情，每项显示名称、巡检标准、评定结果以及异常项的处理方式与说明。所有状态的工单均可查看详情，未处置的工单设备列表为默认数据，已处置工单展示真实的巡检结果。",
+      "requirements": [
+        { "title": "工单信息展示", "priority": "P1", "details": "展示工单的巡检计划、班组、执行人、计划时间、状态等完整基本信息。", "source": "ai", "status": "generated" },
+        { "title": "巡检结果双栏展示", "priority": "P1", "details": "采用与处置页面相同的双栏布局：左栏列出设备名称、类型和位置，有异常的设备标注红色异常计数标签；右栏展示巡检项名称、巡检标准和评定结果（正常绿色/异常红色/未检灰色标签）。异常项显示处理方式（现场处理或需维修）和处理说明。", "source": "ai", "status": "generated" },
+        { "title": "异常标识", "priority": "P2", "details": "设备列表中存在异常巡检项的设备，在其条目右侧显示红色标签'异常N项'，方便快速定位问题设备。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [],
+      "rules": [
+        "详情为只读展示不可编辑",
+        "所有状态均可查看详情",
+        "未处置工单以默认设备数据展示"
+      ],
+      "interactions": [
+        { "trigger": "点击详情", "action": "打开工单详情", "description": "查看工单完整信息和巡检结果。", "source": "ai", "status": "generated" },
+        { "trigger": "点击关闭", "action": "关闭详情", "description": "关闭详情页面。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    }
+  ]
+}

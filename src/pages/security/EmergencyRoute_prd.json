@@ -1,0 +1,312 @@
+{
+  "pageName": "EmergencyRoute",
+  "pageId": "EmergencyRoute",
+  "version": "1.0.0",
+  "lastUpdated": "2026-07-02T00:00:00Z",
+  "intent": {
+    "type": "manage",
+    "summary": "配置园区各建筑的应急逃生路线及关联设备管理"
+  },
+  "overview": "应急逃生路线配置页面用于管理园区各建筑的应急逃生路线，包括路线的创建、编辑、删除，关联逃生路径上的设备（门禁、照明、道闸），以及设置设备的应急响应状态。页面包含查询栏、路线列表、路线配置抽屉（两步流程：路线信息配置→关联设备选择）。",
+  "modules": [
+    {
+      "id": "er-search",
+      "title": "查询栏",
+      "purpose": "帮助管理员快速筛选目标逃生路线",
+      "summary": "支持按路线名称关键词、所属建筑、启用状态进行条件筛选。",
+      "requirements": [
+        {
+          "title": "路线名称搜索",
+          "priority": "P1",
+          "details": "支持输入路线名称关键词进行模糊搜索。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "建筑筛选",
+          "priority": "P1",
+          "details": "支持按所属建筑下拉筛选。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "状态筛选",
+          "priority": "P2",
+          "details": "支持按已启用/已停用状态筛选。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "keyword",
+          "label": "路线名称",
+          "type": "string",
+          "required": false,
+          "description": "路线名称关键词搜索",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "building",
+          "label": "所属建筑",
+          "type": "select",
+          "required": false,
+          "description": "建筑下拉筛选",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "status",
+          "label": "状态",
+          "type": "select",
+          "required": false,
+          "description": "启用状态筛选",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [],
+      "interactions": [
+        {
+          "trigger": "输入/选择筛选条件",
+          "action": "实时过滤",
+          "description": "条件变更时自动过滤路线列表。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "er-list",
+      "title": "路线列表",
+      "purpose": "展示所有应急逃生路线及其关联设备状态",
+      "summary": "表格展示路线的名称、所属建筑、楼层、状态标签和关联设备数量（门禁/照明/道闸），支持启用/停用切换、编辑和删除操作。",
+      "requirements": [
+        {
+          "title": "路线列表展示",
+          "priority": "P1",
+          "details": "表格展示路线名称、建筑、楼层、状态和关联设备数量统计（门禁/照明/道闸分别展示）。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "状态切换",
+          "priority": "P1",
+          "details": "提供启用/停用 Switch 开关，可快速切换路线状态。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "编辑路线",
+          "priority": "P1",
+          "details": "点击编辑打开配置抽屉，支持修改路线信息和关联设备。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "查看详情",
+          "priority": "P2",
+          "details": "点击查看打开详情弹窗，展示完整路线信息和关联设备列表。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "删除路线",
+          "priority": "P2",
+          "details": "支持删除路线，删除前需二次确认。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "label": "路线名称",
+          "type": "string",
+          "required": true,
+          "description": "逃生路线名称",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "building",
+          "label": "所属建筑",
+          "type": "string",
+          "required": true,
+          "description": "所属建筑名称",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "floor",
+          "label": "楼层",
+          "type": "string",
+          "required": true,
+          "description": "所在楼层",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "status",
+          "label": "状态",
+          "type": "string",
+          "required": true,
+          "description": "启用状态：active/inactive",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "devices",
+          "label": "关联设备",
+          "type": "array",
+          "required": false,
+          "description": "关联的门禁、照明、道闸设备列表",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "删除操作需二次确认",
+        "关联设备数量实时统计展示"
+      ],
+      "interactions": [
+        {
+          "trigger": "点击开关",
+          "action": "切换路线状态",
+          "description": "切换路线的启用/停用状态。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击编辑图标",
+          "action": "打开配置抽屉",
+          "description": "打开右侧抽屉进入路线编辑流程。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "er-dialog",
+      "title": "路线配置弹窗",
+      "purpose": "配置逃生路线的基本信息和关联设备",
+      "summary": "右侧抽屉分为两步：第一步配置路线信息（名称、建筑、楼层、路径描述），第二步选择关联设备（从空间树选择空间，在设备列表中勾选设备，设置每个设备的应急响应状态）。",
+      "requirements": [
+        {
+          "title": "路线信息配置",
+          "priority": "P1",
+          "details": "第一步配置路线名称、所属建筑、楼层、路径描述等基本信息。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "关联设备管理",
+          "priority": "P1",
+          "details": "第二步选择关联设备：从空间树定位空间，从设备列表勾选设备（门禁/照明/道闸），每个设备可设置应急状态（开锁/常亮/抬杆等）。支持移除已关联的设备。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "设备状态配置",
+          "priority": "P1",
+          "details": "每个关联设备可单独设置应急响应状态，不同的设备可设置在应急触发时打开还是关闭",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "路线图片上传",
+          "priority": "P2",
+          "details": "支持上传逃生路线示意图。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "label": "路线名称",
+          "type": "string",
+          "required": true,
+          "description": "逃生路线名称",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "building",
+          "label": "所属建筑",
+          "type": "select",
+          "required": true,
+          "description": "所属建筑下拉选择",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "floor",
+          "label": "楼层",
+          "type": "select",
+          "required": true,
+          "description": "所属楼层",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "description",
+          "label": "路径描述",
+          "type": "textarea",
+          "required": false,
+          "description": "逃生路径的文字描述",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "devices",
+          "label": "关联设备",
+          "type": "array",
+          "required": false,
+          "description": "关联的设备列表及其应急状态",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "设备选择通过空间树+设备列表实现",
+        "不同设备类型有不同的应急状态选项",
+        "门禁：开锁/闭锁；照明：常亮/闪烁/关闭；道闸：抬杆/落杆",
+        "已关联的设备可移除"
+      ],
+      "interactions": [
+        {
+          "trigger": "点击添加设备",
+          "action": "打开设备选择器",
+          "description": "打开设备选择弹窗，左侧空间树定位空间，右侧设备列表勾选设备。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击确认添加",
+          "action": "关联设备到路线",
+          "description": "将选中的设备关联到当前路线。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击移除",
+          "action": "解绑设备",
+          "description": "从路线中移除指定设备。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    }
+  ]
+}
