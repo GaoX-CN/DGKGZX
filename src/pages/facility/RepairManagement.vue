@@ -46,6 +46,7 @@
 
       <div class="rm-actions">
         <el-button type="primary" :icon="Plus" @click="openCreate">新建报修</el-button>
+        <el-button type="warning" @click="openAbnormalDevices">巡检异常设备：{{ abnormalDeviceCount }}</el-button>
         <span class="rm-actions__count">共 {{ total }} 条记录</span>
       </div>
 
@@ -138,39 +139,26 @@
 
             <!-- 物联设备报修 - 选择设备 -->
             <template v-if="createForm.repairType === 'device'">
-              <el-row :gutter="16">
-                <el-col :span="8">
-                  <el-form-item label="所属建筑" prop="deviceBuilding">
-                    <el-select v-model="createForm.deviceBuilding" placeholder="请选择" style="width: 100%" @change="onDeviceBuildingChange">
-                      <el-option v-for="b in deviceBuildings" :key="b" :label="b" :value="b" />
-                    </el-select>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="8">
-                  <el-form-item label="设备位置" prop="deviceFloor">
-                    <el-select v-model="createForm.deviceFloor" placeholder="请选择" style="width: 100%" @change="createForm.deviceNames = []">
-                      <el-option v-for="f in currentDeviceFloors" :key="f" :label="f" :value="f" />
-                    </el-select>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="8">
-                  <el-form-item label="设备类型" prop="deviceTypeFilter">
-                    <el-select v-model="createForm.deviceTypeFilter" placeholder="全部" style="width: 100%" @change="createForm.deviceNames = []">
-                      <el-option label="全部" value="" />
-                      <el-option v-for="dt in deviceTypeOptions" :key="dt.value" :label="dt.label" :value="dt.value" />
-                    </el-select>
-                  </el-form-item>
-                </el-col>
-              </el-row>
               <el-form-item label="报修设备" prop="deviceNames">
-                <el-select v-model="createForm.deviceNames" placeholder="请选择设备（支持多选）" style="width: 100%" multiple collapse-tags collapse-tags-tooltip>
-                  <el-option
-                    v-for="d in currentDeviceList"
-                    :key="d.name"
-                    :label="`${d.name}（${d.location}）`"
-                    :value="d.name"
-                  />
-                </el-select>
+                <div class="rm-device-select-section">
+                  <div class="rm-device-select-section__header">
+                    <span class="rm-device-select-section__count">已选设备（{{ createForm.deviceNames.length }}）</span>
+                    <el-button size="small" type="primary" @click="openRepairDevicePicker">添加报修设备</el-button>
+                  </div>
+                  <el-table :data="repairDeviceTable" border size="small" max-height="160" style="width: 100%" v-if="repairDeviceTable.length > 0">
+                    <el-table-column prop="name" label="设备名称" min-width="160" show-overflow-tooltip />
+                    <el-table-column label="类型" width="80" align="center">
+                      <template #default="{ row }">{{ row.label ? '' : row.type }}</template>
+                    </el-table-column>
+                    <el-table-column prop="location" label="位置" min-width="140" show-overflow-tooltip />
+                    <el-table-column label="操作" width="50" align="center">
+                      <template #default="{ $index }">
+                        <el-button link type="danger" size="small" @click="removeRepairDevice($index)">移除</el-button>
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                  <div v-else class="rm-device-select-empty">暂未选择报修设备</div>
+                </div>
               </el-form-item>
             </template>
 
@@ -519,35 +507,27 @@
           </el-form-item>
 
           <template v-if="editForm.repairType === 'device'">
-            <el-row :gutter="16">
-              <el-col :span="8">
-                <el-form-item label="所属建筑" prop="deviceBuilding">
-                  <el-select v-model="editForm.deviceBuilding" placeholder="请选择" style="width: 100%" @change="onEditDeviceBuildingChange">
-                    <el-option v-for="b in deviceBuildings" :key="b" :label="b" :value="b" />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="设备位置" prop="deviceFloor">
-                  <el-select v-model="editForm.deviceFloor" placeholder="请选择" style="width: 100%" @change="editForm.deviceNames = []">
-                    <el-option v-for="f in editDeviceFloors" :key="f" :label="f" :value="f" />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="设备类型">
-                  <el-select v-model="editForm.deviceTypeFilter" placeholder="全部" style="width: 100%" @change="editForm.deviceNames = []">
-                    <el-option label="全部" value="" />
-                    <el-option v-for="dt in deviceTypeOptions" :key="dt.value" :label="dt.label" :value="dt.value" />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-form-item label="报修设备" prop="deviceNames">
-              <el-select v-model="editForm.deviceNames" placeholder="请选择设备（支持多选）" style="width: 100%" multiple collapse-tags collapse-tags-tooltip>
-                <el-option v-for="d in editDeviceList" :key="d.name" :label="`${d.name}（${d.location}）`" :value="d.name" />
-              </el-select>
-            </el-form-item>
+              <el-form-item label="报修设备" prop="deviceNames">
+                <div class="rm-device-select-section">
+                  <div class="rm-device-select-section__header">
+                    <span class="rm-device-select-section__count">已选设备（{{ editForm.deviceNames.length }}）</span>
+                    <el-button size="small" type="primary" @click="openRepairDevicePickerEdit">添加报修设备</el-button>
+                  </div>
+                  <el-table :data="editRepairDeviceTable" border size="small" max-height="160" style="width: 100%" v-if="editRepairDeviceTable.length > 0">
+                    <el-table-column prop="name" label="设备名称" min-width="160" show-overflow-tooltip />
+                    <el-table-column label="类型" width="80" align="center">
+                      <template #default="{ row }">{{ row.type }}</template>
+                    </el-table-column>
+                    <el-table-column prop="location" label="位置" min-width="140" show-overflow-tooltip />
+                    <el-table-column label="操作" width="50" align="center">
+                      <template #default="{ $index }">
+                        <el-button link type="danger" size="small" @click="editForm.deviceNames.splice($index, 1)">移除</el-button>
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                  <div v-else class="rm-device-select-empty">暂未选择报修设备</div>
+                </div>
+              </el-form-item>
           </template>
 
           <template v-if="editForm.repairType === 'platform'">
@@ -626,6 +606,93 @@
         <div class="rm-drawer-footer">
           <el-button @click="editVisible = false">取消</el-button>
           <el-button type="primary" @click="confirmEdit">保存修改</el-button>
+        </div>
+      </template>
+    </el-drawer>
+
+    <!-- ==================== 报修设备选择弹窗 ==================== -->
+    <el-dialog v-model="repairDevicePickerVisible" title="添加报修设备" width="700px" :close-on-click-modal="false">
+      <el-form inline size="small" class="rm-device-picker-filter">
+        <el-form-item label="空间">
+          <el-select v-model="repairPickerFilter.building" placeholder="全部建筑" clearable style="width: 140px" @change="repairPickerFilter.floor = ''">
+            <el-option v-for="b in pickerBuildings" :key="b.value" :label="b.label" :value="b.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-select v-model="repairPickerFilter.floor" placeholder="全部楼层" clearable style="width: 120px">
+            <el-option v-for="f in repairPickerFloors" :key="f.value" :label="f.label" :value="f.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="设备类型">
+          <el-select v-model="repairPickerFilter.type" placeholder="全部" clearable style="width: 130px">
+            <el-option v-for="dt in deviceTypeOptions" :key="dt.value" :label="dt.label" :value="dt.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="设备名称">
+          <el-input v-model="repairPickerFilter.keyword" placeholder="请输入" clearable style="width: 140px" />
+        </el-form-item>
+      </el-form>
+
+      <el-table
+        :data="filteredRepairDevices"
+        border size="small" style="width: 100%" max-height="320"
+        @select="onRepairDeviceSelect"
+        ref="repairDeviceTableRef"
+      >
+        <el-table-column type="selection" width="45" />
+        <el-table-column prop="name" label="设备名称" min-width="200" show-overflow-tooltip />
+        <el-table-column label="设备类型" width="90" align="center">
+          <template #default="{ row }">{{ row.type }}</template>
+        </el-table-column>
+        <el-table-column prop="location" label="设备位置" width="160" show-overflow-tooltip />
+      </el-table>
+      <template #footer>
+        <el-button @click="repairDevicePickerVisible = false">取消</el-button>
+        <el-button type="primary" @click="confirmRepairDevicePick">确认选择</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- ==================== 巡检异常设备抽屉 ==================== -->
+    <el-drawer v-model="abnormalVisible" title="巡检异常设备" direction="rtl" size="750px" :close-on-click-modal="false">
+      <template #header>
+        <div class="rm-drawer-header">
+          <span class="rm-drawer-header__title">巡检异常设备</span>
+          <span class="rm-drawer-header__sub">共 {{ activeAbnormalDevices.length }} 个异常设备（来自巡检工单处置时标记为需维修的设备）</span>
+        </div>
+      </template>
+      <div class="rm-drawer-body">
+        <el-table
+          :data="activeAbnormalDevices"
+          border size="small" style="width: 100%"
+          @selection-change="onAbnormalSelect"
+          ref="abnormalTableRef"
+          v-if="activeAbnormalDevices.length > 0"
+        >
+          <el-table-column type="selection" width="45" />
+          <el-table-column prop="orderNo" label="巡检工单编号" width="170" />
+          <el-table-column prop="deviceName" label="设备名称" width="130" />
+          <el-table-column prop="location" label="设备位置" width="140" show-overflow-tooltip />
+          <el-table-column label="设备类型" width="80" align="center">
+            <template #default="{ row }">
+              <el-tag size="small">{{ row.type }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="异常描述" min-width="280">
+            <template #default="{ row }">
+              <div v-for="(item, i) in row.items" :key="i" class="rm-ab-item">
+                <span class="rm-ab-item__name">{{ item.name }}：</span>
+                <span class="rm-ab-item__desc">{{ item.description }}</span>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+        <el-empty v-else description="暂无异常设备" :image-size="60" />
+      </div>
+      <template #footer>
+        <div class="rm-drawer-footer">
+          <el-button @click="abnormalVisible = false">取消</el-button>
+          <el-button type="info" @click="ignoreAbnormalDevices" :disabled="abnormalSelected.length === 0">忽略所选（{{ abnormalSelected.length }}）</el-button>
+          <el-button type="primary" @click="repairAbnormalDevices" :disabled="abnormalSelected.length === 0">报修所选（{{ abnormalSelected.length }}）</el-button>
         </div>
       </template>
     </el-drawer>
@@ -753,7 +820,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, nextTick, watch } from 'vue'
 import { Plus, Search, Refresh, Tools, Van, OfficeBuilding } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessageBox } from 'element-plus'
@@ -1139,6 +1206,162 @@ const currentDeviceList = computed(() => {
   return list.filter(d => d.type === createForm.deviceTypeFilter)
 })
 const currentPlatforms = computed(() => platforms[createForm.platformBuilding] || [])
+
+const allDevicesArr = computed(() => {
+  const arr: { name: string; type: string; location: string; building: string; floor: string; space: string }[] = []
+  Object.entries(deviceDatabase).forEach(([key, devices]) => {
+    const [building, floor] = key.split('|')
+    const typeLabelMap: Record<string, string> = { door: '门禁', fire: '消防', electrical: '配电', mechanical: '给排水', elevator: '电梯', lighting: '照明', it: '弱电', ac: '空调', other: '其他' }
+    devices.forEach(d => {
+      arr.push({ name: d.name, type: typeLabelMap[d.type] || d.type, location: `${building} ${d.location}`, building, floor, space: key })
+    })
+  })
+  return arr
+})
+
+const pickerBuildings = [{ value: 'CT楼', label: 'CT楼' }, { value: 'FF楼', label: 'FF楼' }, { value: '海关联检大楼(OB)', label: '海关联检大楼(OB)' }]
+const repairPickerFloors = computed(() => {
+  if (!repairPickerFilter.building) return []
+  const keys = Object.keys(deviceDatabase).filter(k => k.startsWith(repairPickerFilter.building))
+  return [...new Set(keys.map(k => k.split('|')[1]))].map(f => ({ value: f, label: f }))
+})
+
+const repairPickerFilter = reactive({ building: '', floor: '', type: '', keyword: '' })
+const filteredRepairDevices = computed(() => {
+  let list = allDevicesArr.value
+  if (repairPickerFilter.building) list = list.filter(d => d.building === repairPickerFilter.building)
+  if (repairPickerFilter.floor) list = list.filter(d => d.floor === repairPickerFilter.floor)
+  if (repairPickerFilter.type) list = list.filter(d => d.type === repairPickerFilter.type)
+  if (repairPickerFilter.keyword) list = list.filter(d => d.name.includes(repairPickerFilter.keyword))
+  return list
+})
+
+const repairDevicePickerVisible = ref(false)
+const repairDeviceTableRef = ref()
+const tempRepairDeviceNames = ref<string[]>([])
+const syncingRepair = ref(false)
+
+const repairDeviceTable = computed(() => {
+  return createForm.deviceNames.map(name => {
+    const dev = allDevicesArr.value.find(d => d.name === name)
+    return dev || { name, type: '', location: '' }
+  })
+})
+
+const editRepairDeviceTable = computed(() => {
+  return (editForm.deviceNames || []).map((name: string) => {
+    const dev = allDevicesArr.value.find(d => d.name === name)
+    return dev || { name, type: '', location: '' }
+  })
+})
+
+function openRepairDevicePicker() {
+  repairPickerFilter.building = ''
+  repairPickerFilter.floor = ''
+  repairPickerFilter.type = ''
+  repairPickerFilter.keyword = ''
+  tempRepairDeviceNames.value = [...createForm.deviceNames]
+  repairDevicePickerVisible.value = true
+  nextTick(() => syncRepairTableSelection())
+}
+
+function openRepairDevicePickerEdit() {
+  repairPickerFilter.building = ''
+  repairPickerFilter.floor = ''
+  repairPickerFilter.type = ''
+  repairPickerFilter.keyword = ''
+  tempRepairDeviceNames.value = [...editForm.deviceNames]
+  repairDevicePickerVisible.value = true
+  nextTick(() => syncRepairTableSelection())
+}
+
+watch(filteredRepairDevices, () => { nextTick(() => syncRepairTableSelection()) })
+
+function syncRepairTableSelection() {
+  if (!repairDeviceTableRef.value) return
+  syncingRepair.value = true
+  repairDeviceTableRef.value.clearSelection()
+  filteredRepairDevices.value.forEach(d => {
+    if (tempRepairDeviceNames.value.includes(d.name)) {
+      repairDeviceTableRef.value.toggleRowSelection(d, true)
+    }
+  })
+  nextTick(() => { syncingRepair.value = false })
+}
+
+function onRepairDeviceSelect(_selection: any, row: any) {
+  if (syncingRepair.value) return
+  const idx = tempRepairDeviceNames.value.indexOf(row.name)
+  if (idx >= 0) tempRepairDeviceNames.value.splice(idx, 1)
+  else tempRepairDeviceNames.value.push(row.name)
+}
+
+function confirmRepairDevicePick() {
+  createForm.deviceNames = [...tempRepairDeviceNames.value]
+  repairDevicePickerVisible.value = false
+}
+
+function removeRepairDevice(idx: number) {
+  createForm.deviceNames.splice(idx, 1)
+}
+
+interface AbnormalDevice {
+  key: string; deviceName: string; location: string; type: string; orderNo: string; items: { name: string; description: string }[]
+}
+
+const abnormalDevices = ref<AbnormalDevice[]>([
+  { key: 'ab1', orderNo: 'XJ2026070002', deviceName: '1F 配电柜 A', location: 'CT楼 1F 配电房', type: '配电', items: [
+    { name: '配电柜温度检测', description: '触点温度达95℃，超过70℃标准值' },
+    { name: '电压电流测量', description: 'B相电压偏低15%，需检修' },
+  ]},
+  { key: 'ab2', orderNo: 'XJ2026070002', deviceName: '1F 空调主机', location: 'CT楼 1F 空调机房', type: '空调', items: [
+    { name: '运行电流检测', description: '压缩机启动电流超过额定值20%' },
+  ]},
+  { key: 'ab3', orderNo: 'XJ2026070005', deviceName: '1F 消防泵', location: 'CT楼 1F 泵房', type: '消防', items: [
+    { name: '消火栓出水测试', description: '出水压力不足，怀疑管道渗漏' },
+  ]},
+  { key: 'ab4', orderNo: 'XJ2026070008', deviceName: '2F 发电机', location: 'CT楼 2F 发电机房', type: '配电', items: [
+    { name: '设备外观完整性', description: '外壳有明显的碰撞凹痕、指示灯部分不亮' },
+    { name: '接地电阻检测', description: '接地电阻8Ω，超过4Ω标准' },
+    { name: '运行参数读取', description: '输出频率不稳定，波动超±2%' },
+  ]},
+  { key: 'ab5', orderNo: 'XJ2026070011', deviceName: 'FF楼 变压器', location: 'FF楼 1F 变电所', type: '配电', items: [
+    { name: '配电柜温度检测', description: '变压器运行温度异常升高' },
+  ]},
+])
+
+const ignoredKeys = ref<Set<string>>(new Set())
+const activeAbnormalDevices = computed(() => abnormalDevices.value.filter(d => !ignoredKeys.value.has(d.key)))
+const abnormalDeviceCount = computed(() => activeAbnormalDevices.value.length)
+
+const abnormalVisible = ref(false)
+const abnormalTableRef = ref()
+const abnormalSelected = ref<AbnormalDevice[]>([])
+
+function onAbnormalSelect(rows: AbnormalDevice[]) {
+  abnormalSelected.value = rows
+}
+
+function openAbnormalDevices() {
+  abnormalSelected.value = []
+  abnormalVisible.value = true
+}
+
+function ignoreAbnormalDevices() {
+  abnormalSelected.value.forEach(d => ignoredKeys.value.add(d.key))
+  abnormalSelected.value = []
+}
+
+function repairAbnormalDevices() {
+  const names = abnormalSelected.value.map(d => d.deviceName)
+  abnormalVisible.value = false
+  Object.assign(createForm, defaultCreateForm())
+  createForm.repairType = 'device'
+  createForm.deviceNames = names
+  createUploadList.value = []
+  createStep.value = 1
+  createVisible.value = true
+}
 
 function onDeviceBuildingChange() {
   createForm.deviceFloor = ''
@@ -1644,4 +1867,15 @@ function openDetail(row: RepairOrder) {
   border-left: 3px solid #409eff;
   line-height: 1.2;
 }
+
+.rm-device-select-section { margin-top: 0; }
+.rm-device-select-section__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.rm-device-select-section__count { font-size: 13px; color: #606266; }
+.rm-device-select-empty { padding: 16px; text-align: center; font-size: 13px; color: #c0c4cc; border: 1px solid #ebeef5; border-radius: 4px; background: #fafbfc; }
+.rm-device-picker-filter { background: #fafbfc; padding: 12px 16px; border-radius: 4px; margin-bottom: 12px; }
+
+.rm-ab-item { padding: 4px 0; border-bottom: 1px solid #f2f3f5; font-size: 13px; }
+.rm-ab-item:last-child { border-bottom: none; }
+.rm-ab-item__name { font-weight: 600; color: #303133; }
+.rm-ab-item__desc { color: #606266; }
 </style>

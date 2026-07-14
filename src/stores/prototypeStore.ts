@@ -199,6 +199,7 @@ const defaultPages: PrototypePage[] = [
           { moduleId: 'rm-plan-audit', moduleName: '审核维修方案', moduleType: 'form', pageId: 'RepairManagement', requirementId: 'rm-plan-audit', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
           { moduleId: 'rm-dispatch', moduleName: '下发维修工单', moduleType: 'form', pageId: 'RepairManagement', requirementId: 'rm-dispatch', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
           { moduleId: 'rm-detail', moduleName: '报修单详情', moduleType: 'form', pageId: 'RepairManagement', requirementId: 'rm-detail', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+          { moduleId: 'rm-abnormal', moduleName: '巡检异常设备', moduleType: 'form', pageId: 'RepairManagement', requirementId: 'rm-abnormal', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
         ],
       },
       {
