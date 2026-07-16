@@ -1,0 +1,61 @@
+<mxfile host="app.diagrams.net" modified="2026-07-16T00:00:00.000Z" agent="OpenCode" version="24.7.17">
+  <diagram id="information-publishing-flow" name="信息发布联动业务流程">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="lane-user" value="值班人员" style="swimlane;horizontal=0;startSize=110;fillColor=#f5f5f5;strokeColor=#b7b7b7;html=1;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="0" y="0" width="1740" height="150" as="geometry" /></mxCell>
+        <mxCell id="lane-system" value="信息发布联动" style="swimlane;horizontal=0;startSize=110;fillColor=#e8f4f8;strokeColor=#6c8ebf;html=1;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="0" y="150" width="1740" height="150" as="geometry" /></mxCell>
+        <mxCell id="lane-terminal" value="信息终端" style="swimlane;horizontal=0;startSize=110;fillColor=#e8f5e9;strokeColor=#82b366;html=1;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="0" y="300" width="1740" height="150" as="geometry" /></mxCell>
+        <mxCell id="lane-monitor" value="发布状态监控" style="swimlane;horizontal=0;startSize=110;fillColor=#fff9e6;strokeColor=#d6b656;html=1;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="0" y="450" width="1740" height="150" as="geometry" /></mxCell>
+        <mxCell id="lane-stop" value="停播处置" style="swimlane;horizontal=0;startSize=110;fillColor=#fce4ec;strokeColor=#b85450;html=1;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="0" y="600" width="1740" height="150" as="geometry" /></mxCell>
+
+        <mxCell id="start" value="开始" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="lane-user"><mxGeometry x="120" y="45" width="60" height="60" as="geometry" /></mxCell>
+        <mxCell id="select" value="按楼栋选择在线终端&#xa;或从地图选择终端" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="lane-user"><mxGeometry x="300" y="45" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="publish" value="发起信息发布" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="lane-user"><mxGeometry x="660" y="45" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="configure" value="选择媒体类型&#xa;填写文字或上传素材&#xa;设置截止播放时间" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="lane-user"><mxGeometry x="1020" y="35" width="140" height="80" as="geometry" /></mxCell>
+        <mxCell id="confirm-publish" value="确认发布" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="lane-user"><mxGeometry x="1380" y="45" width="140" height="60" as="geometry" /></mxCell>
+
+        <mxCell id="selected-decision" value="是否已选择&#xa;在线终端？" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="lane-system"><mxGeometry x="480" y="35" width="140" height="80" as="geometry" /></mxCell>
+        <mxCell id="selection-tip" value="提示选择至少一台&#xa;在线信息终端" style="shape=mxgraph.flowchart.document;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="lane-system"><mxGeometry x="660" y="35" width="120" height="80" as="geometry" /></mxCell>
+        <mxCell id="content-decision" value="发布内容与&#xa;截止时间是否完整？" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="lane-system"><mxGeometry x="1200" y="35" width="140" height="80" as="geometry" /></mxCell>
+        <mxCell id="create-tasks" value="按每台目标设备&#xa;创建独立播放任务" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="lane-system"><mxGeometry x="1560" y="45" width="140" height="60" as="geometry" /></mxCell>
+
+        <mxCell id="deliver" value="接收发布指令&#xa;开始播放文字、图片或视频" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;" vertex="1" parent="lane-terminal"><mxGeometry x="1560" y="45" width="140" height="60" as="geometry" /></mxCell>
+
+        <mxCell id="monitor-tasks" value="按设备展示活动任务&#xa;设备名称、媒介、摘要、截止时间" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="lane-monitor"><mxGeometry x="120" y="45" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="preview" value="查看完整文字&#xa;或预览图片、视频" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="lane-monitor"><mxGeometry x="420" y="45" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="select-tasks" value="勾选需要停播的&#xa;一个或多个任务" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="lane-monitor"><mxGeometry x="840" y="45" width="140" height="60" as="geometry" /></mxCell>
+
+        <mxCell id="stop" value="执行停播" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;" vertex="1" parent="lane-stop"><mxGeometry x="1020" y="45" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="stop-decision" value="确认停止已选&#xa;发布任务？" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="lane-stop"><mxGeometry x="1200" y="35" width="140" height="80" as="geometry" /></mxCell>
+        <mxCell id="stop-command" value="向已选设备&#xa;下发停播指令" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;" vertex="1" parent="lane-stop"><mxGeometry x="1380" y="45" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="stop-playback" value="停止播放" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;" vertex="1" parent="lane-terminal"><mxGeometry x="1560" y="75" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="remove-task" value="移除已停止任务&#xa;更新活动任务数量" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="lane-monitor"><mxGeometry x="1560" y="45" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="end" value="结束" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="lane-stop"><mxGeometry x="1650" y="45" width="60" height="60" as="geometry" /></mxCell>
+
+        <mxCell id="e1" edge="1" parent="1" source="start" target="select" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="select" target="selected-decision" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e3" value="否" edge="1" parent="1" source="selected-decision" target="selection-tip" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e4" value="重新选择" edge="1" parent="1" source="selection-tip" target="select" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e5" value="是" edge="1" parent="1" source="selected-decision" target="publish" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="publish" target="configure" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="configure" target="content-decision" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e8" value="否，继续配置" edge="1" parent="1" source="content-decision" target="configure" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e9" value="是" edge="1" parent="1" source="content-decision" target="confirm-publish" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="confirm-publish" target="create-tasks" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="create-tasks" target="deliver" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="deliver" target="monitor-tasks" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="monitor-tasks" target="preview" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="monitor-tasks" target="select-tasks" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e15" edge="1" parent="1" source="select-tasks" target="stop" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e16" edge="1" parent="1" source="stop" target="stop-decision" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e17" value="否" edge="1" parent="1" source="stop-decision" target="select-tasks" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e18" value="是" edge="1" parent="1" source="stop-decision" target="stop-command" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e19" edge="1" parent="1" source="stop-command" target="stop-playback" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e20" edge="1" parent="1" source="stop-playback" target="remove-task" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e21" edge="1" parent="1" source="remove-task" target="end" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

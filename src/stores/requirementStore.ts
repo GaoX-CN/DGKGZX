@@ -25,6 +25,8 @@ export const useRequirementStore = defineStore('requirement', () => {
 
   function setPrdJson(data: PagePrd) {
     currentPagePrd.value = data
+    currentModuleIndex.value = data.modules.length > 0 ? 0 : -1
+    currentSection.value = null
     prdLoadingState.value = 'loaded'
   }
 

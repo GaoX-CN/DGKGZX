@@ -1,0 +1,73 @@
+<mxfile host="app.diagrams.net" modified="2026-07-16T00:00:00.000Z" agent="OpenCode" version="24.7.17">
+  <diagram id="repair-management-flow" name="报修管理流程图">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="lane-reporter" value="巡检/值班人员" style="swimlane;horizontal=0;startSize=110;fillColor=#f5f5f5;strokeColor=#b7b7b7;html=1;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="0" y="0" width="2100" height="150" as="geometry" /></mxCell>
+        <mxCell id="lane-owner" value="维修负责人" style="swimlane;horizontal=0;startSize=110;fillColor=#e8f4f8;strokeColor=#6c8ebf;html=1;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="0" y="150" width="2100" height="150" as="geometry" /></mxCell>
+        <mxCell id="lane-inspector" value="核查人员" style="swimlane;horizontal=0;startSize=110;fillColor=#fff9e6;strokeColor=#d6b656;html=1;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="0" y="300" width="2100" height="150" as="geometry" /></mxCell>
+        <mxCell id="lane-leader" value="审批领导" style="swimlane;horizontal=0;startSize=110;fillColor=#fce4ec;strokeColor=#b85450;html=1;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="0" y="450" width="2100" height="150" as="geometry" /></mxCell>
+        <mxCell id="lane-worker" value="维修人员" style="swimlane;horizontal=0;startSize=110;fillColor=#e8f5e9;strokeColor=#82b366;html=1;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="0" y="600" width="2100" height="150" as="geometry" /></mxCell>
+
+        <mxCell id="start" value="开始" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="lane-reporter"><mxGeometry x="120" y="45" width="60" height="60" as="geometry" /></mxCell>
+        <mxCell id="patrol-source" value="巡检发现异常" style="shape=mxgraph.flowchart.document;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="lane-reporter"><mxGeometry x="300" y="35" width="120" height="80" as="geometry" /></mxCell>
+        <mxCell id="other-source" value="他人报修" style="shape=mxgraph.flowchart.document;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="lane-reporter"><mxGeometry x="480" y="35" width="120" height="80" as="geometry" /></mxCell>
+        <mxCell id="create-report" value="创建报修单&#xa;选择维修类型与维修负责人" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="lane-reporter"><mxGeometry x="720" y="35" width="150" height="80" as="geometry" /></mxCell>
+        <mxCell id="repair-types" value="维修类型&#xa;物流设备 / 月台 / 其他设施" style="shape=mxgraph.flowchart.document;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="lane-reporter"><mxGeometry x="900" y="35" width="150" height="80" as="geometry" /></mxCell>
+
+        <mxCell id="receive-report" value="接收报修单" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="lane-owner"><mxGeometry x="1080" y="45" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="check-needed" value="是否需要&#xa;现场核查？" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="lane-owner"><mxGeometry x="1260" y="35" width="140" height="80" as="geometry" /></mxCell>
+        <mxCell id="issue-check" value="下发核查工单" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="lane-owner"><mxGeometry x="1440" y="45" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="prepare-plan" value="编制维修方案" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="lane-owner"><mxGeometry x="1620" y="45" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="submit-plan" value="提交维修方案" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" vertex="1" parent="lane-owner"><mxGeometry x="1800" y="45" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="issue-repair" value="下发维修工单" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;" vertex="1" parent="lane-owner"><mxGeometry x="1920" y="45" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="acceptance" value="维修验收" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;" vertex="1" parent="lane-owner"><mxGeometry x="1800" y="75" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="acceptance-pass" value="验收是否通过？" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="lane-owner"><mxGeometry x="1980" y="65" width="140" height="80" as="geometry" /></mxCell>
+
+        <mxCell id="perform-check" value="执行现场核查" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" vertex="1" parent="lane-inspector"><mxGeometry x="1440" y="45" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="resolved" value="能现场解决？" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="lane-inspector"><mxGeometry x="1620" y="35" width="140" height="80" as="geometry" /></mxCell>
+        <mxCell id="check-resolved" value="故障已处理完成" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="lane-inspector"><mxGeometry x="1800" y="45" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="return-owner" value="无法现场解决&#xa;返回维修负责人" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="lane-inspector"><mxGeometry x="1800" y="120" width="140" height="60" as="geometry" /></mxCell>
+
+        <mxCell id="review-plan" value="审核维修方案" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;" vertex="1" parent="lane-leader"><mxGeometry x="1800" y="45" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="approval-pass" value="是否通过？" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="lane-leader"><mxGeometry x="1980" y="35" width="140" height="80" as="geometry" /></mxCell>
+        <mxCell id="reject" value="驳回方案" style="shape=mxgraph.flowchart.document;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="lane-leader"><mxGeometry x="1800" y="120" width="120" height="80" as="geometry" /></mxCell>
+
+        <mxCell id="receive-order" value="接收维修工单" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;" vertex="1" parent="lane-worker"><mxGeometry x="1920" y="45" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="repair-work" value="开展维修" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;" vertex="1" parent="lane-worker"><mxGeometry x="1740" y="45" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="complete-repair" value="完成维修&#xa;提交验收" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="lane-worker"><mxGeometry x="1560" y="45" width="140" height="60" as="geometry" /></mxCell>
+        <mxCell id="end" value="报修完成" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="lane-owner"><mxGeometry x="2040" y="45" width="60" height="60" as="geometry" /></mxCell>
+
+        <mxCell id="e1" edge="1" parent="1" source="start" target="patrol-source" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="start" target="other-source" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="patrol-source" target="create-report" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="other-source" target="create-report" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="create-report" target="repair-types" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="repair-types" target="receive-report" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="receive-report" target="check-needed" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e8" value="是" edge="1" parent="1" source="check-needed" target="issue-check" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e9" value="否" edge="1" parent="1" source="check-needed" target="prepare-plan" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="issue-check" target="perform-check" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="perform-check" target="resolved" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e12" value="是" edge="1" parent="1" source="resolved" target="check-resolved" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e13" value="否" edge="1" parent="1" source="resolved" target="return-owner" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="return-owner" target="prepare-plan" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e15" edge="1" parent="1" source="prepare-plan" target="submit-plan" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e16" edge="1" parent="1" source="submit-plan" target="review-plan" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e17" edge="1" parent="1" source="review-plan" target="approval-pass" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e18" value="驳回" edge="1" parent="1" source="approval-pass" target="reject" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e19" value="修改后重新提交" edge="1" parent="1" source="reject" target="prepare-plan" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e20" value="通过" edge="1" parent="1" source="approval-pass" target="issue-repair" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e21" edge="1" parent="1" source="check-resolved" target="issue-repair" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e22" edge="1" parent="1" source="issue-repair" target="receive-order" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e23" edge="1" parent="1" source="receive-order" target="repair-work" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e24" edge="1" parent="1" source="repair-work" target="complete-repair" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e25" edge="1" parent="1" source="complete-repair" target="acceptance" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e26" edge="1" parent="1" source="acceptance" target="acceptance-pass" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e27" value="不通过" edge="1" parent="1" source="acceptance-pass" target="repair-work" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e28" value="通过" edge="1" parent="1" source="acceptance-pass" target="end" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -30,6 +30,36 @@ const router = createRouter({
           component: () => import('@/pages/security/EmergencyRoute.vue'),
         },
         {
+          path: '/security/access-linkage',
+          name: 'AccessLinkage',
+          component: () => import('@/pages/security/AccessLinkage.vue'),
+        },
+        {
+          path: '/security/barrier-linkage',
+          name: 'BarrierLinkage',
+          component: () => import('@/pages/security/BarrierLinkage.vue'),
+        },
+        {
+          path: '/security/lighting-linkage',
+          name: 'LightingLinkage',
+          component: () => import('@/pages/security/LightingLinkage.vue'),
+        },
+        {
+          path: '/security/radio-intercom-linkage',
+          name: 'RadioIntercomLinkage',
+          component: () => import('@/pages/security/RadioIntercomLinkage.vue'),
+        },
+        {
+          path: '/security/information-publishing-linkage',
+          name: 'InformationPublishingLinkage',
+          component: () => import('@/pages/security/InformationPublishingLinkage.vue'),
+        },
+        {
+          path: '/security/digital-broadcast-linkage',
+          name: 'DigitalBroadcastLinkage',
+          component: () => import('@/pages/security/DigitalBroadcastLinkage.vue'),
+        },
+        {
           path: '/facility/repair-management',
           name: 'RepairManagement',
           component: () => import('@/pages/facility/RepairManagement.vue'),

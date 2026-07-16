@@ -1,461 +1,164 @@
 {
   "pageName": "MaintenanceVehicle",
   "pageId": "MaintenanceVehicle",
-  "version": "1.0.0",
-  "lastUpdated": "2026-07-02T00:00:00Z",
+  "version": "2.1.0",
+  "lastUpdated": "2026-07-14T00:00:00Z",
   "intent": {
     "type": "manage",
-    "summary": "管理园区维修作业车辆的登记信息与道闸通行权限"
+    "summary": "管理园区维修作业车辆、关联报修任务及道闸通行权限"
   },
-  "overview": "维修车辆登记页面用于登记进入园区执行维修作业的车辆信息，明确车辆身份、维修任务清单及通行道闸权限，实现维修作业全流程可追溯。页面包含搜索栏、操作栏、车辆记录列表、新增/编辑表单弹窗和详情弹窗（含通行记录）。",
+  "overview": "用于登记进入园区执行维修作业的车辆和驾驶员信息，将车辆与待维修或维修中的报修任务建立关联，并配置有效通行时间和道闸权限，以支持维修车辆准入管理与过程追溯。",
   "modules": [
     {
       "id": "mv-search",
-      "title": "搜索栏",
-      "purpose": "帮助运营人员快速筛选目标维修车辆记录",
-      "summary": "支持按车牌号、登记状态（待通行/已通行/已过期/已作废）、登记日期范围进行条件筛选，提供查询和重置按钮。",
+      "title": "车辆登记查询",
+      "purpose": "帮助管理人员快速定位维修车辆登记记录",
+      "summary": "支持按车牌号、登记状态和登记日期范围筛选维修车辆记录。",
       "requirements": [
-        {
-          "title": "车牌号模糊查询",
-          "priority": "P1",
-          "details": "支持输入车牌号关键词进行模糊匹配查询，支持新能源车牌格式如粤B·12345。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "title": "状态筛选",
-          "priority": "P1",
-          "details": "支持按待通行、已通行、已过期、已作废四种状态进行筛选。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "title": "登记日期范围筛选",
-          "priority": "P2",
-          "details": "支持选择日期范围筛选在该时间段内登记的记录。",
-          "source": "ai",
-          "status": "generated"
-        }
+        { "title": "组合条件查询", "priority": "P1", "details": "支持按车牌号关键词、待通行/已通行/已过期/已作废状态及登记日期范围查询。", "source": "ai", "status": "generated" }
       ],
       "fields": [
-        {
-          "name": "plateNumber",
-          "label": "车牌号",
-          "type": "string",
-          "required": false,
-          "description": "车牌号关键词，用于模糊搜索",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "status",
-          "label": "状态",
-          "type": "string",
-          "required": false,
-          "description": "登记状态筛选，可选值：pending/passed/expired/cancelled",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "dateRange",
-          "label": "登记日期",
-          "type": "dateRange",
-          "required": false,
-          "description": "登记日期起止范围",
-          "source": "ai",
-          "status": "generated"
-        }
+        { "name": "plateNumber", "label": "车牌号", "type": "string", "required": false, "description": "用于模糊匹配的车牌号关键词", "source": "ai", "status": "generated" },
+        { "name": "status", "label": "状态", "type": "string", "required": false, "description": "维修车辆登记状态", "source": "ai", "status": "generated" },
+        { "name": "dateRange", "label": "登记日期", "type": "dateRange", "required": false, "description": "登记日期起止范围", "source": "ai", "status": "generated" }
       ],
-      "rules": [
-        "查询重置时清空所有筛选条件并回到第一页",
-        "分页切换时保持筛选条件不变"
-      ],
+      "rules": ["查询和重置后从第一页展示结果", "分页切换时保留当前筛选条件"],
       "interactions": [
-        {
-          "trigger": "点击查询",
-          "action": "执行筛选",
-          "description": "根据当前筛选条件重新加载列表数据，重置到第一页。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "trigger": "点击重置",
-          "action": "清空条件",
-          "description": "清空所有筛选条件并重新加载全部数据。",
-          "source": "ai",
-          "status": "generated"
-        }
+        { "trigger": "点击查询", "action": "筛选车辆记录", "description": "按当前条件重新展示匹配记录。", "source": "ai", "status": "generated" },
+        { "trigger": "点击重置", "action": "清空查询条件", "description": "恢复展示全部车辆记录。", "source": "ai", "status": "generated" }
       ],
       "ruleImages": [],
       "source": "ai",
       "status": "generated"
     },
     {
-      "id": "mv-actions",
-      "title": "操作栏",
-      "purpose": "提供批量操作和新增入口",
-      "summary": "包含新增登记按钮和刷新按钮，刷新可重新加载 Mock 数据。",
+      "id": "mv-list",
+      "title": "维修车辆记录",
+      "purpose": "展示并管理维修车辆登记记录",
+      "summary": "展示车辆、驾驶员、维修项目、通行期限和登记状态，并按状态提供查看、编辑、作废和删除等操作。",
       "requirements": [
-        {
-          "title": "新增登记",
-          "priority": "P1",
-          "details": "点击新增登记打开表单弹窗，缺省开始时间为当前时间。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "title": "刷新列表",
-          "priority": "P2",
-          "details": "刷新按钮重新生成 Mock 数据并加载列表。",
-          "source": "ai",
-          "status": "generated"
-        }
+        { "title": "记录展示", "priority": "P1", "details": "展示车牌号、车辆类型、驾驶员、联系方式、维修项目、通行时间、状态、登记时间和登记人。", "source": "ai", "status": "generated" },
+        { "title": "状态化操作", "priority": "P1", "details": "待通行记录可编辑和作废；已作废记录可编辑和删除；已通行和已过期记录仅可查看。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [
+        { "name": "plateNumber", "label": "车牌号", "type": "string", "required": true, "description": "维修车辆车牌号", "source": "ai", "status": "generated" },
+        { "name": "vehicleType", "label": "车辆类型", "type": "string", "required": true, "description": "小型车、中型车或大型车", "source": "ai", "status": "generated" },
+        { "name": "driver", "label": "驾驶员", "type": "string", "required": true, "description": "驾驶员姓名", "source": "ai", "status": "generated" },
+        { "name": "phone", "label": "联系方式", "type": "string", "required": true, "description": "驾驶员联系电话", "source": "ai", "status": "generated" },
+        { "name": "repairItem", "label": "维修项目", "type": "string", "required": true, "description": "车辆入园执行的维修内容", "source": "ai", "status": "generated" },
+        { "name": "status", "label": "状态", "type": "string", "required": true, "description": "待通行、已通行、已过期或已作废", "source": "ai", "status": "generated" }
+      ],
+      "rules": ["待通行记录可编辑和作废", "已作废记录编辑保存后恢复为待通行", "作废操作需要二次确认"],
+      "interactions": [
+        { "trigger": "点击新增登记", "action": "开始新增维修车辆", "description": "从页面右侧进入新增流程。", "source": "ai", "status": "generated" },
+        { "trigger": "点击查看", "action": "查看登记详情", "description": "从页面右侧查看车辆资料、关联报修单和通行记录。", "source": "ai", "status": "generated" },
+        { "trigger": "点击编辑", "action": "修改登记信息", "description": "回填已有信息并从页面右侧进入编辑流程。", "source": "ai", "status": "generated" },
+        { "trigger": "确认作废", "action": "作废登记", "description": "将待通行记录更新为已作废。", "source": "ai", "status": "generated" },
+        { "trigger": "点击删除", "action": "删除登记", "description": "删除已作废的维修车辆登记记录。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "mv-form",
+      "title": "新增与编辑登记",
+      "purpose": "录入和维护维修车辆入园信息",
+      "summary": "从页面右侧维护车辆、驾驶员、维修任务、通行期限、道闸、备注及附件信息，并支持关联多条报修单。",
+      "requirements": [
+        { "title": "驾驶员身份信息", "priority": "P1", "details": "录入驾驶员姓名和联系方式，可选填身份证或其他有效证件号。", "source": "ai", "status": "generated" },
+        { "title": "关联报修任务", "priority": "P0", "details": "支持关联多条待维修或维修中的报修单，并回显报修单号和报修对象；已关联项可移除。", "source": "ai", "status": "generated" },
+        { "title": "配置通行权限", "priority": "P0", "details": "设置通行开始和结束时间，并通过独立选择流程从行政、货运、员工通道中至少选择一个具体道闸。", "source": "ai", "status": "generated" },
+        { "title": "提交校验", "priority": "P1", "details": "保存前校验必填项、通行时间先后关系和道闸选择。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [
+        { "name": "plateNumber", "label": "车牌号", "type": "string", "required": true, "description": "维修车辆车牌号", "source": "ai", "status": "generated" },
+        { "name": "vehicleType", "label": "车辆类型", "type": "string", "required": true, "description": "小型车、中型车或大型车", "source": "ai", "status": "generated" },
+        { "name": "driver", "label": "驾驶员", "type": "string", "required": true, "description": "驾驶员姓名", "source": "ai", "status": "generated" },
+        { "name": "phone", "label": "联系方式", "type": "string", "required": true, "description": "驾驶员联系电话", "source": "ai", "status": "generated" },
+        { "name": "driverIdNo", "label": "驾驶员证件号", "type": "string", "required": false, "description": "驾驶员身份证或其他有效证件号码", "source": "ai", "status": "generated" },
+        { "name": "repairOrders", "label": "关联报修单", "type": "array", "required": false, "description": "关联报修单号和报修对象集合", "source": "ai", "status": "generated" },
+        { "name": "repairItem", "label": "维修项目", "type": "string", "required": true, "description": "本次入园维修作业内容", "source": "ai", "status": "generated" },
+        { "name": "startTime", "label": "开始时间", "type": "datetime", "required": true, "description": "通行权限生效时间", "source": "ai", "status": "generated" },
+        { "name": "endTime", "label": "结束时间", "type": "datetime", "required": true, "description": "通行权限失效时间", "source": "ai", "status": "generated" },
+        { "name": "gates", "label": "通行道闸", "type": "array", "required": true, "description": "授权通行的具体道闸集合", "source": "ai", "status": "generated" },
+        { "name": "remark", "label": "备注", "type": "string", "required": false, "description": "补充说明，最多200字", "source": "ai", "status": "generated" },
+        { "name": "attachments", "label": "附件", "type": "array", "required": false, "description": "维修方案、车辆照片等相关文件，最多5个", "source": "ai", "status": "generated" }
+      ],
+      "rules": ["驾驶员证件号非必填", "仅可关联待维修或维修中的报修单", "同一登记可关联多条报修单", "开始时间不能早于当前时间", "结束时间必须晚于开始时间", "至少选择一个具体道闸", "道闸选择确认前不直接修改当前登记", "附件最多上传5个"],
+      "interactions": [
+        { "trigger": "点击关联报修单", "action": "选择报修任务", "description": "进入可关联报修单选择流程。", "source": "ai", "status": "generated" },
+        { "trigger": "点击选择通行道闸", "action": "配置道闸权限", "description": "进入道闸选择流程并确认回填授权结果。", "source": "ai", "status": "generated" },
+        { "trigger": "点击移除道闸", "action": "取消单个道闸授权", "description": "从当前登记中移除指定通行道闸。", "source": "ai", "status": "generated" },
+        { "trigger": "点击移除", "action": "取消单条关联", "description": "从当前登记中移除指定报修单。", "source": "ai", "status": "generated" },
+        { "trigger": "点击确认", "action": "保存车辆登记", "description": "校验通过后新增或更新维修车辆登记。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "mv-gate-selector",
+      "title": "通行道闸选择",
+      "purpose": "为维修车辆登记配置可通行的具体道闸权限",
+      "summary": "展示主地块下的行政出入口、货运出入口和员工通道，支持多选具体道闸并确认回填至车辆登记。",
+      "requirements": [
+        { "title": "分层选择道闸", "priority": "P0", "details": "按主地块、出入口分组展示可授权的具体道闸，并支持多选。", "source": "ai", "status": "generated" },
+        { "title": "确认后回填", "priority": "P0", "details": "仅在确认后将已选道闸回填到车辆登记，并以已选结果形式展示。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [
+        { "name": "gates", "label": "通行道闸", "type": "array", "required": true, "description": "可授权给维修车辆的具体道闸集合", "source": "ai", "status": "generated" }
+      ],
+      "rules": ["仅具体道闸可作为授权结果", "确认前的选择不直接修改车辆登记", "未完成确认时可取消本次选择"],
+      "interactions": [
+        { "trigger": "勾选道闸", "action": "暂存道闸选择", "description": "记录本次选择的具体道闸。", "source": "ai", "status": "generated" },
+        { "trigger": "点击确认", "action": "回填通行道闸", "description": "将已选道闸回填到车辆登记并更新已选结果。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "mv-repair-selector",
+      "title": "报修单关联",
+      "purpose": "从符合维修阶段的报修任务中选择车辆对应的作业单据",
+      "summary": "仅展示待维修和维修中的报修单，支持检索并批量勾选后回填。",
+      "requirements": [
+        { "title": "可关联范围提示", "priority": "P0", "details": "明确提示仅可关联待维修或维修中的报修单。", "source": "ai", "status": "generated" },
+        { "title": "报修单检索", "priority": "P1", "details": "支持按报修单号或报修对象关键词、当前状态和紧急程度筛选。", "source": "ai", "status": "generated" },
+        { "title": "多选关联", "priority": "P0", "details": "支持勾选多条报修单并一次确认关联。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [
+        { "name": "orderNo", "label": "报修单号", "type": "string", "required": true, "description": "报修任务唯一编号", "source": "ai", "status": "generated" },
+        { "name": "targetName", "label": "报修对象", "type": "string", "required": true, "description": "需要维修的设备或设施", "source": "ai", "status": "generated" },
+        { "name": "urgency", "label": "紧急程度", "type": "string", "required": true, "description": "一般、紧急或非常紧急", "source": "ai", "status": "generated" },
+        { "name": "status", "label": "当前状态", "type": "string", "required": true, "description": "待维修或维修中", "source": "ai", "status": "generated" },
+        { "name": "chargePerson", "label": "负责人", "type": "string", "required": true, "description": "报修任务当前负责人", "source": "ai", "status": "generated" },
+        { "name": "reportTime", "label": "报修时间", "type": "datetime", "required": true, "description": "报修任务提交时间", "source": "ai", "status": "generated" }
+      ],
+      "rules": ["可选数据范围限定为待维修和维修中", "确认关联前的选择不直接修改车辆登记"],
+      "interactions": [
+        { "trigger": "输入条件或选择筛选项", "action": "筛选报修单", "description": "展示符合条件的可关联报修单。", "source": "ai", "status": "generated" },
+        { "trigger": "勾选报修单", "action": "暂存关联选择", "description": "支持同时选择多条记录并显示已选数量。", "source": "ai", "status": "generated" },
+        { "trigger": "点击确认关联", "action": "回填报修单", "description": "将已选报修单号和报修对象回填至车辆登记。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "mv-detail",
+      "title": "登记详情",
+      "purpose": "集中查看维修车辆登记及通行结果",
+      "summary": "从页面右侧展示车辆、驾驶员证件号、关联报修单、维修项目、通行权限、附件和通行记录。",
+      "requirements": [
+        { "title": "完整信息查看", "priority": "P1", "details": "展示车辆登记全部信息，并回显关联报修单号和报修对象。", "source": "ai", "status": "generated" },
+        { "title": "通行记录查看", "priority": "P1", "details": "已通行记录展示道闸、进出方向、通行时间和结果；无数据时给出空状态提示。", "source": "ai", "status": "generated" }
       ],
       "fields": [],
-      "rules": [],
+      "rules": ["详情信息只读", "仅已产生通行数据的记录展示通行明细"],
       "interactions": [
-        {
-          "trigger": "点击新增登记",
-          "action": "打开新增弹窗",
-          "description": "打开新增维修车辆登记表单弹窗。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "trigger": "点击刷新",
-          "action": "重新加载数据",
-          "description": "重新生成 Mock 数据并刷新列表。",
-          "source": "ai",
-          "status": "generated"
-        }
-      ],
-      "ruleImages": [],
-      "source": "ai",
-      "status": "generated"
-    },
-    {
-      "id": "mv-table",
-      "title": "记录列表",
-      "purpose": "展示维修车辆登记记录，支持排序、查看详情、编辑、作废和删除操作",
-      "summary": "以表格形式展示所有维修车辆登记记录，包含车牌号、车辆类型、驾驶员、维修项目、通行时间段、道闸权限、状态等信息。每条记录根据状态提供不同的操作选项。",
-      "requirements": [
-        {
-          "title": "展示记录列表",
-          "priority": "P1",
-          "details": "以分页表格形式展示维修车辆登记记录，包含序号、车牌号、车辆类型、驾驶员、联系方式、维修项目、通行时间段、通行道闸数量、状态、登记时间、登记人和操作列。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "title": "通行道闸 hover 查看",
-          "priority": "P2",
-          "details": "通行道闸列显示关联闸口数量，hover popover 展示详细的闸口名称列表。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "title": "查看详情",
-          "priority": "P1",
-          "details": "点击查看图标打开详情弹窗，展示车辆信息、附件列表和通行记录明细。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "title": "编辑记录",
-          "priority": "P1",
-          "details": "待通行和已作废状态记录可编辑；已通行和已过期记录不可编辑。已作废记录编辑提交后状态恢复为待通行。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "title": "作废记录",
-          "priority": "P1",
-          "details": "待通行状态记录可作废，作废前需二次确认。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "title": "删除记录",
-          "priority": "P2",
-          "details": "已作废状态记录可删除，删除前需二次确认。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "title": "状态标签展示",
-          "priority": "P1",
-          "details": "待通行(黄色)、已通行(蓝色)、已过期(红色)、已作废(灰色)，以不同颜色 Tag 区分。",
-          "source": "ai",
-          "status": "generated"
-        }
-      ],
-      "fields": [
-        {
-          "name": "plateNumber",
-          "label": "车牌号",
-          "type": "string",
-          "required": true,
-          "description": "维修车辆车牌号，如粤B·12345",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "vehicleType",
-          "label": "车辆类型",
-          "type": "string",
-          "required": true,
-          "description": "小型车/中型车/大型车",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "driver",
-          "label": "驾驶员",
-          "type": "string",
-          "required": true,
-          "description": "驾驶员姓名",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "phone",
-          "label": "联系方式",
-          "type": "string",
-          "required": true,
-          "description": "驾驶员手机号码",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "repairItem",
-          "label": "维修项目",
-          "type": "string",
-          "required": true,
-          "description": "维修作业内容描述",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "gates",
-          "label": "通行道闸",
-          "type": "array",
-          "required": true,
-          "description": "授权通行的闸口ID列表",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "startTime",
-          "label": "开始时间",
-          "type": "datetime",
-          "required": true,
-          "description": "通行权限生效时间，不能早于当前时间",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "endTime",
-          "label": "结束时间",
-          "type": "datetime",
-          "required": true,
-          "description": "通行权限失效时间，须晚于开始时间",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "status",
-          "label": "状态",
-          "type": "string",
-          "required": true,
-          "description": "当前登记状态：pending/passed/expired/cancelled",
-          "source": "ai",
-          "status": "generated"
-        }
-      ],
-      "rules": [
-        "已通行和已过期记录禁止编辑和作废",
-        "已作废记录可编辑（提交后恢复待通行）和删除",
-        "待通行记录可编辑和作废",
-        "删除和作废操作需二次确认",
-        "结束时间到达后系统自动标记为已过期",
-        "操作列使用图标按钮 + hover tooltip 提示"
-      ],
-      "interactions": [
-        {
-          "trigger": "点击查看图标",
-          "action": "打开详情弹窗",
-          "description": "展示车辆基本信息、附件和通行记录明细。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "trigger": "点击编辑图标",
-          "action": "打开编辑弹窗",
-          "description": "回填表单数据进入编辑模式。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "trigger": "点击作废图标",
-          "action": "作废记录",
-          "description": "二次确认后将记录状态改为已作废。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "trigger": "点击删除图标",
-          "action": "删除记录",
-          "description": "二次确认后移除该条记录。",
-          "source": "ai",
-          "status": "generated"
-        }
-      ],
-      "ruleImages": [],
-      "source": "ai",
-      "status": "generated"
-    },
-    {
-      "id": "mv-dialog",
-      "title": "新增/编辑弹窗",
-      "purpose": "录入或修改维修车辆登记信息",
-      "summary": "表单弹窗包含车牌号、车辆类型、驾驶员、联系方式、维修项目、通行时间段、通行道闸树形选择、备注和附件上传。支持新增和编辑两种模式。",
-      "requirements": [
-        {
-          "title": "表单字段录入",
-          "priority": "P1",
-          "details": "包含车牌号（必填）、车辆类型（下拉选择）、驾驶员（必填）、联系方式（必填）、维修项目（必填 textarea）、开始时间（默认当前时间，不能早于当前）、结束时间（必填且晚于开始时间）。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "title": "通行道闸树形选择",
-          "priority": "P1",
-          "details": "以树形结构展示：主地块 > 行政出入口/货运出入口/员工通道 > 进口/出口。支持勾选叶子节点多选，至少选择一个。树形区域固定高度150px可滚动。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "title": "附件上传",
-          "priority": "P2",
-          "details": "支持上传图片、PDF、Word 等格式文件，非必填，最多5个文件。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "title": "表单校验",
-          "priority": "P1",
-          "details": "提交前进行完整校验，不合规字段标红提示。包括车牌号格式、时间合法性、道闸选择等。",
-          "source": "ai",
-          "status": "generated"
-        }
-      ],
-      "fields": [
-        {
-          "name": "plateNumber",
-          "label": "车牌号",
-          "type": "string",
-          "required": true,
-          "description": "维修车辆车牌号，支持新能源车牌格式",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "vehicleType",
-          "label": "车辆类型",
-          "type": "select",
-          "required": true,
-          "description": "小型车/中型车/大型车下拉选择",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "driver",
-          "label": "驾驶员",
-          "type": "string",
-          "required": true,
-          "description": "驾驶员姓名",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "phone",
-          "label": "联系方式",
-          "type": "string",
-          "required": true,
-          "description": "驾驶员手机号码",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "repairItem",
-          "label": "维修项目",
-          "type": "textarea",
-          "required": true,
-          "description": "维修作业内容描述",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "startTime",
-          "label": "开始时间",
-          "type": "datetime",
-          "required": true,
-          "description": "通行权限生效时间，不能早于当前时间",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "endTime",
-          "label": "结束时间",
-          "type": "datetime",
-          "required": true,
-          "description": "通行权限失效时间，须晚于开始时间",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "gates",
-          "label": "通行道闸",
-          "type": "treeSelect",
-          "required": true,
-          "description": "树形结构的闸口选择，至少选一个叶子节点",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "remark",
-          "label": "备注",
-          "type": "textarea",
-          "required": false,
-          "description": "备注信息，最多200字",
-          "source": "ai",
-          "status": "generated"
-        }
-      ],
-      "rules": [
-        "车牌号必填，支持新能源车牌格式",
-        "驾驶员和联系方式必填",
-        "维修项目必填",
-        "开始时间不能早于当前时间",
-        "结束时间必须晚于开始时间",
-        "通行道闸至少选择一个叶子节点",
-        "附件非必填，最多5个文件"
-      ],
-      "interactions": [
-        {
-          "trigger": "点击确认提交",
-          "action": "保存记录",
-          "description": "前端校验通过后保存数据，新增时生成新记录并置为待通行状态，编辑时更新原记录。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "trigger": "点击取消",
-          "action": "关闭弹窗",
-          "description": "关闭弹窗，丢弃未保存的修改。",
-          "source": "ai",
-          "status": "generated"
-        }
+        { "trigger": "点击关闭", "action": "退出详情", "description": "返回维修车辆记录列表。", "source": "ai", "status": "generated" }
       ],
       "ruleImages": [],
       "source": "ai",

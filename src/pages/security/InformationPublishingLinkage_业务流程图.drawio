@@ -1,0 +1,164 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.3.0 Chrome/140.0.7339.249 Electron/38.7.2 Safari/537.36" version="29.3.0">
+  <diagram id="information-publishing-flow" name="信息发布联动业务流程">
+    <mxGraphModel dx="1426" dy="841" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="lane-user" parent="1" style="swimlane;horizontal=0;startSize=110;fillColor=#f5f5f5;strokeColor=#b7b7b7;html=1;fontStyle=1;" value="值班人员" vertex="1">
+          <mxGeometry height="150" width="1740" as="geometry" />
+        </mxCell>
+        <mxCell id="start" parent="lane-user" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="开始" vertex="1">
+          <mxGeometry height="60" width="60" x="120" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="select" parent="lane-user" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" value="按楼栋选择在线终端&#xa;或从地图选择终端" vertex="1">
+          <mxGeometry height="60" width="140" x="300" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="publish" parent="lane-user" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" value="发起信息发布" vertex="1">
+          <mxGeometry height="60" width="140" x="660" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="configure" parent="lane-user" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" value="选择媒体类型&#xa;填写文字或上传素材&#xa;设置截止播放时间" vertex="1">
+          <mxGeometry height="80" width="140" x="1020" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="confirm-publish" parent="lane-user" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" value="确认发布" vertex="1">
+          <mxGeometry height="60" width="140" x="1380" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="lane-system" parent="1" style="swimlane;horizontal=0;startSize=110;fillColor=#e8f4f8;strokeColor=#6c8ebf;html=1;fontStyle=1;" value="信息发布联动" vertex="1">
+          <mxGeometry height="150" width="1740" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="selected-decision" parent="lane-system" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="是否已选择&#xa;在线终端？" vertex="1">
+          <mxGeometry height="80" width="140" x="480" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="selection-tip" parent="lane-system" style="shape=mxgraph.flowchart.document;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="提示选择至少一台&#xa;在线信息终端" vertex="1">
+          <mxGeometry height="80" width="120" x="830" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="content-decision" parent="lane-system" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="发布内容与&#xa;截止时间是否完整？" vertex="1">
+          <mxGeometry height="80" width="140" x="1200" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="create-tasks" parent="lane-system" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="按每台目标设备&#xa;创建独立播放任务" vertex="1">
+          <mxGeometry height="60" width="140" x="1560" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="lane-terminal" parent="1" style="swimlane;horizontal=0;startSize=110;fillColor=#e8f5e9;strokeColor=#82b366;html=1;fontStyle=1;" value="信息终端" vertex="1">
+          <mxGeometry height="150" width="1740" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="deliver" parent="lane-terminal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;" value="接收发布指令&#xa;开始播放文字、图片或视频" vertex="1">
+          <mxGeometry height="60" width="140" x="1290" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="stop-playback" parent="lane-terminal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;" value="停止播放" vertex="1">
+          <mxGeometry height="60" width="140" x="1460" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="lane-monitor" parent="1" style="swimlane;horizontal=0;startSize=110;fillColor=#fff9e6;strokeColor=#d6b656;html=1;fontStyle=1;" value="发布状态监控" vertex="1">
+          <mxGeometry height="150" width="1740" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="monitor-tasks" parent="lane-monitor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" value="按设备展示活动任务&#xa;设备名称、媒介、摘要、截止时间" vertex="1">
+          <mxGeometry height="60" width="140" x="120" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="preview" parent="lane-monitor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" value="查看完整文字&#xa;或预览图片、视频" vertex="1">
+          <mxGeometry height="60" width="140" x="410" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="select-tasks" parent="lane-monitor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" value="勾选需要停播的&#xa;一个或多个任务" vertex="1">
+          <mxGeometry height="60" width="140" x="840" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="remove-task" parent="lane-monitor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" value="移除已停止任务&#xa;更新活动任务数量" vertex="1">
+          <mxGeometry height="60" width="140" x="1560" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="lane-stop" parent="1" style="swimlane;horizontal=0;startSize=110;fillColor=#fce4ec;strokeColor=#b85450;html=1;fontStyle=1;" value="停播处置" vertex="1">
+          <mxGeometry height="150" width="1740" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="stop" parent="lane-stop" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;" value="执行停播" vertex="1">
+          <mxGeometry height="60" width="140" x="1020" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="stop-decision" parent="lane-stop" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="确认停止已选&#xa;发布任务？" vertex="1">
+          <mxGeometry height="80" width="140" x="1200" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="stop-command" parent="lane-stop" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;" value="向已选设备&#xa;下发停播指令" vertex="1">
+          <mxGeometry height="60" width="140" x="1380" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="end" parent="lane-stop" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="结束" vertex="1">
+          <mxGeometry height="60" width="60" x="1650" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="start" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="select">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="select" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="selected-decision">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="selected-decision" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="selection-tip" value="否">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="selection-tip" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;endArrow=classic;exitX=0.5;exitY=0.9;exitDx=0;exitDy=0;exitPerimeter=0;" target="select" value="重新选择">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="890" y="290" />
+              <mxPoint x="370" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="publish" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="configure">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="configure" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="content-decision">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="content-decision" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;endArrow=classic;" target="configure" value="否，继续配置">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="content-decision" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="confirm-publish" value="是">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="confirm-publish" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="create-tasks">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="create-tasks" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="deliver">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1630" y="290" />
+              <mxPoint x="1360" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="deliver" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="monitor-tasks">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="monitor-tasks" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;endArrow=classic;" target="preview">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="monitor-tasks" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="select-tasks">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="190" y="580" />
+              <mxPoint x="730" y="580" />
+              <mxPoint x="730" y="525" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e15" edge="1" parent="1" source="select-tasks" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="stop">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" edge="1" parent="1" source="stop" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="stop-decision">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e18" edge="1" parent="1" source="stop-decision" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="stop-command" value="是">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e19" edge="1" parent="1" source="stop-command" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="stop-playback">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e20" edge="1" parent="1" source="stop-playback" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="remove-task">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e21" edge="1" parent="1" source="remove-task" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Bk0_jTqL8-Qb7Mirp-zZ-2" edge="1" parent="1" source="selected-decision" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="publish">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e17" edge="1" parent="1" source="stop-decision" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;endArrow=classic;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.486;entryY=0.883;entryDx=0;entryDy=0;entryPerimeter=0;" target="select-tasks" value="否">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="730" as="sourcePoint" />
+            <mxPoint x="900" y="610" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

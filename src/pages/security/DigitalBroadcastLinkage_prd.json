@@ -1,0 +1,78 @@
+{
+  "pageName": "DigitalBroadcastLinkage",
+  "pageId": "DigitalBroadcastLinkage",
+  "version": "1.0.0",
+  "lastUpdated": "2026-07-16T00:00:00Z",
+  "intent": {
+    "type": "workflow",
+    "summary": "面向应急广播场景，选择广播终端并通过喊话台向目标队列实时喊话。"
+  },
+  "overview": "数字广播联动用于在园区地图上定位广播终端，按区域选择在线设备加入执行队列，并在队列确认后发起和结束实时喊话。",
+  "modules": [
+    {
+      "id": "broadcast-zones",
+      "title": "广播分区",
+      "purpose": "按地块、楼栋和楼层筛选可接收喊话的广播设备。",
+      "summary": "展示设备层级、在线状态和待加入队列的勾选状态。",
+      "requirements": [
+        { "title": "展示设备资源层级", "priority": "P0", "details": "按地块、楼栋和楼层展示全部广播设备，并清晰标识在线和离线状态。", "source": "ai", "status": "generated" },
+        { "title": "批量加入终端队列", "priority": "P0", "details": "用户可勾选多个在线设备，一次加入本次喊话的终端队列。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [
+        { "name": "deviceName", "label": "设备名称", "type": "text", "required": true, "description": "广播终端的业务名称。", "source": "ai", "status": "generated" },
+        { "name": "deviceStatus", "label": "实时状态", "type": "status", "required": true, "description": "设备在线或离线状态。", "source": "ai", "status": "generated" }
+      ],
+      "rules": ["仅在线设备可被勾选并加入终端队列。", "喊话执行期间不可调整终端队列。"],
+      "interactions": [{ "trigger": "点击加入队列", "action": "批量添加设备", "description": "将所选在线广播设备加入右侧终端队列。", "source": "ai", "status": "generated" }],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "broadcast-map",
+      "title": "广播终端地图",
+      "purpose": "在园区空间内定位广播设备，并支持单点调整终端队列。",
+      "summary": "地图展示喇叭点位和设备实时状态，点击点位可查看设备和队列状态。",
+      "requirements": [
+        { "title": "地图气泡操作", "priority": "P0", "details": "点击广播设备后显示设备名称、状态和队列状态，并按状态提供加入或移除操作。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [
+        { "name": "queueStatus", "label": "队列状态", "type": "boolean", "required": true, "description": "设备是否处于当前喊话终端队列。", "source": "ai", "status": "generated" }
+      ],
+      "rules": ["已入队设备显示移除操作，未入队在线设备显示加入队列操作。", "喊话执行期间地图中的队列操作不可用。"],
+      "interactions": [{ "trigger": "点击地图广播点位", "action": "查看并调整队列状态", "description": "打开设备信息并根据当前队列状态调整该设备。", "source": "ai", "status": "generated" }],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "intercom-control",
+      "title": "喊话台控制",
+      "purpose": "控制实时喊话的开始、执行和结束状态。",
+      "summary": "待机时显示网络就绪和零计时，开始喊话后显示已连通并累计时长。",
+      "requirements": [
+        { "title": "喊话状态机", "priority": "P0", "details": "用户可在已配置终端队列后开始喊话，并可结束正在执行的喊话。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [
+        { "name": "callDuration", "label": "喊话时长", "type": "duration", "required": true, "description": "本次喊话已执行的累计时间。", "source": "ai", "status": "generated" },
+        { "name": "connectionStatus", "label": "连通状态", "type": "status", "required": true, "description": "喊话台网络就绪或已连通状态。", "source": "ai", "status": "generated" }
+      ],
+      "rules": ["终端队列为空时不可开始喊话。", "每次开始喊话时长从零开始累计。"],
+      "interactions": [{ "trigger": "点击开始喊话或结束喊话", "action": "切换喊话状态", "description": "开始后进入执行状态并开始计时，结束后恢复待机状态。", "source": "ai", "status": "generated" }],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "terminal-queue",
+      "title": "终端队列",
+      "purpose": "确认准备接收当前喊话的目标广播终端。",
+      "summary": "展示队列内设备名称与位置，并在非执行状态下支持逐项移除。",
+      "requirements": [
+        { "title": "队列操作互斥", "priority": "P0", "details": "喊话执行期间必须锁定全部移除操作，喊话结束后恢复操作能力。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [{ "name": "queueDevice", "label": "目标终端", "type": "text", "required": true, "description": "准备接收当前喊话的广播设备。", "source": "ai", "status": "generated" }],
+      "rules": ["喊话执行期间不得移除队列中的任何设备。"],
+      "interactions": [{ "trigger": "点击移除", "action": "移出终端队列", "description": "在待机状态下将指定广播终端移出本次喊话目标。", "source": "ai", "status": "generated" }],
+      "source": "ai",
+      "status": "generated"
+    }
+  ]
+}

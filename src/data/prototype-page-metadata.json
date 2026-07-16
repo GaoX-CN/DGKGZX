@@ -1,0 +1,58 @@
+{
+  "pages": {
+    "RepairManagement": {
+      "status": "completed",
+      "versions": []
+    },
+    "InspectionTeams": {
+      "status": "completed",
+      "versions": []
+    },
+    "InspectionOrders": {
+      "status": "completed",
+      "versions": []
+    },
+    "InspectionPlans": {
+      "status": "completed",
+      "versions": []
+    },
+    "InspectionItems": {
+      "status": "completed",
+      "versions": []
+    },
+    "AccessLinkage": {
+      "status": "completed",
+      "versions": []
+    },
+    "BarrierLinkage": {
+      "status": "completed",
+      "versions": []
+    },
+    "MaintenanceVehicle": {
+      "status": "completed",
+      "versions": [
+        {
+          "version": 1,
+          "createdAt": "2026-07-16T09:31:26.548Z",
+          "description": "创建原型"
+        }
+      ]
+    },
+    "LightingLinkage": {
+      "status": "completed",
+      "versions": []
+    },
+    "RadioIntercomLinkage": {
+      "status": "completed",
+      "versions": []
+    },
+    "InformationPublishingLinkage": {
+      "status": "completed",
+      "versions": []
+    },
+    "DigitalBroadcastLinkage": {
+      "status": "completed",
+      "versions": []
+    }
+  }
+}

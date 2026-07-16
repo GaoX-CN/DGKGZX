@@ -1,0 +1,148 @@
+{
+  "pageName": "RadioIntercomLinkage",
+  "pageId": "RadioIntercomLinkage",
+  "version": "1.0.0",
+  "lastUpdated": "2026-07-14T00:00:00Z",
+  "intent": {
+    "type": "workflow",
+    "summary": "监控园区无线对讲终端状态，提供单终端通信、群组通信和群组成员管理能力。"
+  },
+  "overview": "无线对讲联动页面面向园区安保、消防和值班人员，统一查看无线对讲终端的位置和在线状态，支持发起语音呼叫、视频调阅、发送消息、创建对讲群组以及维护群组成员关系，满足日常巡逻和突发事件中的快速通信需求。",
+  "modules": [
+    {
+      "id": "ril-terminals",
+      "title": "对讲终端管理",
+      "purpose": "集中查看无线对讲终端并快速发起单终端通信。",
+      "summary": "按终端名称和终端标识展示设备清单，显示在线或离线状态，支持搜索、选择和对在线终端执行语音、视频、消息操作。",
+      "requirements": [
+        { "title": "查看终端状态", "priority": "P0", "details": "展示无线对讲终端名称、终端标识和在线状态，帮助值班人员判断可用通信对象。", "source": "ai", "status": "generated" },
+        { "title": "搜索对讲终端", "priority": "P1", "details": "支持按人员姓名或终端标识筛选目标终端。", "source": "ai", "status": "generated" },
+        { "title": "发起单终端通信", "priority": "P0", "details": "对在线终端提供语音呼叫、视频调阅和发送消息入口。", "source": "ai", "status": "generated" },
+        { "title": "选择终端创建群组", "priority": "P0", "details": "支持选择多个在线终端，为后续创建对讲群组提供成员范围。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [
+        { "name": "terminalName", "label": "终端人员", "type": "文本", "required": true, "description": "无线对讲终端对应的人员名称。", "source": "ai", "status": "generated" },
+        { "name": "terminalId", "label": "终端标识", "type": "文本", "required": true, "description": "无线对讲终端的唯一业务标识。", "source": "ai", "status": "generated" },
+        { "name": "terminalStatus", "label": "终端状态", "type": "枚举", "required": true, "description": "终端当前在线或离线状态。", "source": "ai", "status": "generated" },
+        { "name": "terminalKeyword", "label": "搜索条件", "type": "文本", "required": false, "description": "用于按人员姓名或终端标识搜索终端。", "source": "ai", "status": "generated" },
+        { "name": "selectedTerminals", "label": "已选终端", "type": "终端集合", "required": false, "description": "准备创建对讲群组的终端集合。", "source": "ai", "status": "generated" },
+        { "name": "signal", "label": "信号质量", "type": "文本", "required": false, "description": "终端当前通信信号质量。", "source": "ai", "status": "generated" },
+        { "name": "lastReport", "label": "最后上报时间", "type": "日期时间", "required": false, "description": "终端最近一次上报状态的时间。", "source": "ai", "status": "generated" }
+      ],
+      "rules": [
+        "离线终端不可被选择，也不可发起语音、视频或消息操作。",
+        "创建群组至少需要选择两台在线终端。",
+        "清空搜索条件后恢复展示全部终端。",
+        "终端列表中的状态应与地图点位状态保持一致。"
+      ],
+      "interactions": [
+        { "trigger": "输入姓名或终端标识", "action": "筛选终端", "description": "系统根据搜索条件更新终端清单。", "source": "ai", "status": "generated" },
+        { "trigger": "点击终端信息", "action": "查看终端详情", "description": "系统将该终端设为当前查看对象并展示其地图位置和状态信息。", "source": "ai", "status": "generated" },
+        { "trigger": "点击语音呼叫", "action": "发起语音通信", "description": "系统向指定在线终端发起语音呼叫，并展示呼叫状态和挂断操作。", "source": "ai", "status": "generated" },
+        { "trigger": "点击视频调阅", "action": "查看实时画面", "description": "系统尝试连接指定终端的实时画面，并提供结束查看操作。", "source": "ai", "status": "generated" },
+        { "trigger": "点击发送消息", "action": "编辑并发送消息", "description": "用户输入消息内容后发送给指定在线终端。", "source": "ai", "status": "generated" },
+        { "trigger": "勾选终端", "action": "更新群组候选成员", "description": "系统同步更新已选终端数量，并根据数量控制创建群组操作。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "ril-map",
+      "title": "无线终端空间监控",
+      "purpose": "在园区地图上查看无线终端位置和实时通信状态。",
+      "summary": "通过地图点位展示无线对讲终端的空间分布，点位颜色与终端在线状态保持一致，支持从地图点位进入单终端通信操作。",
+      "requirements": [
+        { "title": "展示终端地图位置", "priority": "P0", "details": "在园区地图上标记无线对讲终端位置，并通过颜色区分在线和离线状态。", "source": "ai", "status": "generated" },
+        { "title": "查看终端状态卡片", "priority": "P0", "details": "点击地图点位后展示终端人员、终端标识和当前状态。", "source": "ai", "status": "generated" },
+        { "title": "从地图发起通信", "priority": "P0", "details": "在线终端的状态卡片支持直接发起语音、视频和消息操作。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [
+        { "name": "mapPosition", "label": "终端位置", "type": "位置坐标", "required": true, "description": "无线对讲终端在园区地图上的位置。", "source": "ai", "status": "generated" },
+        { "name": "activeTerminal", "label": "当前终端", "type": "终端信息", "required": false, "description": "当前打开地图状态卡片的无线对讲终端。", "source": "ai", "status": "generated" },
+        { "name": "mapStatusSummary", "label": "状态汇总", "type": "统计信息", "required": true, "description": "当前在线终端和离线终端数量。", "source": "ai", "status": "generated" }
+      ],
+      "rules": [
+        "在线终端使用在线状态标识，离线终端使用离线状态标识。",
+        "离线终端仅支持查看状态，不提供通信操作。",
+        "地图上选中的终端应与终端清单中的当前终端保持一致。"
+      ],
+      "interactions": [
+        { "trigger": "点击地图终端点位", "action": "查看终端状态", "description": "系统展示终端状态卡片并突出当前终端。", "source": "ai", "status": "generated" },
+        { "trigger": "点击状态卡片中的通信操作", "action": "发起对应通信", "description": "系统根据用户选择进入语音、视频或消息通信流程。", "source": "ai", "status": "generated" },
+        { "trigger": "关闭终端状态卡片", "action": "取消当前终端查看", "description": "系统关闭当前终端信息，恢复地图点位浏览状态。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "ril-groups",
+      "title": "对讲群组管理",
+      "purpose": "维护应急通信群组并对群组成员发起统一通信。",
+      "summary": "展示现有对讲群组及成员数量，支持创建群组、编辑成员、组呼、发送群消息和解散群组。",
+      "requirements": [
+        { "title": "创建对讲群组", "priority": "P0", "details": "使用已选择的在线终端创建群组，群组需要填写名称并至少包含两台在线终端。", "source": "ai", "status": "generated" },
+        { "title": "维护群组成员", "priority": "P0", "details": "支持从可用终端中添加成员或从当前群组中移除成员，并保存成员关系。", "source": "ai", "status": "generated" },
+        { "title": "群组通信", "priority": "P0", "details": "支持对指定群组发起组呼或发送群消息。", "source": "ai", "status": "generated" },
+        { "title": "解散群组", "priority": "P1", "details": "支持解散不再使用的群组，解散后清除群组成员关系。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [
+        { "name": "groupName", "label": "群组名称", "type": "文本", "required": true, "description": "对讲群组的业务名称。", "source": "ai", "status": "generated" },
+        { "name": "groupId", "label": "群组标识", "type": "文本", "required": true, "description": "对讲群组的唯一业务标识。", "source": "ai", "status": "generated" },
+        { "name": "groupMembers", "label": "群组成员", "type": "终端集合", "required": true, "description": "加入该对讲群组的无线终端。", "source": "ai", "status": "generated" },
+        { "name": "groupAction", "label": "群组通信方式", "type": "枚举", "required": true, "description": "群组通信方式，包括组呼和群消息。", "source": "ai", "status": "generated" },
+        { "name": "groupMessage", "label": "群消息内容", "type": "多行文本", "required": false, "description": "发送给群组成员的消息内容。", "source": "ai", "status": "generated" }
+      ],
+      "rules": [
+        "群组名称不能为空。",
+        "新建群组至少包含两台在线终端。",
+        "群组通信只能针对当前群组成员发起。",
+        "解散群组前必须经过用户确认。",
+        "保存成员关系后，群组成员数量和成员清单同步更新。"
+      ],
+      "interactions": [
+        { "trigger": "点击创建群组", "action": "填写群组信息", "description": "系统展示群组名称和已选终端，用户确认后创建群组。", "source": "ai", "status": "generated" },
+        { "trigger": "点击编辑群组", "action": "调整群组成员", "description": "用户查看当前成员并添加或移除终端，保存后更新群组关系。", "source": "ai", "status": "generated" },
+        { "trigger": "点击组呼", "action": "发起群组语音通信", "description": "系统向当前群组成员发起组呼，并展示通信状态和挂断操作。", "source": "ai", "status": "generated" },
+        { "trigger": "点击群消息", "action": "发送群消息", "description": "用户编辑消息并发送至当前群组成员。", "source": "ai", "status": "generated" },
+        { "trigger": "点击解散群组", "action": "确认并解散群组", "description": "系统要求用户确认，确认后移除群组及其成员关系。", "source": "ai", "status": "generated" },
+        { "trigger": "收起或展开群组区域", "action": "调整群组信息可见状态", "description": "用户控制群组信息区域的展示状态，不影响地图和群组数据。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "ril-communication",
+      "title": "通信操作反馈",
+      "purpose": "承载单终端和群组通信过程中的内容编辑、状态反馈和结束操作。",
+      "summary": "根据通信对象和通信方式展示对应的呼叫、视频或消息内容，并反馈发送或连接结果。",
+      "requirements": [
+        { "title": "语音呼叫状态反馈", "priority": "P0", "details": "展示呼叫对象、呼叫中或已接通状态，并允许用户挂断。", "source": "ai", "status": "generated" },
+        { "title": "视频调阅状态反馈", "priority": "P1", "details": "展示实时画面连接状态、查看对象和结束查看操作。", "source": "ai", "status": "generated" },
+        { "title": "消息编辑和发送", "priority": "P0", "details": "用户输入消息内容后发送给单个终端或群组，并在发送后反馈结果。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [
+        { "name": "communicationType", "label": "通信类型", "type": "枚举", "required": true, "description": "通信方式，包括语音、视频和消息。", "source": "ai", "status": "generated" },
+        { "name": "communicationTarget", "label": "通信对象", "type": "终端或群组", "required": true, "description": "本次通信对应的终端或对讲群组。", "source": "ai", "status": "generated" },
+        { "name": "messageContent", "label": "消息内容", "type": "多行文本", "required": false, "description": "发送给终端或群组的文字消息。", "source": "ai", "status": "generated" },
+        { "name": "communicationStatus", "label": "通信状态", "type": "枚举", "required": true, "description": "通信当前状态，如呼叫中、已接通、连接中或已发送。", "source": "ai", "status": "generated" }
+      ],
+      "rules": [
+        "通信对象必须为在线终端或包含可用成员的群组。",
+        "消息内容不能为空，且不得超过业务允许的长度。",
+        "用户取消或挂断后，当前通信流程结束。",
+        "发送消息后关闭当前编辑状态并反馈发送结果。"
+      ],
+      "interactions": [
+        { "trigger": "输入消息内容", "action": "校验消息内容", "description": "系统校验消息是否为空以及是否超过长度限制。", "source": "ai", "status": "generated" },
+        { "trigger": "点击发送", "action": "发送通信消息", "description": "系统向当前通信对象发送消息，并反馈发送结果。", "source": "ai", "status": "generated" },
+        { "trigger": "点击挂断或取消", "action": "结束当前通信", "description": "系统结束当前语音、视频或消息操作，不再继续通信。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    }
+  ]
+}

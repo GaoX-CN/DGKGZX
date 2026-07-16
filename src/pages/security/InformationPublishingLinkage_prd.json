@@ -1,0 +1,38 @@
+{
+  "pageName": "InformationPublishingLinkage",
+  "pageId": "InformationPublishingLinkage",
+  "version": "1.0.0",
+  "lastUpdated": "2026-07-16T00:00:00Z",
+  "intent": { "type": "workflow", "summary": "选择在线信息终端发布文字、图片或视频内容，并监控和批量停止设备播放任务。" },
+  "overview": "信息发布联动用于向园区内指定在线终端下发应急或通知内容。用户可按楼栋或地图选择终端，设置媒介内容和截止时间，并以设备维度监控、预览和停播已发布任务。",
+  "modules": [
+    {
+      "id": "terminal-selection", "title": "信息终端选择", "purpose": "选择接收发布内容的在线信息终端。", "summary": "按楼栋组织终端，展示在线、离线及设备总数，并支持全选在线终端。",
+      "requirements": [{ "title": "选择在线发布目标", "priority": "P0", "details": "用户可按楼栋选择一台或多台在线终端作为发布目标。", "source": "ai", "status": "generated" }],
+      "fields": [{ "name": "terminalName", "label": "设备名称", "type": "text", "required": true, "description": "终端的业务名称。", "source": "ai", "status": "generated" }, { "name": "terminalStatus", "label": "设备状态", "type": "status", "required": true, "description": "终端的在线或离线状态。", "source": "ai", "status": "generated" }],
+      "rules": ["仅在线终端可作为发布目标。", "全选操作仅影响在线终端。", "未选择终端时发起发布应提示用户先选择在线终端。"], "ruleImages": [],
+      "interactions": [{ "trigger": "点击楼栋", "action": "展开或收起终端", "description": "显示或隐藏该楼栋下的终端。", "source": "ai", "status": "generated" }, { "trigger": "勾选终端", "action": "设置发布目标", "description": "将在线终端加入或移出本次发布目标。", "source": "ai", "status": "generated" }], "source": "ai", "status": "generated"
+    },
+    {
+      "id": "terminal-map", "title": "信息终端地图", "purpose": "在园区地图上查看终端分布和运行状态。", "summary": "通过地图标记查看终端编号和状态，并将在线终端加入发布目标。",
+      "requirements": [{ "title": "查看终端地图状态", "priority": "P1", "details": "应区分展示在线与离线终端，并支持查看终端状态。", "source": "ai", "status": "generated" }],
+      "fields": [{ "name": "terminalId", "label": "终端编号", "type": "text", "required": true, "description": "终端的唯一业务编号。", "source": "ai", "status": "generated" }],
+      "rules": ["离线终端仅支持查看状态，不支持选择发布。", "地图选择结果应同步到发布目标。"], "ruleImages": [],
+      "interactions": [{ "trigger": "点击终端标记", "action": "查看终端信息", "description": "展示终端编号和当前状态。", "source": "ai", "status": "generated" }, { "trigger": "点击选择发布", "action": "加入发布目标", "description": "将在线终端加入本次发布目标。", "source": "ai", "status": "generated" }], "source": "ai", "status": "generated"
+    },
+    {
+      "id": "publish-composer", "title": "信息发布配置", "purpose": "配置发布媒介、内容和截止播放时间，并创建设备播放任务。", "summary": "支持文字、图片和视频三类发布内容，确认发布后按每台目标设备创建独立任务。",
+      "requirements": [{ "title": "配置发布内容", "priority": "P0", "details": "用户可选择文字、图片或视频，并设置相应内容和截止播放时间。", "source": "ai", "status": "generated" }, { "title": "按设备创建任务", "priority": "P0", "details": "确认发布后，每台目标设备应生成独立播放任务。", "source": "ai", "status": "generated" }],
+      "fields": [{ "name": "mediaType", "label": "媒体类型", "type": "select", "required": true, "description": "可选文字、图片或视频。", "source": "ai", "status": "generated" }, { "name": "content", "label": "发布内容", "type": "textarea", "required": true, "description": "文字内容或媒体素材。", "source": "ai", "status": "generated" }, { "name": "deadline", "label": "截止播放时间", "type": "datetime", "required": true, "description": "发布任务的截止播放时间。", "source": "ai", "status": "generated" }],
+      "rules": ["文字内容不得超过200个字符。", "图片或视频发布必须上传PNG、JPG或MP4素材。", "截止播放时间必填，默认值为当前时间后12小时。"], "ruleImages": [],
+      "interactions": [{ "trigger": "点击信息发布", "action": "进入发布配置", "description": "展示针对已选终端的内容配置。", "source": "ai", "status": "generated" }, { "trigger": "确认发布", "action": "创建播放任务", "description": "为每台已选设备创建独立播放任务。", "source": "ai", "status": "generated" }], "source": "ai", "status": "generated"
+    },
+    {
+      "id": "publish-monitor", "title": "发布状态监控", "purpose": "查看正在播放的设备任务，并批量停止已选任务。", "summary": "按设备展示级联名称、媒介类型、内容摘要和截止时间，支持媒体预览与批量停播。",
+      "requirements": [{ "title": "按设备监控播放任务", "priority": "P0", "details": "每台设备对应独立活动卡片，名称应包含设备和所属楼栋。", "source": "ai", "status": "generated" }, { "title": "批量停播", "priority": "P0", "details": "用户可勾选一个或多个任务并在确认后批量停止播放。", "source": "ai", "status": "generated" }, { "title": "查看内容与媒体", "priority": "P1", "details": "长内容支持查看完整摘要，图片和视频任务支持预览。", "source": "ai", "status": "generated" }],
+      "fields": [{ "name": "taskTarget", "label": "目标设备", "type": "text", "required": true, "description": "设备名称及所属楼栋。", "source": "ai", "status": "generated" }, { "name": "taskSummary", "label": "内容摘要", "type": "text", "required": true, "description": "正在播放的文字摘要或素材名称。", "source": "ai", "status": "generated" }, { "name": "taskDeadline", "label": "截止时间", "type": "datetime", "required": true, "description": "设备任务的截止播放时间。", "source": "ai", "status": "generated" }],
+      "rules": ["无活动任务时展示空状态。", "未勾选任务时不可执行停播。", "停播前必须进行二次确认。", "长内容摘要应截断展示并支持查看完整内容。"], "ruleImages": [],
+      "interactions": [{ "trigger": "勾选活动任务", "action": "选择停播对象", "description": "将任务加入或移出批量停播对象。", "source": "ai", "status": "generated" }, { "trigger": "点击停播", "action": "确认批量停播", "description": "确认后停止已选择设备的播放任务。", "source": "ai", "status": "generated" }, { "trigger": "点击图片或视频任务", "action": "预览媒体", "description": "打开对应媒体内容的预览。", "source": "ai", "status": "generated" }], "source": "ai", "status": "generated"
+    }
+  ]
+}

@@ -24,3 +24,20 @@ export interface PrototypePage {
   children?: PrototypePage[]
   isFolder?: boolean
 }
+
+export type PrototypeDesignStatus = 'designing' | 'completed'
+
+export interface PrototypeVersionRecord {
+  version: number
+  createdAt: string
+  description: string
+}
+
+export interface PrototypePageMetadata {
+  status: PrototypeDesignStatus
+  versions: PrototypeVersionRecord[]
+}
+
+export interface PrototypePageMetadataFile {
+  pages: Record<string, Partial<PrototypePageMetadata>>
+}

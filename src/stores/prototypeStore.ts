@@ -1,6 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { PrototypePage, PrototypeModule } from '@/types/prototype'
+import initialPageMetadata from '@/data/prototype-page-metadata.json'
+import type {
+  PrototypeDesignStatus,
+  PrototypePage,
+  PrototypePageMetadata,
+  PrototypePageMetadataFile,
+  PrototypeVersionRecord,
+} from '@/types/prototype'
 
 const defaultPages: PrototypePage[] = [
   {
@@ -178,6 +185,78 @@ const defaultPages: PrototypePage[] = [
           },
         ],
       },
+      {
+        pageId: '应急联动',
+        pageName: '应急联动',
+        isFolder: true,
+        children: [
+          {
+            pageId: 'AccessLinkage',
+            pageName: '门禁联动',
+            pagePath: '/security/access-linkage',
+            modules: [
+              { moduleId: 'al-overview', moduleName: '联动概览', moduleType: 'card', pageId: 'AccessLinkage', requirementId: 'al-overview', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'al-map', moduleName: '园区门禁地图', moduleType: 'unknown', pageId: 'AccessLinkage', requirementId: 'al-map', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'al-events', moduleName: '联动事件列表', moduleType: 'table', pageId: 'AccessLinkage', requirementId: 'al-events', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'al-detail', moduleName: '联动处置详情', moduleType: 'form', pageId: 'AccessLinkage', requirementId: 'al-detail', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+            ],
+          },
+          {
+            pageId: 'BarrierLinkage',
+            pageName: '道闸联动',
+            pagePath: '/security/barrier-linkage',
+            modules: [
+              { moduleId: 'bl-overview', moduleName: '联动概览', moduleType: 'card', pageId: 'BarrierLinkage', requirementId: 'bl-overview', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'bl-map', moduleName: '园区道闸地图', moduleType: 'unknown', pageId: 'BarrierLinkage', requirementId: 'bl-map', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'bl-events', moduleName: '联动事件列表', moduleType: 'table', pageId: 'BarrierLinkage', requirementId: 'bl-events', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'bl-detail', moduleName: '联动处置详情', moduleType: 'form', pageId: 'BarrierLinkage', requirementId: 'bl-detail', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+            ],
+          },
+          {
+            pageId: 'LightingLinkage',
+            pageName: '照明联动',
+            pagePath: '/security/lighting-linkage',
+            modules: [
+              { moduleId: 'll-distribution', moduleName: '照明分布与批量控制', moduleType: 'unknown', pageId: 'LightingLinkage', requirementId: 'll-distribution', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'll-map', moduleName: '地图照明快捷控制', moduleType: 'unknown', pageId: 'LightingLinkage', requirementId: 'll-map', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'll-log', moduleName: '操作日志审计', moduleType: 'table', pageId: 'LightingLinkage', requirementId: 'll-log', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+            ],
+          },
+          {
+            pageId: 'RadioIntercomLinkage',
+            pageName: '无线对讲联动',
+            pagePath: '/security/radio-intercom-linkage',
+            modules: [
+              { moduleId: 'ril-terminals', moduleName: '终端库存与单点交互', moduleType: 'unknown', pageId: 'RadioIntercomLinkage', requirementId: 'ril-terminals', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'ril-map', moduleName: '无线终端空间监控', moduleType: 'unknown', pageId: 'RadioIntercomLinkage', requirementId: 'ril-map', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'ril-groups', moduleName: '对讲群组管理', moduleType: 'unknown', pageId: 'RadioIntercomLinkage', requirementId: 'ril-groups', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'ril-dialogs', moduleName: '呼叫、视频与消息弹窗', moduleType: 'form', pageId: 'RadioIntercomLinkage', requirementId: 'ril-dialogs', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+            ],
+          },
+          {
+            pageId: 'InformationPublishingLinkage',
+            pageName: '信息发布联动',
+            pagePath: '/security/information-publishing-linkage',
+            modules: [
+              { moduleId: 'ipl-terminals', moduleName: '信息终端选择', moduleType: 'unknown', pageId: 'InformationPublishingLinkage', requirementId: 'ipl-terminals', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'ipl-map', moduleName: '信息终端地图', moduleType: 'unknown', pageId: 'InformationPublishingLinkage', requirementId: 'ipl-map', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'ipl-monitor', moduleName: '发布状态监控', moduleType: 'card', pageId: 'InformationPublishingLinkage', requirementId: 'ipl-monitor', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'ipl-composer', moduleName: '信息发布配置', moduleType: 'form', pageId: 'InformationPublishingLinkage', requirementId: 'ipl-composer', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+            ],
+          },
+          {
+            pageId: 'DigitalBroadcastLinkage',
+            pageName: '数字广播联动',
+            pagePath: '/security/digital-broadcast-linkage',
+            modules: [
+              { moduleId: 'dbl-zones', moduleName: '广播分区选择', moduleType: 'unknown', pageId: 'DigitalBroadcastLinkage', requirementId: 'dbl-zones', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'dbl-map', moduleName: '广播终端地图', moduleType: 'unknown', pageId: 'DigitalBroadcastLinkage', requirementId: 'dbl-map', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'dbl-intercom', moduleName: '喊话台控制', moduleType: 'card', pageId: 'DigitalBroadcastLinkage', requirementId: 'dbl-intercom', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'dbl-queue', moduleName: '终端队列', moduleType: 'unknown', pageId: 'DigitalBroadcastLinkage', requirementId: 'dbl-queue', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+            ],
+          },
+        ],
+      },
     ],
   },
   {
@@ -255,6 +334,7 @@ const defaultPages: PrototypePage[] = [
 
 export const usePrototypeStore = defineStore('prototype', () => {
   const pages = ref<PrototypePage[]>([...defaultPages])
+  const pageMetadata = ref<PrototypePageMetadataFile>(normalizeMetadata(initialPageMetadata))
   const currentPageId = ref<string>('')
   const currentModuleId = ref<string>('')
 
@@ -299,6 +379,61 @@ export const usePrototypeStore = defineStore('prototype', () => {
     currentModuleId.value = moduleId
   }
 
+  function getPageMetadata(pageId: string): PrototypePageMetadata {
+    const metadata = pageMetadata.value.pages[pageId]
+    return {
+      status: metadata?.status === 'completed' ? 'completed' : 'designing',
+      versions: Array.isArray(metadata?.versions) ? metadata.versions : [],
+    }
+  }
+
+  async function loadPageMetadata() {
+    if (!import.meta.env.DEV) return
+
+    try {
+      const response = await fetch('/api/prototype-page-metadata')
+      if (response.ok) {
+        pageMetadata.value = normalizeMetadata(await response.json())
+      }
+    } catch {
+      // The bundled metadata remains available if the development API is unavailable.
+    }
+  }
+
+  async function setPageStatus(pageId: string, status: PrototypeDesignStatus) {
+    const metadata = getPageMetadata(pageId)
+    pageMetadata.value.pages[pageId] = { ...metadata, status }
+    await savePageMetadata()
+  }
+
+  async function addVersionRecord(pageId: string, description: string) {
+    const metadata = getPageMetadata(pageId)
+    const nextVersion = Math.max(0, ...metadata.versions.map((record) => record.version)) + 1
+    const record: PrototypeVersionRecord = {
+      version: nextVersion,
+      createdAt: new Date().toISOString(),
+      description,
+    }
+    pageMetadata.value.pages[pageId] = {
+      ...metadata,
+      versions: [record, ...metadata.versions],
+    }
+    await savePageMetadata()
+  }
+
+  async function savePageMetadata() {
+    if (!import.meta.env.DEV) return
+
+    const response = await fetch('/api/prototype-page-metadata', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(pageMetadata.value),
+    })
+    if (!response.ok) {
+      throw new Error('保存页面元数据失败')
+    }
+  }
+
   return {
     pages,
     currentPageId,
@@ -306,9 +441,21 @@ export const usePrototypeStore = defineStore('prototype', () => {
     currentPage,
     currentPageName,
     currentModule,
+    pageMetadata,
     setPages,
     addPage,
     setCurrentPage,
     setCurrentModule,
+    getPageMetadata,
+    loadPageMetadata,
+    setPageStatus,
+    addVersionRecord,
   }
 })
+
+function normalizeMetadata(data: unknown): PrototypePageMetadataFile {
+  const candidate = data as Partial<PrototypePageMetadataFile> | null
+  return {
+    pages: candidate?.pages && typeof candidate.pages === 'object' ? candidate.pages : {},
+  }
+}
