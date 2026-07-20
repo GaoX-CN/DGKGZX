@@ -2,7 +2,7 @@
   <SectionBlock title="业务规则">
     <template #actions>
       <el-button
-        v-if="!editing"
+        v-if="editable && !editing"
         text
         size="small"
         :icon="Edit"
@@ -110,6 +110,7 @@ const props = defineProps<{
   rules: string[]
   ruleImages: RuleImage[]
   editing: boolean
+  editable: boolean
 }>()
 
 const emit = defineEmits<{

@@ -2,7 +2,7 @@
   <SectionBlock title="字段说明">
     <template #actions>
       <el-button
-        v-if="!editing"
+        v-if="editable && !editing"
         text
         size="small"
         :icon="Edit"
@@ -79,6 +79,7 @@ import EmptyState from '@/components/common/EmptyState.vue'
 const props = defineProps<{
   fields: PrdField[]
   editing: boolean
+  editable: boolean
 }>()
 
 const emit = defineEmits<{

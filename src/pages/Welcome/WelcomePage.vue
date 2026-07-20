@@ -13,7 +13,7 @@
       <section class="welcome-panel" data-module-id="module-publish">
         <div class="welcome-panel__header">
           <div><h2>发布地址</h2><p>供开发、测试和评审人员访问当前版本。</p></div>
-          <el-button v-if="!editingAddresses" :icon="EditPen" @click="startEditAddresses">配置地址</el-button>
+          <el-button v-if="isDevelopment && !editingAddresses" :icon="EditPen" @click="startEditAddresses">配置地址</el-button>
         </div>
         <div v-if="editingAddresses" class="welcome-address-form">
           <el-form label-width="92px">
@@ -52,14 +52,20 @@ import { CopyDocument, EditPen, Grid, Link, Monitor, OfficeBuilding } from '@ele
 import { ElMessage } from 'element-plus'
 import { usePrototypeStore } from '@/stores/prototypeStore'
 import type { PrototypePage } from '@/types/prototype'
+import storedProjectConfig from '@/data/project-publish-addresses.json'
 
 interface ProjectConfig { projectName: string; prototype: string; ui: string }
 interface RecentPage extends PrototypePage { status: string; updatedAt: string; description: string; timestamp: number }
 
 const prototypeStore = usePrototypeStore()
 const router = useRouter()
+const isDevelopment = import.meta.env.DEV
 const editingAddresses = ref(false)
-const projectConfig = reactive<ProjectConfig>({ projectName: '', prototype: '', ui: '' })
+const projectConfig = reactive<ProjectConfig>({
+  projectName: storedProjectConfig.projectName,
+  prototype: storedProjectConfig.prototype,
+  ui: storedProjectConfig.ui,
+})
 const addressDraft = reactive<ProjectConfig>({ projectName: '', prototype: '', ui: '' })
 
 const allPages = computed(() => flattenPages(prototypeStore.pages))
@@ -80,6 +86,8 @@ const recentPages = computed<RecentPage[]>(() => allPages.value
 
 onMounted(async () => {
   prototypeStore.loadPageMetadata()
+  if (!isDevelopment) return
+
   try {
     const response = await fetch('/api/project-publish-addresses')
     if (!response.ok) throw new Error('load failed')
@@ -88,7 +96,7 @@ onMounted(async () => {
     projectConfig.prototype = typeof data.prototype === 'string' ? data.prototype : ''
     projectConfig.ui = typeof data.ui === 'string' ? data.ui : ''
   } catch {
-    ElMessage.warning('发布地址读取失败，请确认开发服务正在运行')
+    ElMessage.warning('发布地址读取失败，已使用项目配置文件中的默认值')
   }
 })
 

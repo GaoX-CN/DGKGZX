@@ -3,6 +3,7 @@
     <SectionBlock title="功能说明">
       <template #actions>
         <el-button
+          v-if="isDevelopment"
           text
           size="small"
           :type="currentSection === 'overview' ? 'primary' : 'default'"
@@ -42,6 +43,7 @@
       :rules="module.rules"
       :rule-images="module.ruleImages"
       :editing="currentSection === 'rule'"
+      :editable="isDevelopment"
       @save="onRuleSave"
       @cancel="onSectionCancel"
       @edit="onEditSection('rule')"
@@ -50,6 +52,7 @@
     <InteractionSection
       :interactions="module.interactions"
       :editing="currentSection === 'interaction'"
+      :editable="isDevelopment"
       @save="onInteractionSave"
       @cancel="onSectionCancel"
       @edit="onEditSection('interaction')"
@@ -58,6 +61,7 @@
     <FieldSection
       :fields="module.fields"
       :editing="currentSection === 'field'"
+      :editable="isDevelopment"
       @save="onFieldSave"
       @cancel="onSectionCancel"
       @edit="onEditSection('field')"
@@ -66,6 +70,7 @@
     <CustomSection
       :requirements="module.requirements"
       :editing="currentSection === 'custom'"
+      :editable="isDevelopment"
       @save="onCustomSave"
       @cancel="onSectionCancel"
       @edit="onEditSection('custom')"
@@ -90,6 +95,7 @@ const props = defineProps<{
 }>()
 
 const requirementStore = useRequirementStore()
+const isDevelopment = import.meta.env.DEV
 const currentSection = computed(() => requirementStore.currentSection)
 
 const editData = reactive({
