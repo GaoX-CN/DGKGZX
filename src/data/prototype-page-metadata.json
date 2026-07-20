@@ -77,6 +77,10 @@
     "PeopleFlowReport": {
       "status": "completed",
       "versions": []
+    },
+    "Welcome": {
+      "status": "completed",
+      "versions": []
     }
   }
 }

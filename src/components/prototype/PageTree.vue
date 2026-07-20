@@ -42,6 +42,11 @@
       </template>
     </el-tree>
 
+    <div class="page-tree__publish-time">
+      <span>发布时间</span>
+      <strong>{{ buildTime }}</strong>
+    </div>
+
     <el-drawer v-model="historyVisible" :title="`${historyPage?.pageName || ''} · 修改记录`" size="420px">
       <div v-if="historyPage" class="page-tree__history">
         <el-empty v-if="versions.length === 0" description="暂无修改记录" :image-size="80" />
@@ -83,6 +88,7 @@ const treeData = computed(() => prototypeStore.pages)
 const versions = computed<PrototypeVersionRecord[]>(() =>
   historyPage.value ? prototypeStore.getPageMetadata(historyPage.value.pageId).versions : [],
 )
+const buildTime = new Date(__BUILD_TIME__).toLocaleString('zh-CN', { hour12: false })
 
 onMounted(() => {
   prototypeStore.loadPageMetadata()
@@ -204,6 +210,24 @@ function formatTime(value: string) {
   flex-shrink: 0;
   padding: 0;
   font-size: 16px;
+}
+
+.page-tree__publish-time {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  margin-top: auto;
+  border-top: 1px solid $border-color;
+  color: $text-secondary;
+  font-size: 12px;
+
+  strong {
+    color: $text-color;
+    font-weight: 500;
+    white-space: nowrap;
+  }
 }
 
 .page-tree__history {

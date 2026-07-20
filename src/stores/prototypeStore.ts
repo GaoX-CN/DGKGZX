@@ -362,7 +362,7 @@ const defaultPages: PrototypePage[] = [
 ]
 
 export const usePrototypeStore = defineStore('prototype', () => {
-  const pages = ref<PrototypePage[]>([...defaultPages])
+  const pages = ref<PrototypePage[]>(filterPagesForEnvironment(defaultPages))
   const pageMetadata = ref<PrototypePageMetadataFile>(normalizeMetadata(initialPageMetadata))
   const currentPageId = ref<string>('')
   const currentModuleId = ref<string>('')
@@ -500,4 +500,18 @@ function normalizeMetadata(data: unknown): PrototypePageMetadataFile {
   return {
     pages: candidate?.pages && typeof candidate.pages === 'object' ? candidate.pages : {},
   }
+}
+
+function filterPagesForEnvironment(sourcePages: PrototypePage[]): PrototypePage[] {
+  if (import.meta.env.DEV) return sourcePages
+
+  return sourcePages.flatMap((page) => {
+    if (page.isFolder) {
+      const children = filterPagesForEnvironment(page.children || [])
+      return children.length > 0 ? [{ ...page, children }] : []
+    }
+
+    const metadata = initialPageMetadata.pages[page.pageId as keyof typeof initialPageMetadata.pages]
+    return metadata?.status === 'completed' ? [page] : []
+  })
 }

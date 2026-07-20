@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+declare const __BUILD_TIME__: string
+
 declare module '*.json' {
   const value: import('./types/prototype').PrototypePageMetadataFile
   export default value
