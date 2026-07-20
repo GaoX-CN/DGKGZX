@@ -6,14 +6,14 @@
           v-if="isDevelopment"
           text
           size="small"
-          :type="currentSection === 'overview' ? 'primary' : 'default'"
+          :type="isEditingOverview ? 'primary' : 'default'"
           :icon="Edit"
           @click="onEditSection('overview')"
         >
-          {{ currentSection === 'overview' ? '保存' : '编辑' }}
+          {{ isEditingOverview ? '保存' : '编辑' }}
         </el-button>
       </template>
-      <template v-if="currentSection === 'overview'">
+      <template v-if="isEditingOverview">
         <div class="edit-section">
           <div class="edit-section__field">
             <label>模块目的 (Purpose)</label>
@@ -42,7 +42,7 @@
     <RuleSection
       :rules="module.rules"
       :rule-images="module.ruleImages"
-      :editing="currentSection === 'rule'"
+      :editing="isEditingRule"
       :editable="isDevelopment"
       @save="onRuleSave"
       @cancel="onSectionCancel"
@@ -51,7 +51,7 @@
 
     <InteractionSection
       :interactions="module.interactions"
-      :editing="currentSection === 'interaction'"
+      :editing="isEditingInteraction"
       :editable="isDevelopment"
       @save="onInteractionSave"
       @cancel="onSectionCancel"
@@ -60,7 +60,7 @@
 
     <FieldSection
       :fields="module.fields"
-      :editing="currentSection === 'field'"
+      :editing="isEditingField"
       :editable="isDevelopment"
       @save="onFieldSave"
       @cancel="onSectionCancel"
@@ -69,7 +69,7 @@
 
     <CustomSection
       :requirements="module.requirements"
-      :editing="currentSection === 'custom'"
+      :editing="isEditingCustom"
       :editable="isDevelopment"
       @save="onCustomSave"
       @cancel="onSectionCancel"
@@ -97,6 +97,11 @@ const props = defineProps<{
 const requirementStore = useRequirementStore()
 const isDevelopment = import.meta.env.DEV
 const currentSection = computed(() => requirementStore.currentSection)
+const isEditingOverview = computed(() => isDevelopment && currentSection.value === 'overview')
+const isEditingRule = computed(() => isDevelopment && currentSection.value === 'rule')
+const isEditingInteraction = computed(() => isDevelopment && currentSection.value === 'interaction')
+const isEditingField = computed(() => isDevelopment && currentSection.value === 'field')
+const isEditingCustom = computed(() => isDevelopment && currentSection.value === 'custom')
 
 const editData = reactive({
   purpose: '',
