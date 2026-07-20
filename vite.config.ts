@@ -7,6 +7,7 @@ import { globSync } from 'glob'
 function prdApiPlugin(): Plugin {
   const PRD_GLOB = 'src/pages/**/*_prd.json'
   const PAGE_METADATA_FILE = 'src/data/prototype-page-metadata.json'
+  const PUBLISH_ADDRESSES_FILE = 'src/data/project-publish-addresses.json'
 
   function findPrdFile(pageId: string, root: string): string | null {
     const files = globSync(PRD_GLOB, { cwd: root })
@@ -59,6 +60,49 @@ function prdApiPlugin(): Plugin {
             if (!data || typeof data !== 'object' || !data.pages || typeof data.pages !== 'object') {
               res.statusCode = 400
               res.end(JSON.stringify({ error: 'invalid metadata' }))
+              return
+            }
+
+            writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf-8')
+            res.statusCode = 200
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ ok: true }))
+          } catch (e: any) {
+            res.statusCode = 500
+            res.end(JSON.stringify({ error: e.message }))
+          }
+        })
+      })
+
+      server.middlewares.use('/api/project-publish-addresses', (req, res) => {
+        const filePath = resolve(root, PUBLISH_ADDRESSES_FILE)
+
+        if (req.method === 'GET') {
+          try {
+            res.statusCode = 200
+            res.setHeader('Content-Type', 'application/json')
+            res.end(readFileSync(filePath, 'utf-8'))
+          } catch (e: any) {
+            res.statusCode = 500
+            res.end(JSON.stringify({ error: e.message }))
+          }
+          return
+        }
+
+        if (req.method !== 'PUT') {
+          res.statusCode = 405
+          res.end()
+          return
+        }
+
+        let body = ''
+        req.on('data', (chunk: Buffer) => { body += chunk.toString() })
+        req.on('end', () => {
+          try {
+            const data = JSON.parse(body)
+            if (!data || typeof data !== 'object' || typeof data.projectName !== 'string' || typeof data.prototype !== 'string' || typeof data.ui !== 'string') {
+              res.statusCode = 400
+              res.end(JSON.stringify({ error: 'invalid publish addresses' }))
               return
             }
 

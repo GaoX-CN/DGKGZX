@@ -1,0 +1,342 @@
+{
+  "pageName": "EmergencyManual",
+  "pageId": "EmergencyManual",
+  "version": "1.0.0",
+  "lastUpdated": "2026-07-20T00:00:00.000Z",
+  "intent": {
+    "type": "manage",
+    "summary": "集中维护应急处理手册及其关联材料，便于按事件场景查阅和下载。"
+  },
+  "overview": "应急处理手册页面用于维护各类突发事件的应急手册。管理员可检索、新建、编辑和删除手册，在手册中上传处置文件、逃生路线、现场图纸和应急视频；使用者可查看手册材料目录、预览图片或视频，并勾选多个材料打包下载。",
+  "modules": [
+    {
+      "id": "em-filter",
+      "title": "手册检索",
+      "purpose": "帮助使用者快速定位目标应急处理手册。",
+      "summary": "支持按手册名称和事件类型筛选手册。",
+      "requirements": [
+        {
+          "title": "组合检索",
+          "priority": "P1",
+          "details": "支持按手册名称关键词和事件类型组合筛选。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "keyword",
+          "label": "手册名称",
+          "type": "string",
+          "required": false,
+          "description": "用于查找手册的名称关键词。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "category",
+          "label": "事件类型",
+          "type": "select",
+          "required": false,
+          "description": "手册适用的突发事件类型。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "输入或选择检索条件",
+          "action": "筛选手册",
+          "description": "展示符合名称和事件类型条件的手册。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击重置",
+          "action": "清空检索条件",
+          "description": "恢复展示全部手册。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "em-library",
+      "title": "手册列表",
+      "purpose": "展示应急手册概况并提供日常管理入口。",
+      "summary": "展示手册名称、事件类型、适用区域、责任部门、材料数量、版本和更新时间，支持新建、预览、编辑和删除。",
+      "requirements": [
+        {
+          "title": "手册信息展示",
+          "priority": "P0",
+          "details": "展示手册基础信息、材料数量、版本和最近更新时间。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "手册删除",
+          "priority": "P1",
+          "details": "支持删除不再使用的手册及其关联材料。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "label": "手册名称",
+          "type": "string",
+          "required": true,
+          "description": "应急处理手册的名称。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "area",
+          "label": "适用区域",
+          "type": "cascader",
+          "required": true,
+          "description": "手册适用的园区、建筑、楼层或具体区域。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "department",
+          "label": "责任部门",
+          "type": "select",
+          "required": true,
+          "description": "维护该手册内容的责任部门。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "version",
+          "label": "版本",
+          "type": "string",
+          "required": true,
+          "description": "由用户手工维护的手册版本号。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "materials",
+          "label": "手册材料",
+          "type": "array",
+          "required": false,
+          "description": "手册关联的处置文件、逃生路线、现场图纸和应急视频。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "删除手册前需要二次确认。",
+        "删除手册时同步移除其关联材料。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击新建手册",
+          "action": "创建手册",
+          "description": "进入手册信息和材料维护流程。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击编辑",
+          "action": "维护手册",
+          "description": "修改手册信息及关联材料。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击删除",
+          "action": "删除手册",
+          "description": "确认后删除指定手册及其材料。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "em-editor",
+      "title": "手册与材料维护",
+      "purpose": "创建或更新应急手册，并维护手册关联材料。",
+      "summary": "维护手册基本信息和版本，支持选择适用区域、上传材料、修改材料名称和类型、移除材料。",
+      "requirements": [
+        {
+          "title": "手册基本信息维护",
+          "priority": "P0",
+          "details": "支持维护手册名称、事件类型、版本、适用区域、责任部门和手册说明。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "材料上传与维护",
+          "priority": "P0",
+          "details": "支持添加处置文件、逃生路线、现场图纸和应急视频，并维护材料名称和类型。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "版本手工维护",
+          "priority": "P1",
+          "details": "新增或编辑手册时由用户手动填写版本号。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "category",
+          "label": "事件类型",
+          "type": "select",
+          "required": true,
+          "description": "手册适用的突发事件类型。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "description",
+          "label": "手册说明",
+          "type": "textarea",
+          "required": true,
+          "description": "手册适用事件、使用对象和使用场景。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "materialName",
+          "label": "材料名称",
+          "type": "string",
+          "required": true,
+          "description": "材料在手册目录中的显示名称。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "materialType",
+          "label": "材料类型",
+          "type": "select",
+          "required": true,
+          "description": "处置文件、逃生路线、现场图纸或应急视频。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "手册名称、事件类型、版本、适用区域、责任部门和手册说明为必填。",
+        "适用区域支持选择全园区、建筑、楼层或具体区域任一级。",
+        "新增材料默认作为处置文件，可由用户修改材料名称和类型。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击上传材料并选择文件",
+          "action": "添加材料",
+          "description": "将所选文件添加至当前手册材料列表。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "修改材料名称或类型",
+          "action": "更新材料信息",
+          "description": "更新材料在手册中的名称和分类。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击移除材料",
+          "action": "删除材料",
+          "description": "从当前手册中移除指定材料。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击保存",
+          "action": "保存手册",
+          "description": "保存手册基本信息和全部材料变更。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "em-preview",
+      "title": "手册预览与材料下载",
+      "purpose": "让使用者查阅手册材料并按需下载。",
+      "summary": "展示手册概要和材料目录，支持图片、视频预览，以及勾选多个材料后统一下载。",
+      "requirements": [
+        {
+          "title": "材料目录查看",
+          "priority": "P1",
+          "details": "展示当前手册关联的全部材料及其类型、文件大小。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "多材料下载",
+          "priority": "P1",
+          "details": "支持勾选单个、多个或全部材料后统一下载。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "媒体材料预览",
+          "priority": "P2",
+          "details": "支持预览现场图纸和应急视频。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "selectedMaterials",
+          "label": "已选材料",
+          "type": "array",
+          "required": false,
+          "description": "用户勾选后待统一下载的材料。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "未选择材料时不可执行统一下载。",
+        "仅现场图纸和应急视频提供在线预览入口。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "勾选材料或全选材料",
+          "action": "维护下载清单",
+          "description": "更新待统一下载的材料范围。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击打包下载",
+          "action": "下载已选材料",
+          "description": "统一下载当前勾选的多个材料。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击媒体材料预览",
+          "action": "预览材料",
+          "description": "查看图片或视频材料内容。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "pageName": "OperationStandardization",
+  "pageId": "OperationStandardization",
+  "version": "1.0.0",
+  "lastUpdated": "2026-07-17T00:00:00.000Z",
+  "intent": { "type": "manage", "summary": "维护不同突发事件场景下的标准应急作业规范。" },
+  "overview": "作业标准化页面面向安全管理人员，按事件分类维护应急作业规范，支持检索、创建、编辑、启停、复制、删除及查看完整处置步骤。",
+  "modules": [
+    {
+      "id": "os-category", "title": "事件分类", "purpose": "按应急事件类型归档并快速定位规范。", "summary": "展示事件分类及各分类下的规范数量，支持新增分类。",
+      "requirements": [{ "title": "分类浏览", "priority": "P1", "details": "支持查看全部规范或按火灾、治安、设备故障、人员伤害等事件类型筛选。", "source": "ai", "status": "generated" }, { "title": "新增分类", "priority": "P2", "details": "支持补充新的事件分类用于后续规范归档。", "source": "ai", "status": "generated" }],
+      "fields": [{ "name": "categoryName", "label": "事件分类", "type": "string", "required": true, "description": "应急事件的归档分类名称。", "source": "ai", "status": "generated" }],
+      "rules": ["分类下的规范数量随规范创建和删除实时更新。"], "ruleImages": [],
+      "interactions": [{ "trigger": "选择事件分类", "action": "筛选规范", "description": "仅展示该分类下的作业规范。", "source": "ai", "status": "generated" }], "source": "ai", "status": "generated"
+    },
+    {
+      "id": "os-list", "title": "规范列表", "purpose": "展示并管理应急作业规范。", "summary": "支持按名称、适用区域和状态筛选，展示规范编号、事件类型、关键步骤、版本和更新信息。",
+      "requirements": [{ "title": "多条件检索", "priority": "P1", "details": "支持通过规范名称或编号、事件类型和启用状态组合筛选。", "source": "ai", "status": "generated" }, { "title": "规范状态管理", "priority": "P1", "details": "支持启用或停用规范。", "source": "ai", "status": "generated" }],
+      "fields": [{ "name": "code", "label": "规范编号", "type": "string", "required": true, "description": "规范唯一编号。", "source": "ai", "status": "generated" }, { "name": "name", "label": "规范名称", "type": "string", "required": true, "description": "应急作业规范名称。", "source": "ai", "status": "generated" }, { "name": "area", "label": "适用区域", "type": "select", "required": true, "description": "规范适用的园区或建筑范围。", "source": "ai", "status": "generated" }, { "name": "status", "label": "状态", "type": "select", "required": true, "description": "规范启用或停用状态。", "source": "ai", "status": "generated" }, { "name": "version", "label": "版本", "type": "number", "required": true, "description": "规范当前版本号。", "source": "ai", "status": "generated" }],
+      "rules": ["删除规范前需要二次确认。", "复制规范时创建独立的新规范，默认可继续编辑。"], "ruleImages": [],
+      "interactions": [{ "trigger": "点击查看", "action": "查看规范详情", "description": "展示规范基本信息、处置步骤和执行要点。", "source": "ai", "status": "generated" }, { "trigger": "点击更多操作", "action": "管理规范", "description": "可复制、启用、停用或删除规范。", "source": "ai", "status": "generated" }], "source": "ai", "status": "generated"
+    },
+    {
+      "id": "os-editor", "title": "规范维护", "purpose": "创建或修订标准应急作业规范。", "summary": "维护规范的名称、事件类型、适用区域、时限、说明、处置步骤、执行要点和启用状态。",
+      "requirements": [{ "title": "规范信息维护", "priority": "P0", "details": "支持创建和编辑应急作业规范的基本信息及执行要求。", "source": "ai", "status": "generated" }, { "title": "处置步骤编排", "priority": "P0", "details": "支持添加、删除标准处置步骤，并为每一步明确责任角色。", "source": "ai", "status": "generated" }, { "title": "版本手工维护", "priority": "P1", "details": "新增或编辑规范时由用户手动填写版本号。", "source": "ai", "status": "generated" }],
+      "fields": [{ "name": "summary", "label": "作业说明", "type": "textarea", "required": true, "description": "规范适用场景与处置目标。", "source": "ai", "status": "generated" }, { "name": "steps", "label": "标准处置步骤", "type": "array", "required": true, "description": "按顺序执行的处置动作和责任角色。", "source": "ai", "status": "generated" }, { "name": "notice", "label": "执行要点", "type": "textarea", "required": false, "description": "安全风险、上报及升级处置要求。", "source": "ai", "status": "generated" }],
+      "rules": ["规范名称、事件类型、适用区域和作业说明为必填。", "适用区域支持选择全园区、建筑、楼层或具体区域任一级。", "至少保留一个处置步骤。", "发布后规范可作为现场处置依据。"], "ruleImages": [],
+      "interactions": [{ "trigger": "点击保存并启用", "action": "发布规范", "description": "保存规范并标记为已启用。", "source": "ai", "status": "generated" }], "source": "ai", "status": "generated"
+    }
+  ]
+}

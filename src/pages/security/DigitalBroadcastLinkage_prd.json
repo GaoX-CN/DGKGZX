@@ -23,6 +23,7 @@
         { "name": "deviceStatus", "label": "实时状态", "type": "status", "required": true, "description": "设备在线或离线状态。", "source": "ai", "status": "generated" }
       ],
       "rules": ["仅在线设备可被勾选并加入终端队列。", "喊话执行期间不可调整终端队列。"],
+      "ruleImages": [],
       "interactions": [{ "trigger": "点击加入队列", "action": "批量添加设备", "description": "将所选在线广播设备加入右侧终端队列。", "source": "ai", "status": "generated" }],
       "source": "ai",
       "status": "generated"
@@ -39,6 +40,7 @@
         { "name": "queueStatus", "label": "队列状态", "type": "boolean", "required": true, "description": "设备是否处于当前喊话终端队列。", "source": "ai", "status": "generated" }
       ],
       "rules": ["已入队设备显示移除操作，未入队在线设备显示加入队列操作。", "喊话执行期间地图中的队列操作不可用。"],
+      "ruleImages": [],
       "interactions": [{ "trigger": "点击地图广播点位", "action": "查看并调整队列状态", "description": "打开设备信息并根据当前队列状态调整该设备。", "source": "ai", "status": "generated" }],
       "source": "ai",
       "status": "generated"
@@ -56,6 +58,7 @@
         { "name": "connectionStatus", "label": "连通状态", "type": "status", "required": true, "description": "喊话台网络就绪或已连通状态。", "source": "ai", "status": "generated" }
       ],
       "rules": ["终端队列为空时不可开始喊话。", "每次开始喊话时长从零开始累计。"],
+      "ruleImages": [],
       "interactions": [{ "trigger": "点击开始喊话或结束喊话", "action": "切换喊话状态", "description": "开始后进入执行状态并开始计时，结束后恢复待机状态。", "source": "ai", "status": "generated" }],
       "source": "ai",
       "status": "generated"
@@ -70,6 +73,7 @@
       ],
       "fields": [{ "name": "queueDevice", "label": "目标终端", "type": "text", "required": true, "description": "准备接收当前喊话的广播设备。", "source": "ai", "status": "generated" }],
       "rules": ["喊话执行期间不得移除队列中的任何设备。"],
+      "ruleImages": [],
       "interactions": [{ "trigger": "点击移除", "action": "移出终端队列", "description": "在待机状态下将指定广播终端移出本次喊话目标。", "source": "ai", "status": "generated" }],
       "source": "ai",
       "status": "generated"

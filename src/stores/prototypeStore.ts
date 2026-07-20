@@ -257,6 +257,35 @@ const defaultPages: PrototypePage[] = [
           },
         ],
       },
+      {
+        pageId: '应急知识库',
+        pageName: '应急知识库',
+        isFolder: true,
+        children: [
+          {
+            pageId: 'OperationStandardization',
+            pageName: '作业标准化',
+            pagePath: '/emergency/operation-standardization',
+            modules: [
+              { moduleId: 'os-category', moduleName: '事件分类', moduleType: 'unknown', pageId: 'OperationStandardization', requirementId: 'os-category', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'os-list', moduleName: '规范列表', moduleType: 'table', pageId: 'OperationStandardization', requirementId: 'os-list', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'os-editor', moduleName: '规范维护', moduleType: 'form', pageId: 'OperationStandardization', requirementId: 'os-editor', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'os-detail', moduleName: '规范详情', moduleType: 'unknown', pageId: 'OperationStandardization', requirementId: 'os-detail', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+            ],
+          },
+          {
+            pageId: 'EmergencyManual',
+            pageName: '应急处理手册',
+            pagePath: '/emergency/manuals',
+            modules: [
+              { moduleId: 'em-filter', moduleName: '手册检索', moduleType: 'form', pageId: 'EmergencyManual', requirementId: 'em-filter', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'em-library', moduleName: '手册库', moduleType: 'table', pageId: 'EmergencyManual', requirementId: 'em-library', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'em-editor', moduleName: '手册与材料维护', moduleType: 'form', pageId: 'EmergencyManual', requirementId: 'em-editor', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'em-preview', moduleName: '手册预览', moduleType: 'unknown', pageId: 'EmergencyManual', requirementId: 'em-preview', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+            ],
+          },
+        ],
+      },
     ],
   },
   {
@@ -345,7 +374,7 @@ export const usePrototypeStore = defineStore('prototype', () => {
   const currentPageName = computed(() => {
     if (!currentPageId.value || currentPageId.value === 'Welcome') return 'Prototype Workspace'
     const page = findPageById(pages.value, currentPageId.value)
-    return page?.pageName || 'Prototype Workspace'
+    return page ? `${page.pageName}（${page.pageId}）` : 'Prototype Workspace'
   })
 
   const currentModule = computed(() =>
@@ -369,6 +398,19 @@ export const usePrototypeStore = defineStore('prototype', () => {
 
   function addPage(page: PrototypePage) {
     pages.value.push(page)
+    if (page.isFolder || pageMetadata.value.pages[page.pageId]) return
+
+    pageMetadata.value.pages[page.pageId] = {
+      status: 'designing',
+      versions: [
+        {
+          version: 1,
+          createdAt: new Date().toISOString(),
+          description: '初始创建页面',
+        },
+      ],
+    }
+    void savePageMetadata()
   }
 
   function setCurrentPage(pageId: string) {

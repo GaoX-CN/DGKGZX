@@ -9,10 +9,30 @@ const prdModules = import.meta.glob<{ default: PagePrd }>(
   { eager: false }
 )
 
+function isValidPrd(data: unknown): data is PagePrd {
+  if (!data || typeof data !== 'object') return false
+  const prd = data as Partial<PagePrd>
+  if (!prd.pageId || !prd.pageName || !Array.isArray(prd.modules)) return false
+
+  return prd.modules.every((module) => {
+    return Boolean(
+      module &&
+      module.id &&
+      module.title &&
+      Array.isArray(module.requirements) &&
+      Array.isArray(module.fields) &&
+      Array.isArray(module.rules) &&
+      Array.isArray(module.ruleImages) &&
+      Array.isArray(module.interactions)
+    )
+  })
+}
+
 function loadFromStorage(pageId: string): PagePrd | null {
   try {
     const raw = localStorage.getItem(LS_PREFIX + pageId)
-    return raw ? JSON.parse(raw) : null
+    const data = raw ? JSON.parse(raw) : null
+    return isValidPrd(data) ? data : null
   } catch {
     return null
   }
@@ -63,9 +83,12 @@ async function ensureIndex(pageName?: string): Promise<void> {
 export async function loadPrd(pageName: string): Promise<PagePrd | null> {
   await ensureIndex(pageName)
   const fileData = prdCache.get(pageName)
-  if (!fileData) return null
+  if (!isValidPrd(fileData)) return null
 
   const stored = loadFromStorage(fileData.pageId)
+  if (!stored && localStorage.getItem(LS_PREFIX + fileData.pageId)) {
+    localStorage.removeItem(LS_PREFIX + fileData.pageId)
+  }
   if (stored) {
     const fileTime = fileData.lastUpdated ? new Date(fileData.lastUpdated).getTime() : 0
     const storedTime = stored.lastUpdated ? new Date(stored.lastUpdated).getTime() : 0

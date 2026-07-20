@@ -4,34 +4,33 @@
       <!-- 左侧：空间结构树 -->
       <div class="pfr-tree-panel">
         <div class="pfr-tree-header">
-          <h3 class="pfr-tree-title">空间结构</h3>
+          <h3 class="pfr-tree-title">统计区域</h3>
+          <el-button text size="small" :icon="Setting" @click="configDrawerVisible = true">配置</el-button>
         </div>
-        <el-input
-          v-model="treeFilter"
-          placeholder="搜索空间..."
-          clearable
-          size="small"
-          :prefix-icon="Search"
-          class="pfr-tree-filter"
-        />
         <div class="pfr-tree-scroll">
           <el-tree
-            ref="treeRef"
+            v-if="hasStatisticAreas"
             :data="treeData"
             :props="treeProps"
             node-key="key"
-            :filter-node-method="filterTreeNode"
             default-expand-all
             highlight-current
             :current-node-key="currentNodeKey"
             :expand-on-click-node="false"
             @node-click="handleTreeNodeClick"
           />
+          <el-empty v-else description="请先配置统计区域" :image-size="72" class="pfr-tree-empty" />
         </div>
       </div>
 
       <!-- 右侧：统计内容 -->
       <div class="pfr-content">
+        <div v-if="!hasStatisticAreas" class="pfr-page-empty">
+          <el-empty description="暂无统计区域，请先完成统计区域配置" :image-size="110">
+            <el-button type="primary" :icon="Setting" @click="configDrawerVisible = true">前往配置</el-button>
+          </el-empty>
+        </div>
+        <template v-else>
         <!-- 选中区域面包屑 -->
         <div class="pfr-breadcrumb">
           <el-icon><HomeFilled /></el-icon>
@@ -54,7 +53,7 @@
               <div class="pfr-stat-card__icon"><el-icon :size="28"><UserFilled /></el-icon></div>
               <div class="pfr-stat-card__body">
                 <div class="pfr-stat-card__value">{{ stats.currentInPark }}</div>
-                <div class="pfr-stat-card__label">{{ areaLabel }}当前人数</div>
+                <div class="pfr-stat-card__label">当前人数</div>
               </div>
             </div>
           </el-col>
@@ -63,7 +62,7 @@
               <div class="pfr-stat-card__icon"><el-icon :size="28"><TopRight /></el-icon></div>
               <div class="pfr-stat-card__body">
                 <div class="pfr-stat-card__value">{{ stats.todayEntry }}</div>
-                <div class="pfr-stat-card__label">{{ areaLabel }}今日进入</div>
+                <div class="pfr-stat-card__label">今日进入</div>
               </div>
             </div>
           </el-col>
@@ -72,7 +71,7 @@
               <div class="pfr-stat-card__icon"><el-icon :size="28"><BottomLeft /></el-icon></div>
               <div class="pfr-stat-card__body">
                 <div class="pfr-stat-card__value">{{ stats.todayExit }}</div>
-                <div class="pfr-stat-card__label">{{ areaLabel }}今日离开</div>
+                <div class="pfr-stat-card__label">今日离开</div>
               </div>
             </div>
           </el-col>
@@ -101,7 +100,6 @@
           <el-form-item>
             <el-button type="primary" :icon="Search" @click="handleQuery">查询</el-button>
             <el-button :icon="Refresh" @click="handleReset">重置</el-button>
-            <el-button :icon="Setting" @click="openAreaConfig">统计配置</el-button>
             <el-button :icon="Download" @click="handleExport">导出报表</el-button>
           </el-form-item>
         </el-form>
@@ -239,36 +237,88 @@
             </div>
           </div>
         </div>
+        </template>
       </div>
     </div>
 
-    <el-dialog v-model="areaConfigVisible" title="人流统计配置" width="920px" :close-on-click-modal="false">
-      <div class="pfr-config-note">
-        仅已启用的区域会在报表中展示。区域人数统计依据已配置的入口、出口门禁设备通行记录汇总。
+    <el-drawer v-model="configDrawerVisible" title="人流统计配置" size="680px" :with-header="true">
+      <div class="pfr-config-toolbar">
+        <el-button type="primary" :icon="Plus" @click="openAddStatisticArea">新增统计区域</el-button>
       </div>
-      <el-table :data="areaConfigDraft" border class="pfr-config-table">
-        <el-table-column label="区域" min-width="180">
-          <template #default="{ row }">{{ row.areaPath.join(' / ') }}</template>
-        </el-table-column>
-        <el-table-column label="报表展示" width="110" align="center">
+      <el-table
+        :data="configuredAreaRows"
+        row-key="id"
+        border
+        default-expand-all
+        :tree-props="{ children: 'children' }"
+        class="pfr-config-hierarchy"
+      >
+        <el-table-column prop="area" label="统计区域" min-width="240" />
+        <el-table-column label="统计点位" min-width="300">
           <template #default="{ row }">
-            <el-switch v-model="row.enabled" active-text="展示" inactive-text="隐藏" />
+            <template v-if="row.points.length">
+              <el-popover placement="top" :width="280" trigger="hover">
+                <template #reference>
+                  <el-link type="primary" :underline="false" class="pfr-config-point-count">
+                    {{ row.points.length }} 个点位
+                  </el-link>
+                </template>
+                <div class="pfr-config-point-popover">
+                  <div v-for="point in row.points" :key="point.id" class="pfr-config-point-popover__item">
+                    <span>{{ point.name }}</span>
+                    <span class="pfr-config-point-popover__meta">
+                      {{ point.code }} · {{ point.direction === 'entry' ? '进入' : '离开' }}
+                    </span>
+                  </div>
+                </div>
+              </el-popover>
+            </template>
+            <span v-else class="pfr-config-placeholder">-</span>
           </template>
         </el-table-column>
-        <el-table-column label="入口门禁设备" min-width="230">
+        <el-table-column label="操作" width="120" fixed="right" align="center">
           <template #default="{ row }">
-            <el-input v-model="row.entryDevices" placeholder="例如：CT-1F-入口A、CT-1F-入口B" />
-          </template>
-        </el-table-column>
-        <el-table-column label="出口门禁设备" min-width="230">
-          <template #default="{ row }">
-            <el-input v-model="row.exitDevices" placeholder="例如：CT-1F-出口A" />
+            <el-button text type="primary" size="small" @click="openEditStatisticArea(row.id)">编辑</el-button>
+            <el-button text type="danger" size="small" @click="deleteStatisticArea(row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
+    </el-drawer>
+
+    <el-dialog v-model="addAreaVisible" :title="editingAreaId ? '编辑统计区域' : '新增统计区域'" width="760px" :close-on-click-modal="false" destroy-on-close>
+      <el-form ref="addAreaFormRef" :model="addAreaForm" :rules="addAreaRules" label-width="100px">
+        <el-form-item label="统计区域名称" prop="name">
+          <el-input v-model="addAreaForm.name" maxlength="30" show-word-limit placeholder="请输入统计区域名称" />
+        </el-form-item>
+        <el-form-item label="父级区域">
+          <el-select v-model="addAreaForm.parentId" clearable placeholder="未选择则作为第一级区域" style="width: 100%">
+            <el-option v-for="option in statisticAreaOptions" :key="option.id" :label="option.label" :value="option.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="点位位置筛选">
+          <el-cascader
+            v-model="addAreaForm.locationPath"
+            :options="accessLocationOptions"
+            :props="{ checkStrictly: true }"
+            clearable
+            placeholder="请选择建筑、楼层或功能区域"
+            style="width: 100%"
+          />
+        </el-form-item>
+        <el-form-item label="统计点位" prop="pointIds">
+          <el-transfer
+            v-model="addAreaForm.pointIds"
+            :data="filteredAccessPointOptions"
+            :titles="['可选点位', '已选点位']"
+            filterable
+            filter-placeholder="搜索点位名称或编号"
+            class="pfr-point-transfer"
+          />
+        </el-form-item>
+      </el-form>
       <template #footer>
-        <el-button @click="areaConfigVisible = false">取消</el-button>
-        <el-button type="primary" @click="saveAreaConfig">保存配置</el-button>
+        <el-button @click="addAreaVisible = false">取消</el-button>
+        <el-button type="primary" @click="saveStatisticArea">确定</el-button>
       </template>
     </el-dialog>
   </div>
@@ -276,12 +326,13 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch } from 'vue'
+import exportTemplateUrl from './PeopleFlowReport_导出报表模板.xls?url'
 import {
-  Search, Refresh, Download, Setting,
+  Search, Refresh, Download, Setting, Plus,
   UserFilled, TopRight, BottomLeft,
   Top, Bottom, HomeFilled, ArrowRight
 } from '@element-plus/icons-vue'
-import type { ElTree } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const treeProps = { label: 'label', children: 'children' }
 
@@ -350,134 +401,283 @@ function attachTreeKeys(nodes: AreaTreeNodeSource[], parentKey = ''): AreaTreeNo
 
 const areaTreeRaw = attachTreeKeys(areaTreeSource)
 
-interface AreaAccessConfig {
-  areaPath: string[]
-  enabled: boolean
-  entryDevices: string
-  exitDevices: string
+interface AccessDevice {
+  id: string
+  areaKey: string
+  name: string
+  code: string
+  direction: 'entry' | 'exit'
 }
 
-function createDefaultAreaConfigs(): AreaAccessConfig[] {
-  const configs: AreaAccessConfig[] = []
-  function collect(nodes: AreaTreeNode[], path: string[]) {
-    for (const node of nodes) {
-      const nextPath = [...path, node.value]
-      if (node.children) {
-        collect(node.children, nextPath)
-      } else {
-        const devicePrefix = nextPath.join('-')
-        configs.push({
-          areaPath: nextPath,
-          enabled: true,
-          entryDevices: `${devicePrefix}-入口A`,
-          exitDevices: `${devicePrefix}-出口A`,
-        })
-      }
-    }
-  }
-  collect(areaTreeRaw, [])
-  return configs
+interface AccessPointOption extends AccessDevice {
+  locationPath: string[]
 }
 
-const areaAccessConfigs = ref<AreaAccessConfig[]>(createDefaultAreaConfigs())
-const areaConfigDraft = ref<AreaAccessConfig[]>([])
-const areaConfigVisible = ref(false)
+interface StatisticArea {
+  id: string
+  name: string
+  parentId: string | null
+  pointIds: string[]
+}
+
+interface CascaderOption {
+  value: string
+  label: string
+  children?: CascaderOption[]
+}
+
+const accessPointInventory: AccessPointOption[] = [
+  { id: 'ct-entry-01', areaKey: 'CT楼', name: '东区入口门禁', code: 'CT-IN-01', direction: 'entry', locationPath: ['CT楼', '1F', '物流作业区'] },
+  { id: 'ct-exit-01', areaKey: 'CT楼', name: '东区出口门禁', code: 'CT-OUT-01', direction: 'exit', locationPath: ['CT楼', '1F', '物流作业区'] },
+  { id: 'ct-1f-entry-01', areaKey: 'CT楼/1F', name: '1楼左侧门禁', code: 'CT-1F-01', direction: 'entry', locationPath: ['CT楼', '1F', '公共区域'] },
+  { id: 'ct-2f-entry-01', areaKey: 'CT楼/2F', name: '2楼左侧门禁', code: 'CT-2F-01', direction: 'entry', locationPath: ['CT楼', '2F', '办公管理区'] },
+  { id: 'ff-1f-entry-01', areaKey: 'FF楼/1F', name: 'FF楼西侧入口门禁', code: 'FF-1F-IN-01', direction: 'entry', locationPath: ['FF楼', '1F', '物流作业区'] },
+  { id: 'ff-1f-exit-01', areaKey: 'FF楼/1F', name: 'FF楼西侧出口门禁', code: 'FF-1F-OUT-01', direction: 'exit', locationPath: ['FF楼', '1F', '海关作业区'] },
+  { id: 'ob-1f-entry-01', areaKey: '海关联检大楼(OB)/1F', name: '联检大楼门厅门禁', code: 'OB-1F-IN-01', direction: 'entry', locationPath: ['海关联检大楼(OB)', '1F', '公共区域'] },
+]
+
+const statisticAreas = ref<StatisticArea[]>([
+  { id: 'ct', name: 'CT楼', parentId: null, pointIds: ['ct-entry-01', 'ct-exit-01'] },
+  { id: 'ct-1f', name: '1F', parentId: 'ct', pointIds: ['ct-1f-entry-01'] },
+  { id: 'ct-2f', name: '2F', parentId: 'ct', pointIds: ['ct-2f-entry-01'] },
+])
+
+const configDrawerVisible = ref(false)
+const addAreaVisible = ref(false)
+const addAreaFormRef = ref()
+const editingAreaId = ref('')
+const addAreaForm = reactive({
+  name: '',
+  parentId: '' as string | null,
+  locationPath: [] as string[],
+  pointIds: [] as string[],
+})
+
+const addAreaRules = {
+  name: [{ required: true, message: '请输入统计区域名称', trigger: 'blur' }],
+  pointIds: [{ type: 'array', min: 1, message: '请至少选择一个统计点位', trigger: 'change' }],
+}
+
+const accessLocationOptions: CascaderOption[] = [
+  {
+    value: 'CT楼',
+    label: 'CT楼',
+    children: [
+      { value: '1F', label: '1F', children: [{ value: '物流作业区', label: '物流作业区' }, { value: '公共区域', label: '公共区域' }] },
+      { value: '2F', label: '2F', children: [{ value: '办公管理区', label: '办公管理区' }] },
+    ],
+  },
+  {
+    value: 'FF楼',
+    label: 'FF楼',
+    children: [
+      { value: '1F', label: '1F', children: [{ value: '物流作业区', label: '物流作业区' }, { value: '海关作业区', label: '海关作业区' }] },
+    ],
+  },
+  {
+    value: '海关联检大楼(OB)',
+    label: '海关联检大楼(OB)',
+    children: [
+      { value: '1F', label: '1F', children: [{ value: '公共区域', label: '公共区域' }] },
+    ],
+  },
+]
 
 function areaPathKey(areaPath: string[]): string {
   return areaPath.join('/')
 }
 
-function configuredTreeNodes(nodes: AreaTreeNode[]): AreaTreeNode[] {
-  return nodes.flatMap((node) => {
-    if (!node.children) {
-      return areaAccessConfigs.value.some((config) => config.enabled && areaPathKey(config.areaPath) === node.key)
-        ? [{ ...node }]
-        : []
-    }
-
-    const children = configuredTreeNodes(node.children)
-    return children.length > 0 ? [{ ...node, children }] : []
-  })
+function buildStatisticAreaTree(parentId: string | null = null, parentKey = ''): AreaTreeNode[] {
+  return statisticAreas.value
+    .filter((area) => area.parentId === parentId)
+    .map((area) => {
+      const key = parentKey ? `${parentKey}/${area.id}` : area.id
+      const children = buildStatisticAreaTree(area.id, key)
+      return {
+        key,
+        value: area.id,
+        label: area.name,
+        children: children.length > 0 ? children : undefined,
+      }
+    })
 }
 
-const treeData = computed<AreaTreeNode[]>(() => [
-  {
-    key: '__all__',
-    value: '__all__',
-    label: '全部区域',
-    children: configuredTreeNodes(areaTreeRaw),
-  }
-])
+const treeData = computed<AreaTreeNode[]>(() => buildStatisticAreaTree())
+const hasStatisticAreas = computed(() => statisticAreas.value.length > 0)
 
-const treeRef = ref<InstanceType<typeof ElTree>>()
-const treeFilter = ref('')
+interface ConfiguredAreaRow {
+  id: string
+  area: string
+  points: AccessDevice[]
+  children?: ConfiguredAreaRow[]
+}
+
+function buildConfiguredAreaRows(parentId: string | null = null): ConfiguredAreaRow[] {
+  return statisticAreas.value
+    .filter((area) => area.parentId === parentId)
+    .map((area) => {
+      const children = buildConfiguredAreaRows(area.id)
+      return {
+        id: area.id,
+        area: area.name,
+        points: accessPointInventory.filter((point) => area.pointIds.includes(point.id)),
+        children: children.length > 0 ? children : undefined,
+      }
+    })
+}
+
+const configuredAreaRows = computed<ConfiguredAreaRow[]>(() => buildConfiguredAreaRows())
+
+const statisticAreaOptions = computed(() => {
+  const options: { id: string; label: string }[] = []
+  function walk(parentId: string | null, prefix = '') {
+    statisticAreas.value.filter((area) => area.parentId === parentId).forEach((area) => {
+      options.push({ id: area.id, label: `${prefix}${area.name}` })
+      walk(area.id, `${prefix}${area.name} / `)
+    })
+  }
+  walk(null)
+  return options
+})
+
+const filteredAccessPointOptions = computed(() => {
+  const path = addAreaForm.locationPath
+  // Empty cascader selection intentionally restores the complete point inventory.
+  return accessPointInventory
+    .filter((point) => path.length === 0 || path.every((segment, index) => point.locationPath[index] === segment))
+    .map((point) => ({
+      key: point.id,
+      label: `${point.name}（${point.code}，${point.direction === 'entry' ? '进入' : '离开'}）`,
+    }))
+})
+
 const currentNode = ref<AreaTreeNode | null>(null)
-const currentNodeKey = computed(() => currentNode.value?.key ?? '__all__')
+const currentNodeKey = computed(() => currentNode.value?.key ?? '')
+
+function containsTreeNode(nodes: AreaTreeNode[], key: string): boolean {
+  return nodes.some((node) => node.key === key || (node.children && containsTreeNode(node.children, key)))
+}
+
+watch(treeData, (nodes) => {
+  if (!nodes.length) {
+    currentNode.value = null
+    return
+  }
+
+  if (!currentNode.value || !containsTreeNode(nodes, currentNode.value.key)) {
+    currentNode.value = nodes[0]
+  }
+}, { immediate: true })
 
 const currentAreaPath = computed<string[]>(() => {
-  if (!currentNode.value || currentNode.value.key === '__all__') return []
+  if (!currentNode.value) return []
   return currentNode.value.key.split('/')
 })
 
-const currentPath = computed(() => [...currentAreaPath.value])
+const currentPath = computed(() => currentAreaPath.value.map((areaId) => {
+  return statisticAreas.value.find((area) => area.id === areaId)?.name || areaId
+}))
+
+const selectedStatisticAreaId = computed(() => currentNode.value?.value || '')
 
 const selectedAreaLabel = computed(() => {
-  if (currentAreaPath.value.length === 0) return ''
-  return currentAreaPath.value.join(' / ')
-})
-
-const areaLabel = computed(() => {
-  if (currentAreaPath.value.length === 0) return ''
-  return `[${selectedAreaLabel.value}] `
-})
-
-function filterTreeNode(value: string, data: AreaTreeNode): boolean {
-  if (!value) return true
-  return data.label.includes(value) || data.value.includes(value)
-}
-
-watch(treeFilter, (val) => {
-  treeRef.value?.filter(val)
+  if (!currentNode.value) return ''
+  return currentNode.value.label
 })
 
 function handleTreeNodeClick(data: AreaTreeNode) {
-  if (data.value === '__all__') {
-    currentNode.value = null
+  currentNode.value = data
+  statPage.value = 1
+  regenerateTrendData()
+  updateStats()
+}
+
+function openAddStatisticArea() {
+  editingAreaId.value = ''
+  addAreaForm.name = ''
+  addAreaForm.parentId = null
+  addAreaForm.locationPath = []
+  addAreaForm.pointIds = []
+  addAreaVisible.value = true
+}
+
+function openEditStatisticArea(areaId: string) {
+  const area = statisticAreas.value.find((item) => item.id === areaId)
+  if (!area) return
+
+  editingAreaId.value = area.id
+  addAreaForm.name = area.name
+  addAreaForm.parentId = area.parentId
+  addAreaForm.locationPath = []
+  addAreaForm.pointIds = [...area.pointIds]
+  addAreaVisible.value = true
+}
+
+async function saveStatisticArea() {
+  const valid = await addAreaFormRef.value?.validate().catch(() => false)
+  if (!valid) return
+
+  if (editingAreaId.value) {
+    const index = statisticAreas.value.findIndex((area) => area.id === editingAreaId.value)
+    if (index >= 0) {
+      statisticAreas.value[index] = {
+        ...statisticAreas.value[index],
+        name: addAreaForm.name.trim(),
+        parentId: addAreaForm.parentId || null,
+        pointIds: [...addAreaForm.pointIds],
+      }
+    }
   } else {
-    currentNode.value = data
+    statisticAreas.value.push({
+      id: `stat-area-${Date.now()}`,
+      name: addAreaForm.name.trim(),
+      parentId: addAreaForm.parentId || null,
+      pointIds: [...addAreaForm.pointIds],
+    })
   }
-  statPage.value = 1
-  regenerateTrendData()
-  updateStats()
+  addAreaVisible.value = false
 }
 
-function openAreaConfig() {
-  areaConfigDraft.value = areaAccessConfigs.value.map((config) => ({ ...config, areaPath: [...config.areaPath] }))
-  areaConfigVisible.value = true
-}
-
-function saveAreaConfig() {
-  areaAccessConfigs.value = areaConfigDraft.value.map((config) => ({ ...config, areaPath: [...config.areaPath] }))
-  const selectedPath = currentAreaPath.value
-  const selectedStillVisible = selectedPath.length === 0 || areaAccessConfigs.value.some((config) => {
-    return config.enabled && config.areaPath.slice(0, selectedPath.length).every((segment, index) => segment === selectedPath[index])
-  })
-
-  if (!selectedStillVisible) {
-    currentNode.value = null
+async function deleteStatisticArea(areaId: string) {
+  if (statisticAreas.value.some((area) => area.parentId === areaId)) {
+    ElMessage.warning('当前统计区域包含子区域，无法删除')
+    return
   }
-  statPage.value = 1
-  regenerateTrendData()
-  updateStats()
-  areaConfigVisible.value = false
+
+  const area = statisticAreas.value.find((item) => item.id === areaId)
+  if (!area) return
+
+  try {
+    await ElMessageBox.confirm(`确定删除统计区域“${area.name}”吗？`, '删除确认', {
+      confirmButtonText: '删除',
+      cancelButtonText: '取消',
+      type: 'warning',
+    })
+    statisticAreas.value = statisticAreas.value.filter((item) => item.id !== areaId)
+    if (selectedStatisticAreaId.value === areaId) {
+      currentNode.value = null
+      regenerateTrendData()
+      updateStats()
+    }
+    ElMessage.success('统计区域已删除')
+  } catch {
+    // User cancelled deletion.
+  }
 }
 
 // ==================== 查询条件 ====================
 
 const query = reactive({
-  dateRange: null as [string, string] | null,
+  dateRange: getDefaultDateRange(),
   granularity: 'day' as string,
 })
+
+function getDefaultDateRange(): [string, string] {
+  const end = new Date()
+  const start = new Date(end)
+  start.setDate(start.getDate() - 29)
+  return [formatDate(start), formatDate(end)]
+}
 
 function handleQuery() {
   statPage.value = 1
@@ -486,9 +686,8 @@ function handleQuery() {
 }
 
 function handleReset() {
-  currentNode.value = null
-  treeFilter.value = ''
-  query.dateRange = null
+  currentNode.value = treeData.value[0] || null
+  query.dateRange = getDefaultDateRange()
   query.granularity = 'day'
   statPage.value = 1
   regenerateTrendData()
@@ -496,9 +695,14 @@ function handleReset() {
 }
 
 function handleExport() {
-  const areaInfo = currentAreaPath.value.length ? `区域：${selectedAreaLabel.value}\n` : ''
-  const msg = `人流报表导出成功！\n${areaInfo}时间范围：${query.dateRange ? query.dateRange.join(' ~ ') : '全部'}\n粒度：${query.granularity === 'day' ? '按日' : query.granularity === 'week' ? '按周' : '按月'}\n共 ${statTotal.value} 条统计记录`
-  alert(msg)
+  const areaName = selectedAreaLabel.value || '未选择区域'
+  const period = query.dateRange ? query.dateRange.join('至') : '全部时间'
+  const link = document.createElement('a')
+  link.href = exportTemplateUrl
+  link.download = `人流统计报表_${areaName}_${period}.xls`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
 }
 
 // ==================== 顶部概览统计 ====================
@@ -582,14 +786,6 @@ function getFloorProfile(areaPath: string[]) {
   }
 }
 
-function getConfiguredDevices(value: string): string[] {
-  return value.split(/[、,，]/).map((device) => device.trim()).filter(Boolean)
-}
-
-function getAreaAccessConfig(areaPath: string[]): AreaAccessConfig | undefined {
-  return areaAccessConfigs.value.find((config) => areaPathKey(config.areaPath) === areaPathKey(areaPath))
-}
-
 function hashSeed(seed: string): number {
   let hash = 0
   for (let i = 0; i < seed.length; i++) {
@@ -615,9 +811,6 @@ function generateFloorDailyTrend(areaPath: string[], totalDays = 180): TrendItem
   const now = new Date()
   const factor = getFloorProfile(areaPath)
   const floorSeed = areaPath.join('/')
-  const accessConfig = getAreaAccessConfig(areaPath)
-  const entryDeviceCount = getConfiguredDevices(accessConfig?.entryDevices || '').length
-  const exitDeviceCount = getConfiguredDevices(accessConfig?.exitDevices || '').length
   for (let i = totalDays - 1; i >= 0; i--) {
     const d = new Date(now)
     d.setDate(d.getDate() - i)
@@ -627,13 +820,9 @@ function generateFloorDailyTrend(areaPath: string[], totalDays = 180): TrendItem
     const workdayPulse = d.getDay() === 1 ? 1.08 : d.getDay() === 5 ? 0.94 : 1
     const entryNoise = (seededRatio(`${floorSeed}-${dateStr}-entry`) - 0.5) * 2 * factor.variance
     const exitNoise = (seededRatio(`${floorSeed}-${dateStr}-exit`) - 0.5) * 2 * factor.variance * 0.7
-    const entry = entryDeviceCount === 0
-      ? 0
-      : Math.max(1, Math.round((factor.base * weekdayFactor * workdayPulse + entryNoise) * entryDeviceCount))
+    const entry = Math.max(8, Math.round(factor.base * weekdayFactor * workdayPulse + entryNoise))
     const exitRate = 0.82 + seededRatio(`${floorSeed}-${dateStr}-rate`) * 0.08
-    const exit = exitDeviceCount === 0
-      ? 0
-      : Math.max(1, Math.round((factor.base * weekdayFactor * workdayPulse * exitRate + exitNoise) * exitDeviceCount))
+    const exit = Math.max(5, Math.round(factor.base * weekdayFactor * workdayPulse * exitRate + exitNoise))
     days.push({ date: dateStr, entry, exit })
   }
   return days
@@ -691,14 +880,41 @@ function getFloorPathsForSelection(selectedPath: string[]): string[][] {
 
 // ==================== Mock 数据生成 ====================
 
-function generateMockTrend(): TrendItem[] {
-  const floors = getFloorPathsForSelection(currentAreaPath.value).filter((areaPath) => getAreaAccessConfig(areaPath)?.enabled)
+function getStatisticAreaPointIds(areaId = ''): string[] {
+  const area = statisticAreas.value.find((item) => item.id === areaId)
+  return area ? [...area.pointIds] : []
+}
 
-  if (floors.length === 0) {
+function generateAccessPointDailyTrend(point: AccessPointOption, totalDays = 180): TrendItem[] {
+  const days: TrendItem[] = []
+  const now = new Date()
+  const base = 90 + Math.round(seededRatio(`${point.id}-base`) * 110)
+  const variance = 25 + Math.round(seededRatio(`${point.id}-variance`) * 35)
+  for (let i = totalDays - 1; i >= 0; i--) {
+    const date = new Date(now)
+    date.setDate(date.getDate() - i)
+    const dateStr = formatDate(date)
+    const isWeekend = date.getDay() === 0 || date.getDay() === 6
+    const weekdayFactor = isWeekend ? 0.58 : 1
+    const noise = (seededRatio(`${point.id}-${dateStr}`) - 0.5) * 2 * variance
+    const count = Math.max(1, Math.round(base * weekdayFactor + noise))
+    days.push({
+      date: dateStr,
+      entry: point.direction === 'entry' ? count : 0,
+      exit: point.direction === 'exit' ? count : 0,
+    })
+  }
+  return days
+}
+
+function generateMockTrend(): TrendItem[] {
+  const pointIds = getStatisticAreaPointIds(selectedStatisticAreaId.value)
+  const points = accessPointInventory.filter((point) => pointIds.includes(point.id))
+  if (points.length === 0) {
     return []
   }
 
-  const allSeries: TrendItem[][] = floors.map((floorPath) => generateFloorDailyTrend(floorPath))
+  const allSeries = points.map((point) => generateAccessPointDailyTrend(point))
   const days: TrendItem[] = []
   for (let i = 0; i < allSeries[0].length; i++) {
     let entry = 0
@@ -734,7 +950,7 @@ function updateStats() {
     return
   }
 
-  const occupancyBias = currentAreaPath.value.length === 0 ? 180 : 40
+  const occupancyBias = selectedStatisticAreaId.value ? 40 : 180
   stats.todayEntry = latest.entry
   stats.todayExit = latest.exit
   stats.currentInPark = Math.max(0, Math.round(latest.entry * 0.62 - latest.exit * 0.18 + occupancyBias))
@@ -945,12 +1161,23 @@ updateStats()
   padding: 8px 0;
 }
 
+.pfr-tree-empty {
+  padding-top: 48px;
+}
+
 /* ===== 右侧主要内容 ===== */
 .pfr-content {
   flex: 1;
   overflow-y: auto;
   padding: 0 0 24px 24px;
   min-width: 0;
+}
+
+.pfr-page-empty {
+  min-height: 520px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 面包屑 */
@@ -1037,7 +1264,6 @@ updateStats()
 }
 
 .pfr-config-note {
-  margin-bottom: 16px;
   padding: 10px 12px;
   border: 1px solid #d9ecff;
   border-radius: 4px;
@@ -1047,8 +1273,61 @@ updateStats()
   line-height: 1.6;
 }
 
-.pfr-config-table {
+.pfr-config-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.pfr-point-transfer {
   width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 52px minmax(0, 1fr);
+  align-items: center;
+}
+
+.pfr-point-transfer :deep(.el-transfer-panel) {
+  width: auto;
+  min-width: 0;
+}
+
+.pfr-point-transfer :deep(.el-transfer__buttons) {
+  padding: 0 8px;
+}
+
+.pfr-point-transfer :deep(.el-transfer-panel__body) {
+  height: 230px;
+}
+
+.pfr-config-hierarchy {
+  width: 100%;
+}
+
+.pfr-config-placeholder {
+  color: #c0c4cc;
+}
+
+.pfr-config-point-count {
+  font-size: 13px;
+}
+
+.pfr-config-point-popover__item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  color: #303133;
+  font-size: 13px;
+}
+
+.pfr-config-point-popover__item + .pfr-config-point-popover__item {
+  border-top: 1px solid #f0f2f5;
+}
+
+.pfr-config-point-popover__meta {
+  color: #909399;
+  white-space: nowrap;
+  font-size: 12px;
 }
 
 /* 区块 */

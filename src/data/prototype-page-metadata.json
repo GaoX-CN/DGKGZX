@@ -53,6 +53,30 @@
     "DigitalBroadcastLinkage": {
       "status": "completed",
       "versions": []
+    },
+    "OperationStandardization": {
+      "status": "designing",
+      "versions": [
+        {
+          "version": 1,
+          "createdAt": "2026-07-17T00:00:00.000Z",
+          "description": "创建应急作业规范原型"
+        }
+      ]
+    },
+    "EmergencyManual": {
+      "status": "designing",
+      "versions": [
+        {
+          "version": 1,
+          "createdAt": "2026-07-17T00:00:00.000Z",
+          "description": "创建应急处理手册原型"
+        }
+      ]
+    },
+    "PeopleFlowReport": {
+      "status": "completed",
+      "versions": []
     }
   }
 }

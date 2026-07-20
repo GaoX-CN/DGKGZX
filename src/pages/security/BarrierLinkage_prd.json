@@ -1,0 +1,94 @@
+{
+  "pageName": "BarrierLinkage",
+  "pageId": "BarrierLinkage",
+  "version": "1.0.0",
+  "lastUpdated": "2026-07-17T00:00:00Z",
+  "intent": {
+    "type": "workflow",
+    "summary": "监控园区道闸设备状态，并在应急场景下执行单设备或批量抬杆控制。"
+  },
+  "overview": "道闸联动页面面向园区安保和值班人员，提供道闸设备定位、在线状态识别、地图监控、单点控制、批量控制和操作结果追溯能力。",
+  "modules": [
+    {
+      "id": "barrier-device-list",
+      "title": "道闸设备清单",
+      "purpose": "按园区空间层级定位需要联动处置的道闸设备。",
+      "summary": "展示道闸所属区域、设备名称、设备编号和在线状态，支持按名称或编号查询并选择多个在线设备。",
+      "requirements": [
+        {
+          "title": "查询道闸设备",
+          "priority": "P0",
+          "details": "支持按照空间层级浏览道闸设备，并按设备名称或编号筛选目标设备。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "识别可控设备",
+          "priority": "P0",
+          "details": "展示设备在线和离线状态，离线设备不可加入批量控制对象。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {"name":"spacePath","label":"空间层级","type":"层级信息","required":true,"description":"道闸设备所属的区域、楼宇和楼层路径。","source":"ai","status":"generated"},
+        {"name":"deviceName","label":"设备名称","type":"文本","required":true,"description":"道闸设备业务名称。","source":"ai","status":"generated"},
+        {"name":"deviceId","label":"设备编号","type":"文本","required":true,"description":"道闸设备唯一识别编号。","source":"ai","status":"generated"},
+        {"name":"deviceStatus","label":"设备状态","type":"枚举","required":true,"description":"设备当前在线或离线状态。","source":"ai","status":"generated"}
+      ],
+      "rules": ["仅在线设备可被选择并执行控制。", "批量控制至少需要选择一台在线设备。"],
+      "ruleImages": [],
+      "interactions": [
+        {"trigger":"输入查询条件","action":"筛选设备","description":"按设备名称或编号缩小设备清单范围。","source":"ai","status":"generated"},
+        {"trigger":"选择设备","action":"加入批量控制对象","description":"将在线道闸加入待执行的批量控制范围。","source":"ai","status":"generated"}
+      ],
+      "source":"ai",
+      "status":"generated"
+    },
+    {
+      "id": "barrier-map-monitoring",
+      "title": "道闸地图监控",
+      "purpose": "通过园区地图快速掌握道闸分布与运行状态。",
+      "summary": "地图显示全部道闸点位，可按状态筛选并查看单个设备的基本状态和控制入口。",
+      "requirements": [
+        {"title":"地图展示道闸点位","priority":"P0","details":"在园区地图上展示道闸地理位置，点位颜色与在线状态同步。","source":"ai","status":"generated"},
+        {"title":"查看并控制单个道闸","priority":"P0","details":"点击设备点位可查看设备信息和当前状态；在线设备可发起单点抬杆操作。","source":"ai","status":"generated"}
+      ],
+      "fields": [
+        {"name":"mapFilter","label":"地图状态筛选","type":"枚举","required":false,"description":"用于筛选全部、在线或离线道闸点位。","source":"ai","status":"generated"},
+        {"name":"barrierState","label":"道闸状态","type":"枚举","required":true,"description":"道闸设备当前可用状态和控制状态。","source":"ai","status":"generated"}
+      ],
+      "rules": ["离线道闸仅支持查看状态，不可发送控制指令。"],
+      "ruleImages": [],
+      "interactions": [
+        {"trigger":"点击地图点位","action":"查看设备详情","description":"展示所选道闸的设备信息、当前状态和可执行操作。","source":"ai","status":"generated"},
+        {"trigger":"切换地图状态筛选","action":"更新点位范围","description":"地图仅展示符合所选状态的道闸设备。","source":"ai","status":"generated"}
+      ],
+      "source":"ai",
+      "status":"generated"
+    },
+    {
+      "id": "barrier-control-and-log",
+      "title": "道闸控制与操作记录",
+      "purpose": "安全下发单点或批量抬杆指令，并追溯执行结果。",
+      "summary": "控制前提示确认操作对象，执行后记录操作时间、操作人、目标设备和执行结果。",
+      "requirements": [
+        {"title":"确认并执行抬杆","priority":"P0","details":"单点和批量抬杆均需确认目标设备后下发指令。","source":"ai","status":"generated"},
+        {"title":"追溯控制记录","priority":"P1","details":"记录每次控制操作的时间、操作人、设备和结果，便于应急处置复盘。","source":"ai","status":"generated"}
+      ],
+      "fields": [
+        {"name":"operator","label":"操作人","type":"文本","required":true,"description":"发起道闸控制的人员。","source":"ai","status":"generated"},
+        {"name":"operationTime","label":"操作时间","type":"时间","required":true,"description":"控制指令发起或执行的时间。","source":"ai","status":"generated"},
+        {"name":"operationResult","label":"执行结果","type":"枚举","required":true,"description":"控制指令的成功或失败结果。","source":"ai","status":"generated"}
+      ],
+      "rules": ["控制指令下发前必须确认目标设备。", "批量操作完成后清除已选设备。"],
+      "ruleImages": [],
+      "interactions": [
+        {"trigger":"确认单点或批量抬杆","action":"下发控制指令","description":"向目标在线道闸发送抬杆指令并反馈执行结果。","source":"ai","status":"generated"},
+        {"trigger":"查看操作记录","action":"查询控制历史","description":"浏览道闸控制操作及其执行结果。","source":"ai","status":"generated"}
+      ],
+      "source":"ai",
+      "status":"generated"
+    }
+  ]
+}

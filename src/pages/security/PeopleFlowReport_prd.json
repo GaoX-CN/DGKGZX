@@ -1,104 +1,238 @@
 {
   "pageName": "PeopleFlowReport",
   "pageId": "PeopleFlowReport",
-  "version": "1.0.1",
-  "lastUpdated": "2026-07-14T00:00:00Z",
+  "version": "1.1.0",
+  "lastUpdated": "2026-07-17T00:00:00Z",
   "intent": {
     "type": "analysis",
-    "summary": "按区域和时间范围查看园区人流变化与通行明细"
+    "summary": "基于统计区域直接绑定的门禁点位，分析园区人员通行变化"
   },
-  "overview": "人流报表用于查看园区各建筑及楼层的人流变化情况，支持按区域、统计周期和时间粒度进行分析。页面提供空间筛选、关键指标概览、统计明细和趋势分析，帮助管理人员快速识别不同区域的人员流动水平、波动变化和高峰时段。",
+  "overview": "人流报表用于按已配置的统计区域查看人员通行情况。每个统计区域直接关联参与统计的门禁点位，页面基于当前所选区域自身绑定点位的通行记录，展示当前人数、今日进入、今日离开、统计明细和人流趋势。用户可维护统计区域层级及其关联点位，并按统计周期和时间粒度导出报表模板。",
   "modules": [
     {
-      "id": "pfr-tree",
-      "title": "空间筛选",
-      "purpose": "提供按建筑与楼层逐级筛选人流数据的能力",
-      "summary": "页面提供园区空间结构浏览与搜索能力，用户可按建筑和楼层逐级选择分析范围，右侧统计内容随所选区域联动更新。",
+      "id": "pfr-stat-area",
+      "title": "统计区域选择",
+      "purpose": "从已配置的统计区域层级中选择本次人流分析范围",
+      "summary": "页面展示已配置的统计区域层级。默认选中第一个一级统计区域，选择区域后，概览、明细和趋势均更新为该区域自身绑定门禁点位的统计结果。",
       "requirements": [
         {
-          "title": "空间层级筛选",
+          "title": "展示统计区域层级",
           "priority": "P1",
-          "details": "支持从全部区域、建筑、楼层三个层级选择分析范围，所选范围用于驱动页面内各项统计结果联动变化。",
+          "details": "展示已配置统计区域及其父子层级关系，支持展开和收起子区域。",
           "source": "ai",
           "status": "generated"
         },
         {
-          "title": "空间名称搜索",
-          "priority": "P2",
-          "details": "支持按空间名称进行模糊搜索，便于快速定位目标建筑或楼层。",
+          "title": "默认选择一级统计区域",
+          "priority": "P1",
+          "details": "存在统计区域时，默认选择第一个一级统计区域，并加载其对应统计结果。",
           "source": "ai",
           "status": "generated"
         },
         {
-          "title": "已选区域提示",
-          "priority": "P2",
-          "details": "页面应明确展示当前所选区域层级，便于用户确认当前分析口径。",
+          "title": "统计区域空状态",
+          "priority": "P1",
+          "details": "未配置任何统计区域时，显示空状态并引导用户先完成统计区域配置。",
           "source": "ai",
           "status": "generated"
         }
       ],
       "fields": [
         {
-          "name": "areaPath",
-          "label": "区域路径",
-          "type": "string[]",
-          "required": false,
-          "description": "当前所选区域的层级路径，如建筑与楼层信息。未选择时表示全部区域。",
+          "name": "statisticAreaId",
+          "label": "统计区域标识",
+          "type": "string",
+          "required": true,
+          "description": "用于识别当前选中统计区域的唯一标识。",
           "source": "ai",
           "status": "generated"
         },
         {
-          "name": "areaKeyword",
-          "label": "空间关键词",
+          "name": "statisticAreaName",
+          "label": "统计区域名称",
+          "type": "string",
+          "required": true,
+          "description": "当前选中统计区域的业务名称。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "parentAreaId",
+          "label": "父级区域",
           "type": "string",
           "required": false,
-          "description": "用于搜索目标建筑或楼层的关键词。",
+          "description": "当前统计区域所属的父级统计区域标识。未设置时为一级统计区域。",
           "source": "ai",
           "status": "generated"
         }
       ],
       "rules": [
-        "默认按全部区域展示整体统计结果",
-        "区域切换后，关键指标、统计明细和趋势分析需同步更新",
-        "搜索结果仅用于辅助定位空间，不改变未点击前的统计口径"
+        "统计区域仅展示已完成配置的区域",
+        "统计区域层级仅用于组织与查看，不表示父级自动汇总子区域统计结果",
+        "选择统计区域后，仅使用该区域直接绑定的门禁点位进行人数统计",
+        "重置筛选条件后，恢复选择第一个一级统计区域"
       ],
+      "ruleImages": [],
       "interactions": [
         {
-          "trigger": "点击区域节点",
-          "action": "切换分析范围",
-          "description": "选择建筑或楼层后，页面内所有统计内容更新为对应区域的数据。",
+          "trigger": "点击统计区域",
+          "action": "切换统计范围",
+          "description": "刷新当前人数、今日通行指标、统计明细和人流趋势为该区域自身的统计结果。",
           "source": "ai",
           "status": "generated"
         },
         {
-          "trigger": "输入空间关键词",
-          "action": "筛选可选区域",
-          "description": "根据关键词缩小可选空间范围，帮助用户快速找到目标区域。",
+          "trigger": "未配置统计区域",
+          "action": "引导前往配置",
+          "description": "提示用户先维护统计区域，并提供进入配置的入口。",
           "source": "ai",
           "status": "generated"
         }
       ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "pfr-area-config",
+      "title": "统计区域配置",
+      "purpose": "维护统计区域层级及各区域直接关联的门禁统计点位",
+      "summary": "用户可查看已配置统计区域及其关联点位数量，按需新增、编辑和删除统计区域；新增或编辑时可设置区域名称、父级区域，并从园区位置范围内选择参与统计的门禁点位。",
+      "requirements": [
+        {
+          "title": "查看区域与点位配置",
+          "priority": "P1",
+          "details": "按统计区域层级展示区域及其关联点位数量，用户查看点位数量时可获取具体点位名称、设备编号和统计方向。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "新增统计区域",
+          "priority": "P1",
+          "details": "支持填写统计区域名称、选择父级区域并选择至少一个统计点位。未设置父级区域时，新增为一级统计区域。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "按园区位置筛选点位",
+          "priority": "P1",
+          "details": "支持按建筑、楼层和功能区域筛选可选门禁点位；取消位置筛选后恢复展示全部可选点位。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "编辑与删除统计区域",
+          "priority": "P1",
+          "details": "支持编辑统计区域名称、父级关系和关联点位；无子区域时可删除统计区域。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "areaName",
+          "label": "统计区域名称",
+          "type": "string",
+          "required": true,
+          "description": "用户定义的统计区域业务名称。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "parentId",
+          "label": "父级区域",
+          "type": "string",
+          "required": false,
+          "description": "统计区域的父级关系；不选择时表示第一级区域。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "locationPath",
+          "label": "点位位置范围",
+          "type": "string[]",
+          "required": false,
+          "description": "用于缩小门禁点位选择范围的建筑、楼层和功能区域路径。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "pointIds",
+          "label": "统计点位",
+          "type": "string[]",
+          "required": true,
+          "description": "直接绑定到当前统计区域并参与人员通行统计的门禁点位标识集合。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "pointDirection",
+          "label": "统计方向",
+          "type": "string",
+          "required": true,
+          "description": "门禁点位对应的进入或离开统计方向。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "统计区域名称和至少一个统计点位为必填项",
+        "未选择父级区域时，统计区域作为第一级区域展示",
+        "同一门禁点位允许绑定到多个统计区域",
+        "统计区域仅统计自身直接绑定的点位，不自动统计子区域绑定点位",
+        "存在子统计区域时，父级统计区域不可删除",
+        "取消点位位置筛选后，应恢复全部可选点位"
+      ],
       "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击新增统计区域",
+          "action": "维护统计区域",
+          "description": "填写区域信息并选择统计点位，保存后将区域加入统计区域层级。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "调整点位位置范围",
+          "action": "筛选可选点位",
+          "description": "按园区位置范围缩小可选择的门禁点位；清空范围后恢复全部点位。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击编辑",
+          "action": "更新统计区域",
+          "description": "修改区域名称、父级关系或关联点位并保存。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击删除",
+          "action": "删除统计区域",
+          "description": "无子区域时，经确认后删除统计区域；存在子区域时提示不可删除。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
       "source": "ai",
       "status": "generated"
     },
     {
       "id": "pfr-stats",
       "title": "关键指标概览",
-      "purpose": "快速查看当前区域的人流核心指标",
-      "summary": "页面展示当前人数、今日进入和今日离开三个核心指标，用于帮助用户快速判断当前区域的人流状态。",
+      "purpose": "快速查看当前统计区域的人流核心指标",
+      "summary": "展示当前人数、今日进入和今日离开三个核心指标，帮助用户快速判断当前统计区域的人员流动情况。",
       "requirements": [
         {
           "title": "展示核心人流指标",
           "priority": "P1",
-          "details": "展示当前人数、今日进入、今日离开三个关键指标，帮助用户快速掌握当前区域的人员流动情况。",
+          "details": "展示当前人数、今日进入和今日离开三个关键指标。",
           "source": "ai",
           "status": "generated"
         },
         {
-          "title": "指标随区域联动",
+          "title": "指标随统计区域更新",
           "priority": "P1",
-          "details": "当分析区域变化时，关键指标应同步刷新；统计周期和时间粒度仅影响统计明细与趋势分析，不改变今日指标口径。",
+          "details": "切换统计区域后，关键指标更新为当前区域直接绑定点位的统计结果。",
           "source": "ai",
           "status": "generated"
         }
@@ -109,7 +243,7 @@
           "label": "当前人数",
           "type": "number",
           "required": true,
-          "description": "当前分析区域内的实时在场人数。",
+          "description": "根据当前统计区域直接绑定门禁点位记录计算的当前在场人数。",
           "source": "ai",
           "status": "generated"
         },
@@ -118,7 +252,7 @@
           "label": "今日进入",
           "type": "number",
           "required": true,
-          "description": "当前分析区域当日进入人数。",
+          "description": "当前统计区域直接绑定入口点位在当日产生的通行人次。",
           "source": "ai",
           "status": "generated"
         },
@@ -127,72 +261,83 @@
           "label": "今日离开",
           "type": "number",
           "required": true,
-          "description": "当前分析区域当日离开人数。",
+          "description": "当前统计区域直接绑定出口点位在当日产生的通行人次。",
           "source": "ai",
           "status": "generated"
         }
       ],
       "rules": [
-        "指标展示口径应与当前所选区域保持一致",
-        "无有效数据时，指标值显示为零",
-        "页面仅保留当前人数、今日进入、今日离开三个概览指标"
+        "指标仅统计当前统计区域直接绑定点位的通行记录",
+        "无有效通行记录时，指标显示为零",
+        "统计周期和时间粒度不改变今日指标口径"
       ],
+      "ruleImages": [],
       "interactions": [
         {
-          "trigger": "区域变化",
+          "trigger": "切换统计区域",
           "action": "刷新指标概览",
-          "description": "当分析区域变化时，概览指标同步更新；调整统计周期或时间粒度不改变今日指标。",
+          "description": "当前人数、今日进入和今日离开同步更新。",
           "source": "ai",
           "status": "generated"
         }
       ],
-      "ruleImages": [],
       "source": "ai",
       "status": "generated"
     },
     {
       "id": "pfr-table",
-      "title": "统计明细",
-      "purpose": "查看当前区域在指定周期内的人流统计结果",
-      "summary": "统计明细用于按时间维度展示进入、离开、波动情况和高峰时段信息，支持查询、排序、分页和导出。",
+      "title": "统计明细与导出",
+      "purpose": "查看当前统计区域在指定周期内的人流明细并下载导出模板",
+      "summary": "展示进入、离开、环比、高峰时段和高峰流量等统计明细，支持按周期和粒度查询、排序、分页，并可下载包含统计字段与口径说明的导出模板。",
       "requirements": [
         {
           "title": "按条件查询统计结果",
           "priority": "P1",
-          "details": "支持按统计周期和时间粒度筛选统计结果，查看当前区域在指定条件下的人流明细。",
+          "details": "支持按统计周期和时间粒度查看当前统计区域的统计明细。默认统计周期为近30天，默认时间粒度为按日。",
           "source": "ai",
           "status": "generated"
         },
         {
           "title": "展示关键统计字段",
           "priority": "P1",
-          "details": "统计明细应展示日期、进入、离开、环比、高峰时段和高峰流量等核心信息。",
+          "details": "展示日期、进入、离开、环比、高峰时段和高峰流量等统计信息。",
           "source": "ai",
           "status": "generated"
         },
         {
-          "title": "支持排序与分页",
+          "title": "下载导出模板",
           "priority": "P2",
-          "details": "支持按关键字段排序，并通过分页浏览较长时间范围内的统计记录。",
+          "details": "支持按当前统计区域和统计周期下载人流报表导出模板，模板包含统计明细、统计区域点位和字段口径说明。",
           "source": "ai",
           "status": "generated"
         },
         {
-          "title": "支持导出当前结果",
-          "priority": "P2",
-          "details": "支持导出当前筛选条件下的统计结果，用于后续汇报与留存。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "title": "无数据占位提示",
+          "title": "无数据提示",
           "priority": "P1",
-          "details": "当当前筛选条件下没有统计记录时，应显示明确的空结果提示，避免用户误判为页面异常。",
+          "details": "当前筛选条件下无统计记录时，显示明确的空结果提示且不显示分页。",
           "source": "ai",
           "status": "generated"
         }
       ],
       "fields": [
+        {
+          "name": "dateRange",
+          "label": "统计周期",
+          "type": "string[]",
+          "required": true,
+          "description": "限定统计结果的起止日期范围，默认近30天。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "granularity",
+          "label": "时间粒度",
+          "type": "string",
+          "required": true,
+          "description": "统计结果展示粒度，支持按日、按周和按月，默认按日。",
+          "source": "ai",
+          "status": "generated"
+        },
         {
           "name": "date",
           "label": "日期",
@@ -207,7 +352,7 @@
           "label": "进入",
           "type": "number",
           "required": true,
-          "description": "当前统计周期内的进入人数。",
+          "description": "当前统计周期内，当前统计区域直接绑定入口点位的通行人次。",
           "source": "ai",
           "status": "generated"
         },
@@ -216,7 +361,7 @@
           "label": "离开",
           "type": "number",
           "required": true,
-          "description": "当前统计周期内的离开人数。",
+          "description": "当前统计周期内，当前统计区域直接绑定出口点位的通行人次。",
           "source": "ai",
           "status": "generated"
         },
@@ -225,7 +370,7 @@
           "label": "环比",
           "type": "number",
           "required": false,
-          "description": "当前统计周期的进入人数相对于上一同粒度统计周期进入人数的变化幅度百分比。按日时比较相邻两天的进入人数，按周时比较相邻两周的进入人数，按月时比较相邻两月的进入人数。计算公式：环比 =（本期进入人数 - 上期进入人数）÷ 上期进入人数 × 100%。当上期进入人数为0或不存在上期数据时，环比不计算，显示为无数据。",
+          "description": "当前统计周期的进入人数相对上一同粒度统计周期进入人数的变化比例。公式为：（本期进入人数-上期进入人数）÷上期进入人数×100%。上期进入人数为零或不存在时不计算。",
           "source": "ai",
           "status": "generated"
         },
@@ -234,7 +379,7 @@
           "label": "高峰时段",
           "type": "string",
           "required": true,
-          "description": "当前统计周期内人流最集中的时间段。",
+          "description": "当前统计周期内通行人次最高的时间窗口。",
           "source": "ai",
           "status": "generated"
         },
@@ -243,112 +388,76 @@
           "label": "高峰流量",
           "type": "number",
           "required": true,
-          "description": "当前统计周期内，高峰时段的人员通行人次，即该时段进入人次与离开人次之和。高峰时段按固定时间窗口统计，取进入人次与离开人次合计值最高的时间窗口；按日统计时在当天各时间窗口中识别，按周或按月统计时在对应周期内的时间窗口中识别。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "dateRange",
-          "label": "统计周期",
-          "type": "string[]",
-          "required": false,
-          "description": "用户选定的起止日期范围，用于限定统计口径。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "granularity",
-          "label": "时间粒度",
-          "type": "string",
-          "required": true,
-          "description": "统计结果的展示粒度，支持按日、按周、按月。",
+          "description": "高峰时间窗口内的通行人次，等于该时间窗口进入人次与离开人次之和。",
           "source": "ai",
           "status": "generated"
         }
       ],
       "rules": [
-        "默认展示当前分析范围下的近期统计结果",
-        "环比只比较同一分析区域、同一时间粒度下相邻统计周期的进入人数，不比较进入与离开合计值",
-        "环比计算公式为：（本期进入人数 - 上期进入人数）÷ 上期进入人数 × 100%",
-        "当上期进入人数为0或不存在上期数据时，环比不计算并显示为无数据",
-        "高峰流量指高峰时间窗口内的通行人次，计算公式为：高峰流量 = 该时间窗口进入人次 + 该时间窗口离开人次",
-        "高峰时段取当前统计周期内进入人次与离开人次合计值最高的时间窗口",
-        "统计结果需随统计周期、时间粒度和区域范围同步变化",
-        "无统计记录时展示空结果提示，不展示分页",
-        "导出内容应包含当前筛选条件与统计记录范围"
+        "统计明细仅使用当前统计区域直接绑定点位的通行记录",
+        "环比仅比较同一统计区域、同一时间粒度下相邻统计周期的进入人数",
+        "高峰流量等于高峰时间窗口内进入人次与离开人次之和",
+        "重置后恢复第一个一级统计区域、近30天和按日统计",
+        "导出文件名包含当前统计区域与统计周期"
       ],
+      "ruleImages": [],
       "interactions": [
         {
           "trigger": "点击查询",
           "action": "刷新统计明细",
-          "description": "根据当前统计周期、时间粒度和区域范围重新加载统计结果。",
+          "description": "按当前统计区域、统计周期和时间粒度加载统计结果。",
           "source": "ai",
           "status": "generated"
         },
         {
           "trigger": "点击重置",
-          "action": "恢复默认筛选条件",
-          "description": "清空当前统计周期与区域筛选，恢复默认分析口径。",
+          "action": "恢复默认条件",
+          "description": "恢复第一个一级统计区域、近30天和按日统计。",
           "source": "ai",
           "status": "generated"
         },
         {
-          "trigger": "点击列标题排序",
-          "action": "调整记录顺序",
-          "description": "按所选字段升序或降序查看统计结果。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "trigger": "切换分页",
-          "action": "浏览更多记录",
-          "description": "通过切换页码或每页条数查看不同范围的统计记录。",
+          "trigger": "调整排序或分页",
+          "action": "浏览统计记录",
+          "description": "按指定字段排序或切换页面浏览统计明细。",
           "source": "ai",
           "status": "generated"
         },
         {
           "trigger": "点击导出报表",
-          "action": "导出统计结果",
-          "description": "导出当前筛选条件下的统计结果及其口径说明。",
+          "action": "下载导出模板",
+          "description": "下载对应人流统计字段、点位配置和统计口径的报表模板。",
           "source": "ai",
           "status": "generated"
         }
       ],
-      "ruleImages": [],
       "source": "ai",
       "status": "generated"
     },
     {
       "id": "pfr-chart",
       "title": "人流趋势",
-      "purpose": "可视化查看当前区域在不同统计周期下的人流变化趋势",
-      "summary": "人流趋势用于展示进入与离开人数随时间的变化情况，帮助用户识别高峰、低谷和整体变化走势。",
+      "purpose": "展示当前统计区域直接绑定点位的进入与离开趋势",
+      "summary": "人流趋势以时间维度对比进入和离开人数，支持按日、按周和按月查看，并可查看任一统计点的具体数值。",
       "requirements": [
         {
           "title": "展示进入与离开趋势",
           "priority": "P1",
-          "details": "趋势分析应同时展示进入人数和离开人数的变化走势，便于用户对比两类人流规模。",
+          "details": "在同一时间轴下展示进入人数和离开人数变化趋势。",
           "source": "ai",
           "status": "generated"
         },
         {
-          "title": "支持粒度切换后的趋势变化",
+          "title": "查看趋势点明细",
           "priority": "P1",
-          "details": "当用户切换按日、按周或按月后，趋势分析应按对应粒度展示结果。",
+          "details": "查看任一时间点时，展示该时间点的日期、进入人数和离开人数。",
           "source": "ai",
           "status": "generated"
         },
         {
-          "title": "支持查看单点明细",
+          "title": "趋势空状态",
           "priority": "P1",
-          "details": "用户查看某个时间点时，应能看到该时间点对应的日期、进入人数和离开人数。",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "title": "无数据占位提示",
-          "priority": "P1",
-          "details": "当当前筛选条件下没有趋势数据时，应显示明确的空结果提示。",
+          "details": "当前统计区域无可用通行记录时，显示趋势空状态。",
           "source": "ai",
           "status": "generated"
         }
@@ -359,7 +468,7 @@
           "label": "趋势日期",
           "type": "string",
           "required": true,
-          "description": "趋势点对应的日期或统计周期标识。",
+          "description": "趋势点对应的日期或统计周期。",
           "source": "ai",
           "status": "generated"
         },
@@ -383,28 +492,27 @@
         }
       ],
       "rules": [
-        "趋势分析应与统计明细使用同一分析口径",
-        "进入与离开需在同一时间轴下对比展示",
-        "用户查看单个时间点时，应返回该点的完整数值信息",
-        "无趋势数据时展示空结果提示"
+        "趋势分析与统计明细使用相同的统计区域和点位口径",
+        "趋势仅统计当前统计区域直接绑定点位的通行记录",
+        "无趋势数据时显示空结果提示"
       ],
+      "ruleImages": [],
       "interactions": [
         {
-          "trigger": "筛选条件变化",
-          "action": "刷新趋势分析",
-          "description": "当区域、统计周期或时间粒度变化时，趋势结果同步更新。",
+          "trigger": "切换统计区域、统计周期或时间粒度",
+          "action": "刷新趋势结果",
+          "description": "更新当前分析条件下的进入与离开趋势。",
           "source": "ai",
           "status": "generated"
         },
         {
           "trigger": "查看趋势点",
           "action": "显示单点明细",
-          "description": "查看任一时间点时，展示该时间点的日期、进入人数和离开人数。",
+          "description": "展示该时间点的日期、进入人数和离开人数。",
           "source": "ai",
           "status": "generated"
         }
       ],
-      "ruleImages": [],
       "source": "ai",
       "status": "generated"
     }

@@ -30,6 +30,16 @@ const router = createRouter({
           component: () => import('@/pages/security/EmergencyRoute.vue'),
         },
         {
+          path: '/emergency/operation-standardization',
+          name: 'OperationStandardization',
+          component: () => import('@/pages/emergency/OperationStandardization.vue'),
+        },
+        {
+          path: '/emergency/manuals',
+          name: 'EmergencyManual',
+          component: () => import('@/pages/emergency/EmergencyManual.vue'),
+        },
+        {
           path: '/security/access-linkage',
           name: 'AccessLinkage',
           component: () => import('@/pages/security/AccessLinkage.vue'),

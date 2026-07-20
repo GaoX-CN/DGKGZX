@@ -1,0 +1,83 @@
+{
+  "pageName": "LightingLinkage",
+  "pageId": "LightingLinkage",
+  "version": "1.0.0",
+  "lastUpdated": "2026-07-17T00:00:00Z",
+  "intent": {
+    "type": "workflow",
+    "summary": "监控园区照明设备状态，并通过单灯或批量方式执行应急开灯、关灯联动。"
+  },
+  "overview": "照明联动页面面向园区安保和值班人员，支持按空间定位照明设备、筛选设备状态、查看地图点位、执行单灯和批量开关控制，以及查询操作记录。",
+  "modules": [
+    {
+      "id": "lighting-device-distribution",
+      "title": "照明设备分布",
+      "purpose": "按园区空间和运行状态定位需要控制的照明设备。",
+      "summary": "按区域和房间展示照明设备，标识在线状态和开关状态，并支持筛选及选择多个设备。",
+      "requirements": [
+        {"title":"按空间查看照明设备","priority":"P0","details":"按区域和房间层级展示照明设备，支持展开和收起空间范围。","source":"ai","status":"generated"},
+        {"title":"筛选设备运行状态","priority":"P1","details":"支持仅查看在线设备或已开启设备，以便快速筛选处置目标。","source":"ai","status":"generated"}
+      ],
+      "fields": [
+        {"name":"deviceName","label":"设备名称","type":"文本","required":true,"description":"照明设备的业务名称。","source":"ai","status":"generated"},
+        {"name":"deviceId","label":"设备编号","type":"文本","required":true,"description":"照明设备唯一识别编号。","source":"ai","status":"generated"},
+        {"name":"onlineStatus","label":"在线状态","type":"枚举","required":true,"description":"设备当前在线或离线状态。","source":"ai","status":"generated"},
+        {"name":"lightStatus","label":"灯光状态","type":"枚举","required":true,"description":"设备当前已开启或已关闭状态。","source":"ai","status":"generated"}
+      ],
+      "rules": ["离线设备不可执行开关控制。", "指令执行中的设备不可重复控制。", "批量操作仅作用于已选择的在线设备。"],
+      "ruleImages": [],
+      "interactions": [
+        {"trigger":"切换状态筛选","action":"过滤设备清单","description":"根据在线状态或灯光开启状态更新设备显示范围。","source":"ai","status":"generated"},
+        {"trigger":"选择设备","action":"加入批量控制对象","description":"将符合条件的照明设备加入批量开灯或关灯范围。","source":"ai","status":"generated"}
+      ],
+      "source":"ai",
+      "status":"generated"
+    },
+    {
+      "id": "lighting-map-control",
+      "title": "照明地图控制",
+      "purpose": "基于园区地图查看照明点位并执行单灯控制。",
+      "summary": "地图展示照明设备位置和状态，支持按在线状态筛选点位，并查看和切换单个设备的灯光状态。",
+      "requirements": [
+        {"title":"地图监控照明点位","priority":"P0","details":"在地图上展示照明设备位置，设备点位状态反映在线情况和灯光开启情况。","source":"ai","status":"generated"},
+        {"title":"控制单盏照明","priority":"P0","details":"从设备详情发起开灯或关灯操作，并反馈指令执行过程与结果。","source":"ai","status":"generated"}
+      ],
+      "fields": [
+        {"name":"mapFilter","label":"地图状态筛选","type":"枚举","required":false,"description":"用于筛选全部、在线或离线照明点位。","source":"ai","status":"generated"},
+        {"name":"commandStatus","label":"指令状态","type":"枚举","required":true,"description":"照明控制指令的执行中、成功或失败状态。","source":"ai","status":"generated"}
+      ],
+      "rules": ["设备状态变更仅在控制指令执行成功后生效。", "指令执行失败时保持原灯光状态。"],
+      "ruleImages": [],
+      "interactions": [
+        {"trigger":"点击地图点位","action":"查看照明详情","description":"展示设备名称、灯光状态和可执行控制操作。","source":"ai","status":"generated"},
+        {"trigger":"切换灯光状态","action":"发送单灯控制","description":"向在线且空闲的设备发送开灯或关灯指令。","source":"ai","status":"generated"}
+      ],
+      "source":"ai",
+      "status":"generated"
+    },
+    {
+      "id": "lighting-batch-and-log",
+      "title": "批量照明控制与操作记录",
+      "purpose": "对多个照明设备执行统一控制，并保存处置过程。",
+      "summary": "支持对已选设备批量开灯或关灯，并记录操作时间、操作人、目标设备、控制动作和执行结果。",
+      "requirements": [
+        {"title":"批量开关照明","priority":"P0","details":"支持对已选在线照明设备统一执行开灯或关灯，并汇总成功和失败数量。","source":"ai","status":"generated"},
+        {"title":"查询操作记录","priority":"P1","details":"支持查看照明控制历史及每个控制动作的执行结果。","source":"ai","status":"generated"}
+      ],
+      "fields": [
+        {"name":"operationAction","label":"控制动作","type":"枚举","required":true,"description":"照明控制的开灯或关灯动作。","source":"ai","status":"generated"},
+        {"name":"operator","label":"操作人","type":"文本","required":true,"description":"发起照明控制的人员。","source":"ai","status":"generated"},
+        {"name":"operationTime","label":"操作时间","type":"时间","required":true,"description":"照明控制操作的执行时间。","source":"ai","status":"generated"},
+        {"name":"operationResult","label":"执行结果","type":"枚举","required":true,"description":"照明控制动作的成功或失败结果。","source":"ai","status":"generated"}
+      ],
+      "rules": ["已处于目标状态的设备不重复发送指令。", "批量控制结束后取消设备选择。"],
+      "ruleImages": [],
+      "interactions": [
+        {"trigger":"发起批量开灯或关灯","action":"执行批量控制","description":"向已选设备发送统一控制指令并反馈汇总结果。","source":"ai","status":"generated"},
+        {"trigger":"查看操作日志","action":"查询控制历史","description":"查看照明联动操作及其执行状态。","source":"ai","status":"generated"}
+      ],
+      "source":"ai",
+      "status":"generated"
+    }
+  ]
+}
