@@ -55,7 +55,7 @@
       "versions": []
     },
     "OperationStandardization": {
-      "status": "designing",
+      "status": "completed",
       "versions": [
         {
           "version": 1,
@@ -65,7 +65,7 @@
       ]
     },
     "EmergencyManual": {
-      "status": "designing",
+      "status": "completed",
       "versions": [
         {
           "version": 1,
