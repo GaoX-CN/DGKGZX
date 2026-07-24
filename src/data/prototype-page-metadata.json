@@ -78,6 +78,16 @@
       "status": "completed",
       "versions": []
     },
+    "PersonnelTrajectory": {
+      "status": "completed",
+      "versions": [
+        {
+          "version": 1,
+          "createdAt": "2026-07-23T14:50:00.000Z",
+          "description": "创建人员轨迹原型"
+        }
+      ]
+    },
     "Welcome": {
       "status": "completed",
       "versions": []

@@ -5,7 +5,10 @@
         <el-icon><Document /></el-icon>
         <span>PRD 需求说明</span>
       </div>
-      <el-button text :icon="Close" @click="uiStore.togglePrdPanel()" />
+      <div class="requirement-panel__header-actions">
+        <el-button text :icon="View" :disabled="prdLoadingState !== 'loaded'" @click="openJsonViewer">查看 JSON</el-button>
+        <el-button text :icon="Close" @click="uiStore.togglePrdPanel()" />
+      </div>
     </div>
 
     <div class="requirement-panel__body">
@@ -34,16 +37,27 @@
         </div>
       </template>
     </div>
+
+    <el-dialog v-model="jsonViewerVisible" width="720px" top="8vh" append-to-body>
+      <template #header>
+        <div class="requirement-panel__json-header">
+          <span>PRD JSON 源文件</span>
+          <el-button size="small" :icon="CopyDocument" @click="copyPrdSource">复制 JSON</el-button>
+        </div>
+      </template>
+      <pre class="requirement-panel__json">{{ prdSource || '未找到当前页面的 PRD JSON 文件' }}</pre>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, watch, onMounted } from 'vue'
-import { Document, Close } from '@element-plus/icons-vue'
+import { computed, watch, onMounted, ref } from 'vue'
+import { Document, Close, View, CopyDocument } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import { useUiStore } from '@/stores/uiStore'
 import { useRequirementStore } from '@/stores/requirementStore'
 import { usePrototypeStore } from '@/stores/prototypeStore'
-import { loadPrd } from './PrdJsonLoader'
+import { loadPrd, loadPrdSource } from './PrdJsonLoader'
 import { useRoute } from 'vue-router'
 import EmptyState from '@/components/common/EmptyState.vue'
 import Loading from '@/components/common/Loading.vue'
@@ -54,6 +68,8 @@ const uiStore = useUiStore()
 const requirementStore = useRequirementStore()
 const prototypeStore = usePrototypeStore()
 const route = useRoute()
+const jsonViewerVisible = ref(false)
+const prdSource = ref('')
 
 const prdLoadingState = computed(() => requirementStore.prdLoadingState)
 const moduleNavItems = computed(() => requirementStore.moduleNavItems)
@@ -81,6 +97,44 @@ async function loadCurrentPrd() {
   } catch {
     requirementStore.setPrdLoadingState('error')
   }
+}
+
+async function openJsonViewer() {
+  const pageName = (route.name as string) || 'Welcome'
+  prdSource.value = await loadPrdSource(pageName) ?? ''
+  jsonViewerVisible.value = true
+}
+
+async function copyPrdSource() {
+  if (!prdSource.value) return
+
+  try {
+    if (navigator.clipboard?.writeText && window.isSecureContext) {
+      await navigator.clipboard.writeText(prdSource.value)
+    } else if (!copyWithSelection(prdSource.value)) {
+      throw new Error('clipboard unavailable')
+    }
+    ElMessage.success('JSON 已复制到剪贴板')
+  } catch {
+    if (copyWithSelection(prdSource.value)) {
+      ElMessage.success('JSON 已复制到剪贴板')
+    } else {
+      ElMessage.error('复制失败，请手动选择 JSON 内容复制')
+    }
+  }
+}
+
+function copyWithSelection(text: string) {
+  const textarea = document.createElement('textarea')
+  textarea.value = text
+  textarea.setAttribute('readonly', '')
+  textarea.style.position = 'fixed'
+  textarea.style.opacity = '0'
+  document.body.appendChild(textarea)
+  textarea.select()
+  const copied = document.execCommand('copy')
+  document.body.removeChild(textarea)
+  return copied
 }
 
 onMounted(() => {
@@ -123,6 +177,11 @@ watch(() => route.name, () => {
   color: $text-color;
 }
 
+.requirement-panel__header-actions {
+  display: flex;
+  align-items: center;
+}
+
 .requirement-panel__body {
   flex: 1;
   overflow: hidden;
@@ -143,5 +202,29 @@ watch(() => route.name, () => {
 .requirement-panel__content {
   flex: 1;
   overflow: auto;
+}
+
+.requirement-panel__json {
+  max-height: 70vh;
+  margin: 0;
+  padding: 16px;
+  overflow: auto;
+  border-radius: 4px;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.requirement-panel__json-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 28px;
+  font-size: 16px;
+  font-weight: 600;
 }
 </style>

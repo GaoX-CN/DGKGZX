@@ -1,0 +1,465 @@
+{
+  "pageName": "PersonnelTrajectory",
+  "pageId": "PersonnelTrajectory",
+  "version": "2.0.0",
+  "lastUpdated": "2026-07-24T02:38:00Z",
+  "intent": {
+    "type": "analysis",
+    "summary": "还原告警人员在园区内经过的所有摄像头的抓拍记录与活动顺序，辅助安保人员快速还原人员活动路线。"
+  },
+  "overview": "人员轨迹页面面向园区安保人员，用于查看监控系统识别告警后还原的目标人员活动轨迹。页面通过每个被抓拍的摄像头标记访问顺序，配合抓拍时间线展示每一次抓拍详情，帮助安保人员判断目标人员的活动范围与移动方向。页面不涉及告警处置、联动派单等操作，仅承担'看图还原轨迹'的查询分析职责。",
+  "modules": [
+    {
+      "id": "pt-alert-list",
+      "title": "告警人员列表",
+      "purpose": "集中展示识别告警的人员，支持快速检索与切换查看轨迹",
+      "summary": "页面左侧展示识别告警的人员列表，区分高、中、低风险等级。支持按姓名模糊搜索、按风险等级筛选、按起止时间范围筛选。列表优先展示人员抓拍头像、姓名、风险等级、最近抓拍时间、途经摄像头数量与抓拍次数。点击后右侧切换为该人员对应的轨迹和抓拍记录。",
+      "requirements": [
+        {
+          "title": "按风险等级筛选",
+          "priority": "P0",
+          "details": "支持按高、中、低风险等级筛选告警人员。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "按���名模糊搜索",
+          "priority": "P0",
+          "details": "支持按姓名模糊匹配搜索目标人员。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "起止时间范围筛选",
+          "priority": "P0",
+          "details": "支持选择起止时间范围筛选告警记录。默认展示当天时间范围，并提供'今天'、'最近24小时'、'最近7天'快捷选项。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "人员摘要信息展示",
+          "priority": "P0",
+          "details": "每条记录展示人员抓拍头像、姓名、风险等级标签、最近抓拍时间、途经摄像头数量和抓拍次数，不展示告警处置状态。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "选中人员联动切换轨迹",
+          "priority": "P0",
+          "details": "点击人员卡片后，地图标记和时间线均切换为该人员的抓拍记录。默认选中第一条。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "手动刷新列表",
+          "priority": "P1",
+          "details": "支持手动刷新告警人员列表数据。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "targetName",
+          "label": "人员姓名",
+          "type": "string",
+          "required": true,
+          "description": "识别到的人员姓名。若未匹配布控库则为'陌生人'。"
+        },
+        {
+          "name": "severity",
+          "label": "风险等级",
+          "type": "enum",
+          "required": true,
+          "description": "高/中/低风险，由监控系统直接推送。"
+        },
+        {
+          "name": "lastCaptureTime",
+          "label": "最近抓拍时间",
+          "type": "datetime",
+          "required": true,
+          "description": "该人员最后一次被抓拍的时间。"
+        },
+        {
+          "name": "cameraCount",
+          "label": "途经摄像头数",
+          "type": "number",
+          "required": true,
+          "description": "该人员被多少个不同摄像头抓拍到。"
+        },
+        {
+          "name": "captureCount",
+          "label": "抓拍次数",
+          "type": "number",
+          "required": true,
+          "description": "该人员累计被抓拍的次数（含重复经过同一摄像头）。"
+        },
+        {
+          "name": "dateRange",
+          "label": "起止时间",
+          "type": "datetimerange",
+          "required": false,
+          "description": "筛选告警的起止时间范围。"
+        }
+      ],
+      "rules": [
+        "页面打开默认选中第一条告警人员",
+        "卡片左侧边缘颜色与风险等级联动，由UI提供"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击人员卡片",
+          "action": "切换目标人员",
+          "description": "更新地图摄像头标记、抓拍时间线和右侧目标信息。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "更改筛选条件",
+          "action": "过滤人员列表",
+          "description": "按风险等级、姓名关键字、起止时间重新过滤人员。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击刷新",
+          "action": "刷新列表",
+          "description": "重新加载告警人员列表数据。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "pt-map",
+      "title": "轨迹地图",
+      "purpose": "在地图上展示目标人员被哪些摄像头抓拍到，以及访问顺序",
+      "summary": "页面中央全屏展示园区底图，仅标注本次告警中实际抓拍到该人员的摄像头。每个摄像头标记显示访问序号（单次抓拍显示单个数字，多次抓拍用数字组合堆叠显示，超过2次则折叠为省略号）。点击摄像头可展开该位置的所有抓拍记录列表。地图不绘制连线，仅通过序号标记表达空间位置上的活动顺序。",
+      "requirements": [
+        {
+          "title": "只展示抓拍到的摄像头",
+          "priority": "P0",
+          "details": "地图上仅标注本次告警中被该人员实际经过的摄像头，未被抓拍的摄像头不出现在地图上，避免干扰。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "访问序号标记",
+          "priority": "P0",
+          "details": "每个被抓拍的摄像头标记该次告警中的访问顺序：单次抓拍显示单个序号数字，多次经过同一摄像头时用数字组合堆叠展示。超过2次抓拍则前2个数字后显示省略号。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "摄像头抓拍记录详情",
+          "priority": "P0",
+          "details": "点击摄像头标记展开抓拍详情，显示摄像头编号和该位置的全部抓拍记录（按访问顺序列出每次抓拍的时间与相似度），点击某条记录可打开抓拍详情。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "地图图例",
+          "priority": "P1",
+          "details": "地图右下角展示图例，标注抓拍摄像头和多次经过两种标记的含义。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "cameraId",
+          "label": "摄像头编号",
+          "type": "string",
+          "required": true,
+          "description": "园区内摄像头的唯一编号。"
+        },
+        {
+          "name": "sequence",
+          "label": "访问顺序",
+          "type": "number",
+          "required": true,
+          "description": "目标人员本次告警中第几次经过摄像头。"
+        },
+        {
+          "name": "captureTime",
+          "label": "抓拍时间",
+          "type": "datetime",
+          "required": true,
+          "description": "该次抓拍发生的精确时间。"
+        },
+        {
+          "name": "similarity",
+          "label": "相似度",
+          "type": "number",
+          "required": true,
+          "description": "抓拍帧与识别库的相似度百分比。"
+        }
+      ],
+      "rules": [
+        "只标记本次告警中被抓拍到的摄像头",
+        "单次抓拍显示单个数字，多次抓拍用数字组合堆叠显示，超过2次则折叠为省略号"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击摄像头标记",
+          "action": "展开抓拍记录列表",
+          "description": "显示该摄像头位置的所有抓拍记录，每行展示访问序号、抓拍时间与相似度。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击某次抓拍记录",
+          "action": "打开抓拍详情",
+          "description": "从侧面滑出抓拍详情面板，展示人脸图与参数信息。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击时间线卡片",
+          "action": "地图标记闪烁提示",
+          "description": "对应摄像头标记短暂闪烁蓝色光效，建立时间与空间的双向定位锚定。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "pt-target",
+      "title": "目标信息",
+      "purpose": "展示被选中人员的身份信息与告警统计指标",
+      "summary": "右侧顶部展示目标人员的人脸抓拍照、姓名、所属布控库及首次识别位置与时间。若人员未匹配任何布控库则标注为'陌生人识别'。下方展示三项关键统计：抓拍总次数、途经摄像头数量和最高相似度。",
+      "requirements": [
+        {
+          "title": "人员身份信息",
+          "priority": "P0",
+          "details": "展示目标人员抓拍头像、姓名、所属布控库名称。若为未匹配布控库的陌生人，标识为'陌生人识别'。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "最新识别信息",
+          "priority": "P0",
+          "details": "展示该人员被首次识别的位置（楼宇和摄像头名称）及最新抓拍时间。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "告警统计指标",
+          "priority": "P0",
+          "details": "展示抓拍总次数、途经摄像头数量、本次告警中最高相似度三个核心统计指标。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "library",
+          "label": "所属库",
+          "type": "string",
+          "required": true,
+          "description": "目标人员所在的识别/布控库。陌生人显示为'陌生人识别'。"
+        },
+        {
+          "name": "firstBuilding",
+          "label": "最新识别位置",
+          "type": "string",
+          "required": true,
+          "description": "该人员首次被识别的楼宇和摄像头名称。"
+        },
+        {
+          "name": "lastCaptureTime",
+          "label": "识别时间",
+          "type": "datetime",
+          "required": true,
+          "description": "该人员最近一次被抓拍的时间。"
+        },
+        {
+          "name": "captureCount",
+          "label": "抓拍次数",
+          "type": "number",
+          "required": true,
+          "description": "累计抓拍总次数。"
+        },
+        {
+          "name": "cameraCount",
+          "label": "途经摄像头",
+          "type": "number",
+          "required": true,
+          "description": "被多少个不同摄像头抓拍到。"
+        },
+        {
+          "name": "maxSimilarity",
+          "label": "最高相似度",
+          "type": "number",
+          "required": true,
+          "description": "本次告警中所有抓拍的最高相似度。"
+        }
+      ],
+      "rules": [
+        "风险等级与告警事件保持一致",
+        "不展示性别、年龄段、入园方式等与轨迹还原无关的信息"
+      ],
+      "ruleImages": [],
+      "interactions": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "pt-timeline",
+      "title": "抓拍时间线",
+      "purpose": "按时间顺序展示该人员的每一次抓拍记录",
+      "summary": "在右侧面板按时间轴顺序展示每一次抓拍记录。每条记录以摄像头名称为主标题，同时展示相似度百分比，并提供查看单次抓拍详情的入口。点击时间线卡片可在地图上定位对应摄像头。",
+      "requirements": [
+        {
+          "title": "按时间顺序排列抓拍",
+          "priority": "P0",
+          "details": "按抓拍时间升序排列所有抓拍记录。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "展示抓拍摘要",
+          "priority": "P0",
+          "details": "每条抓拍展示摄像头名称和相似度百分比。不按相似度进行颜色分级。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "查看单次抓拍详情",
+          "priority": "P0",
+          "details": "每条抓拍记录提供查看详情的入口，打开后展示该次抓拍的人脸图及摄像头、时间、相似度等完整信息。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "cameraName",
+          "label": "摄像头名称",
+          "type": "string",
+          "required": true,
+          "description": "抓拍摄像头的名称。"
+        },
+        {
+          "name": "captureTime",
+          "label": "抓拍时间",
+          "type": "datetime",
+          "required": true,
+          "description": "该次抓拍的精确时间。"
+        },
+        {
+          "name": "similarity",
+          "label": "相似度",
+          "type": "number",
+          "required": true,
+          "description": "该次抓拍的相似度百分比。"
+        }
+      ],
+      "rules": [
+        "时间线节点上相似度数值统一颜色展示，不使用颜色分级",
+        "不展示所属楼宇、楼层区域等空间信息（空间信息由地图承担）"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击时间线卡片",
+          "action": "地图对应标记闪烁",
+          "description": "对应摄像头标记短暂出现蓝色闪烁光效，帮助安保人员快速定位空间位置。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击抓拍按钮",
+          "action": "打开抓拍详情",
+          "description": "从侧面滑出抓拍详情面板。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "pt-snapshot-preview",
+      "title": "抓拍详情",
+      "purpose": "查看单次抓拍的人脸图与完整参数",
+      "summary": "从时间线或地图抓拍列表点击后，从右侧滑出详情面板。展示该次抓拍的人脸图片、摄像头编号、摄像头名称、抓拍时间和相似度。不包含下载功能、不展示入库时间和识别方式等冗余信息。",
+      "requirements": [
+        {
+          "title": "展示人脸抓拍图",
+          "priority": "P0",
+          "details": "展示本次抓拍的人脸图像，图片上方叠加抓拍序号（如'第3次抓拍'）和相似度百分比。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "展示抓拍参数",
+          "priority": "P0",
+          "details": "以列表形式展示摄像头编号、摄像头名称、抓拍时间、相似度等核心参数。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "cameraId",
+          "label": "摄像头编号",
+          "type": "string",
+          "required": true,
+          "description": "抓拍摄像头的唯一编号。"
+        },
+        {
+          "name": "cameraName",
+          "label": "摄像头名称",
+          "type": "string",
+          "required": true,
+          "description": "抓拍摄像头的名称。"
+        },
+        {
+          "name": "captureTime",
+          "label": "抓拍时间",
+          "type": "datetime",
+          "required": true,
+          "description": "该次抓拍发生的精确时间。"
+        },
+        {
+          "name": "sequence",
+          "label": "抓拍序号",
+          "type": "number",
+          "required": true,
+          "description": "该次抓拍在本次告警中的顺序。"
+        },
+        {
+          "name": "similarity",
+          "label": "相似度",
+          "type": "number",
+          "required": true,
+          "description": "该次抓拍的相似度百分比。"
+        }
+      ],
+      "rules": [
+        "不展示所属区域、入库时间、识别方式等信息",
+        "不提供抓拍图下载功能",
+        "详情面板从右侧滑入，不遮挡地图"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击关闭或点击遮罩",
+          "action": "关闭详情面板",
+          "description": "关闭抓拍详情面板，回到轨迹视图。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    }
+  ]
+}

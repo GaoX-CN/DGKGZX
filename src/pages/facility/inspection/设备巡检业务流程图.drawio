@@ -1,0 +1,124 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.3.0 Chrome/140.0.7339.249 Electron/38.7.2 Safari/537.36" version="29.3.0">
+  <diagram id="equipment-inspection-business-flow" name="设备巡检业务流程图">
+    <mxGraphModel dx="1296" dy="1965" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1200" math="0" shadow="0" adaptiveColors="auto">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="lane1" parent="1" style="swimlane;horizontal=0;startSize=110;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;html=1;" value="业务负责人" vertex="1">
+          <mxGeometry height="150" width="1920" as="geometry" />
+        </mxCell>
+        <mxCell id="start" parent="lane1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="巡检管理需求识别" vertex="1">
+          <mxGeometry height="60" width="60" x="120" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="standard" parent="lane1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="制定巡检标准&#xa;明确检查方式与合格依据" vertex="1">
+          <mxGeometry height="60" width="140" x="260" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="team" parent="lane1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="组建设备巡检班组" vertex="1">
+          <mxGeometry height="60" width="140" x="470" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="lane2" parent="1" style="swimlane;horizontal=0;startSize=110;fillColor=#e8f4f8;strokeColor=#6c8ebf;fontStyle=1;html=1;" value="系统平台（辅助）" vertex="1">
+          <mxGeometry height="150" width="1920" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="2gCIGo19QtXYTR377qs2-11" parent="lane2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="推送至待维修设备列表" vertex="1">
+          <mxGeometry height="45" width="100" x="1799" y="52.5" as="geometry" />
+        </mxCell>
+        <mxCell id="lane4" parent="1" style="swimlane;horizontal=0;startSize=110;fillColor=#e8f5e9;strokeColor=#82b366;fontStyle=1;html=1;" value="巡检人员" vertex="1">
+          <mxGeometry height="310" width="1920" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="accept" parent="lane4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="接受巡检任务&#xa;确认执行责任" vertex="1">
+          <mxGeometry height="60" width="140" x="867" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="inspect" parent="lane4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="现场逐台巡检&#xa;按标准评定每项结果" vertex="1">
+          <mxGeometry height="60" width="140" x="1087" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="start" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="standard">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="standard" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="team">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="team" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="plan">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="accept" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="inspect">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="inspect" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="abnormal">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="2gCIGo19QtXYTR377qs2-1" edge="1" parent="1" source="scheduled" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="accept">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1120" y="290" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="abnormal" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="是否发现异常？" vertex="1">
+          <mxGeometry height="80" width="140" x="1276" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="close" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="汇总巡检结果&#xa;确认本次巡检完成" vertex="1">
+          <mxGeometry height="60" width="140" x="1476" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="2gCIGo19QtXYTR377qs2-10" edge="1" parent="1" source="repairDecision" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=-0.007;entryY=0.578;entryDx=0;entryDy=0;entryPerimeter=0;" target="2gCIGo19QtXYTR377qs2-11">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1959.9999999999995" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2gCIGo19QtXYTR377qs2-14" connectable="0" parent="2gCIGo19QtXYTR377qs2-10" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="是" vertex="1">
+          <mxGeometry relative="1" x="-0.9362" y="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="repairDecision" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="是否需要维修？" vertex="1">
+          <mxGeometry height="80" width="140" x="1276" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="abnormal" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="repairDecision" value="是">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="onsite" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="现场处理异常&#xa;说明处置情况" vertex="1">
+          <mxGeometry height="60" width="140" x="1476" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="onsite" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="close">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="repairDecision" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="onsite" value="否">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="end" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="完成巡检" vertex="1">
+          <mxGeometry height="60" width="60" x="1676" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" edge="1" parent="1" source="close" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="abnormal" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="close" value="否">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="2gCIGo19QtXYTR377qs2-5" parent="1" style="swimlane;whiteSpace=wrap;html=1;" value="巡检项管理" vertex="1">
+          <mxGeometry height="635" width="200" x="230" y="-25" as="geometry" />
+        </mxCell>
+        <mxCell id="2gCIGo19QtXYTR377qs2-6" parent="1" style="swimlane;whiteSpace=wrap;html=1;" value="设备班组管理" vertex="1">
+          <mxGeometry height="635" width="200" x="430" y="-25" as="geometry" />
+        </mxCell>
+        <mxCell id="2gCIGo19QtXYTR377qs2-7" parent="1" style="swimlane;whiteSpace=wrap;html=1;" value="巡检计划管理" vertex="1">
+          <mxGeometry height="635" width="210" x="630" y="-25" as="geometry" />
+        </mxCell>
+        <mxCell id="plan" parent="2gCIGo19QtXYTR377qs2-7" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="制定并发布巡检计划&#xa;确定设备范围、周期和负责班组" vertex="1">
+          <mxGeometry height="60" width="140" x="40" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="scheduled" parent="2gCIGo19QtXYTR377qs2-7" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="按计划生成巡检任务工单" vertex="1">
+          <mxGeometry height="60" width="140" x="40" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="2gCIGo19QtXYTR377qs2-7" source="plan" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="scheduled">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="2gCIGo19QtXYTR377qs2-8" parent="1" style="swimlane;whiteSpace=wrap;html=1;" value="巡检工单管理" vertex="1">
+          <mxGeometry height="635" width="920" x="840" y="-25" as="geometry" />
+        </mxCell>
+        <mxCell id="2gCIGo19QtXYTR377qs2-15" edge="1" parent="1" source="2gCIGo19QtXYTR377qs2-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="2gCIGo19QtXYTR377qs2-16" parent="1" style="swimlane;whiteSpace=wrap;html=1;" value="报修管理" vertex="1">
+          <mxGeometry height="635" width="160" x="1760" y="-25" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

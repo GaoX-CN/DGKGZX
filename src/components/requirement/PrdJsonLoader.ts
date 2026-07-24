@@ -9,6 +9,11 @@ const prdModules = import.meta.glob<{ default: PagePrd }>(
   { eager: false }
 )
 
+const prdSourceModules = import.meta.glob<string>(
+  '@/pages/**/*_prd.json',
+  { eager: false, query: '?raw', import: 'default' }
+)
+
 function isValidPrd(data: unknown): data is PagePrd {
   if (!data || typeof data !== 'object') return false
   const prd = data as Partial<PagePrd>
@@ -106,6 +111,19 @@ export async function loadPrd(pageName: string): Promise<PagePrd | null> {
   }
 
   return fileData
+}
+
+export async function loadPrdSource(pageName: string): Promise<string | null> {
+  await ensureIndex(pageName)
+  const filePath = pagePathMap?.[pageName]
+  const loader = filePath ? prdSourceModules[filePath] : undefined
+  if (!loader) return null
+
+  try {
+    return await loader()
+  } catch {
+    return null
+  }
 }
 
 export function getPrdCache(pageName: string): PagePrd | null {

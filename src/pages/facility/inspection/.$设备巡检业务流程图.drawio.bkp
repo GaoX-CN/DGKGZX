@@ -1,0 +1,82 @@
+<mxfile host="app.diagrams.net" modified="2026-07-21T00:00:00.000Z" agent="OpenCode" version="26.0.0">
+  <diagram id="equipment-inspection-business-flow" name="设备巡检业务流程图">
+    <mxGraphModel dx="1920" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1200" math="0" shadow="0" adaptiveColors="auto">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="lane1" value="业务负责人" style="swimlane;horizontal=0;startSize=110;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;html=1;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="2100" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="lane2" value="系统平台（辅助）" style="swimlane;horizontal=0;startSize=110;fillColor=#e8f4f8;strokeColor=#6c8ebf;fontStyle=1;html=1;" vertex="1" parent="1">
+          <mxGeometry x="0" y="150" width="2100" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="lane3" value="巡检班组长" style="swimlane;horizontal=0;startSize=110;fillColor=#fff0e6;strokeColor=#d79b00;fontStyle=1;html=1;" vertex="1" parent="1">
+          <mxGeometry x="0" y="300" width="2100" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="lane4" value="巡检人员" style="swimlane;horizontal=0;startSize=110;fillColor=#e8f5e9;strokeColor=#82b366;fontStyle=1;html=1;" vertex="1" parent="1">
+          <mxGeometry x="0" y="450" width="2100" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="lane5" value="维修人员" style="swimlane;horizontal=0;startSize=110;fillColor=#fff9e6;strokeColor=#d6b656;fontStyle=1;html=1;" vertex="1" parent="1">
+          <mxGeometry x="0" y="600" width="2100" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="start" value="巡检管理需求识别" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="lane1">
+          <mxGeometry x="120" y="45" width="60" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="standard" value="制定巡检标准&#xa;明确检查方式与合格依据" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="lane1">
+          <mxGeometry x="300" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="team" value="组建设备巡检班组&#xa;明确班组长与成员" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="lane1">
+          <mxGeometry x="480" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="plan" value="制定并发布巡检计划&#xa;确定设备范围、周期和负责班组" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="lane1">
+          <mxGeometry x="660" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="scheduled" value="在巡检时点&#xa;通知负责班组" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="lane2">
+          <mxGeometry x="840" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="coordinate" value="统筹班组资源&#xa;安排人员承担巡检" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="lane3">
+          <mxGeometry x="1020" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="accept" value="接受巡检任务&#xa;确认执行责任" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="lane4">
+          <mxGeometry x="1200" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="inspect" value="现场逐台巡检&#xa;按标准评定每项结果" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="lane4">
+          <mxGeometry x="1380" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="abnormal" value="是否发现异常？" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="lane4">
+          <mxGeometry x="1560" y="35" width="140" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="onsite" value="现场处理异常&#xa;说明处置情况" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="lane4">
+          <mxGeometry x="1740" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="repairDecision" value="是否需要维修？" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="lane3">
+          <mxGeometry x="1740" y="35" width="140" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="repair" value="实施维修处置&#xa;恢复设备可用状态" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="lane5">
+          <mxGeometry x="1740" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="close" value="汇总巡检结果&#xa;确认本次巡检完成" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="lane4">
+          <mxGeometry x="1920" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="end" value="巡检闭环" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="lane4">
+          <mxGeometry x="2070" y="45" width="60" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="start" target="standard" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="standard" target="team" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="team" target="plan" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="plan" target="scheduled" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="scheduled" target="coordinate" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="coordinate" target="accept" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="accept" target="inspect" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="inspect" target="abnormal" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e9" value="否" edge="1" parent="1" source="abnormal" target="close" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e10" value="是" edge="1" parent="1" source="abnormal" target="repairDecision" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e11" value="否" edge="1" parent="1" source="repairDecision" target="onsite" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e12" value="是" edge="1" parent="1" source="repairDecision" target="repair" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="onsite" target="close" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="repair" target="close" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e15" edge="1" parent="1" source="close" target="end" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

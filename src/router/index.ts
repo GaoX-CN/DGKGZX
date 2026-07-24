@@ -25,6 +25,11 @@ const router = createRouter({
           component: () => import('@/pages/security/PeopleFlowReport.vue'),
         },
         {
+          path: '/security/personnel-trajectory',
+          name: 'PersonnelTrajectory',
+          component: () => import('@/pages/security/PersonnelTrajectory.vue'),
+        },
+        {
           path: '/security/emergency-route',
           name: 'EmergencyRoute',
           component: () => import('@/pages/security/EmergencyRoute.vue'),
