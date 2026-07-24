@@ -80,7 +80,7 @@
         >
           <span class="cam-marker__ring" />
           <span class="cam-marker__dot">
-            <el-icon :size="11"><VideoCamera /></el-icon>
+            <el-icon :size="14"><VideoCamera /></el-icon>
           </span>
           <span v-if="cameraVisits(cam.id).length === 1" class="cam-marker__badge">{{ cameraVisits(cam.id)[0].sequence }}</span>
           <div v-if="cameraVisits(cam.id).length > 1" class="cam-marker__chips">
@@ -139,7 +139,7 @@
 
         <div class="map-legend">
           <span><i class="dot dot--capture" />抓拍摄像头</span>
-          <span><i class="dot dot--multi" />多次经过</span>
+          <span><em class="chip-mini">1</em>抓拍顺序</span>
         </div>
 
         <div class="map-empty" v-if="!activeAlert">
@@ -782,25 +782,33 @@ function openVisitPreview(cameraId: string, sequence: number) {
 .map-canvas > img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.66) contrast(.94); }
 .map-overlay { position: absolute; inset: 0; background: rgba(220, 236, 222, .12); }
 .map-trajectory { display: none; }
+// 地图标记 - 优化版
 .cam-marker { position: absolute; z-index: 3; transform: translate(-50%, -50%); padding: 0; border: 0; background: transparent; cursor: pointer; }
 .cam-marker__ring { position: absolute; inset: -5px; border-radius: 50%; background: #5d9bff; opacity: 0; }
-.cam-marker__dot { position: relative; display: grid; place-items: center; width: 22px; height: 22px; border: 2px solid #fff; border-radius: 50%; color: #fff; background: #92a4ba; box-shadow: 0 2px 6px rgba(32, 54, 74, .28); transition: transform .15s ease; }
-.cam-marker--has-visits .cam-marker__dot { background: #f5222d; }
-.cam-marker--has-visits .cam-marker__ring { opacity: .22; background: #f5222d; animation: cam-pulse 1.8s infinite; }
-.cam-marker--start .cam-marker__dot,
-.cam-marker--start-end .cam-marker__dot { background: #fa8c16; box-shadow: 0 0 0 4px #ffe7ba, 0 2px 6px rgba(32, 54, 74, .28); }
-.cam-marker--end .cam-marker__dot,
-.cam-marker--start-end .cam-marker__dot { background: #722ed1; box-shadow: 0 0 0 4px #efdbff, 0 2px 6px rgba(32, 54, 74, .28); }
-.cam-marker--multi .cam-marker__dot { background: #fa541c; box-shadow: 0 0 0 4px #ffd6c0, 0 2px 6px rgba(32, 54, 74, .28); }
-.cam-marker--multi.cam-marker--end .cam-marker__dot { background: #722ed1; box-shadow: 0 0 0 4px #efdbff, 0 2px 6px rgba(32, 54, 74, .28); }
-.cam-marker.active .cam-marker__dot { box-shadow: 0 0 0 4px #fff, 0 0 0 6px #4776e6, 0 4px 12px rgba(71, 118, 230, .5); transform: scale(1.15); }
-.cam-marker__badge { position: absolute; top: -6px; right: -10px; display: grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; color: #fff; background: #f5222d; border-radius: 9px; font-size: 11px; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
-.cam-marker__chips { position: absolute; top: 26px; left: 50%; display: flex; gap: 2px; padding: 3px 5px; background: rgba(255,255,255,.96); border: 1px solid #d6dde6; border-radius: 12px; transform: translateX(-50%); pointer-events: none; box-shadow: 0 2px 6px rgba(0,0,0,.08); }
-.cam-marker__chip { display: inline-grid; place-items: center; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; color: #fff; font-size: 10px; font-weight: 600; background: #4776e6; }
+// 圆点：28px 蓝色半透明填充 + 白色边框 + 阴影
+.cam-marker__dot { position: relative; display: grid; place-items: center; width: 28px; height: 28px; border: 2.5px solid #fff; border-radius: 50%; color: #fff; background: rgba(71, 118, 230, .62); box-shadow: 0 2px 8px rgba(32, 54, 74, .32); transition: transform .15s ease, box-shadow .15s ease; }
+// 有过抓拍的标记加深主色
+.cam-marker--has-visits .cam-marker__dot { background: #4776e6; box-shadow: 0 2px 8px rgba(71, 118, 230, .45); }
+.cam-marker--has-visits .cam-marker__ring { opacity: .14; background: #4776e6; animation: cam-pulse 2.5s infinite; }
+// 多次经过：保持主色，不加额外颜色区分
+.cam-marker--multi .cam-marker__dot { background: #4776e6; }
+// 选中态
+.cam-marker.active .cam-marker__dot { box-shadow: 0 0 0 5px rgba(71, 118, 230, .18), 0 0 0 8px rgba(71, 118, 230, .08), 0 4px 14px rgba(71, 118, 230, .5); transform: scale(1.18); }
+// 序号徽章：位于圆点正下方，居中对齐
+.cam-marker__badge { position: absolute; top: 28px; left: 50%; transform: translateX(-50%); display: grid; place-items: center; min-width: 20px; height: 18px; padding: 0 6px; color: #fff; background: #4776e6; border-radius: 9px; font-size: 11px; font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,.18); }
+// 芯片条：位于徽章下方
+.cam-marker__chips { position: absolute; top: 32px; left: 50%; display: flex; gap: 3px; padding: 3px 6px; background: rgba(255,255,255,.97); border: 1px solid #c4d0df; border-radius: 12px; transform: translateX(-50%); pointer-events: none; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+.cam-marker__chip { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; color: #fff; font-size: 10px; font-weight: 600; background: #4776e6; }
 .cam-marker__chip--active { box-shadow: 0 0 0 2px #fff, 0 0 0 3px #4776e6; }
-.cam-marker__chip--more { background: #e9eef4; color: #8693a8; font-weight: 500; letter-spacing: 1px; padding: 0 5px; min-width: 18px; }
-.cam-marker__label { position: absolute; top: 50px; left: 50%; padding: 2px 6px; background: rgba(255,255,255,.95); border: 1px solid #d6dde6; border-radius: 3px; color: #45566e; font-size: 10px; white-space: nowrap; transform: translateX(-50%); pointer-events: none; }
+.cam-marker__chip--more { background: #eef2f7; color: #7b8ba3; font-weight: 500; min-width: 20px; }
+// 标签：位于所有内容下方
+.cam-marker__label { position: absolute; top: 54px; left: 50%; padding: 3px 7px; background: rgba(255,255,255,.93); border: 1px solid #d0d7e2; border-radius: 4px; color: #45566e; font-size: 10px; white-space: nowrap; transform: translateX(-50%); pointer-events: none; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
 .cam-marker:hover .cam-marker__label { color: #4776e6; border-color: #4776e6; }
+// 移除不再使用的起讫/多色样式
+.cam-marker--start .cam-marker__dot,
+.cam-marker--start-end .cam-marker__dot,
+.cam-marker--end .cam-marker__dot,
+.cam-marker--start-end .cam-marker__dot { background: #4776e6; box-shadow: 0 2px 8px rgba(71, 118, 230, .45); }
 
 @keyframes cam-pulse { 0%, 100% { transform: scale(.7); opacity: .22; } 50% { transform: scale(1.15); opacity: .45; } }
 
@@ -830,11 +838,11 @@ function openVisitPreview(cameraId: string, sequence: number) {
 .cam-tooltip footer { display: flex; gap: 6px; padding: 8px 12px 11px; border-top: 1px solid #eef1f5; justify-content: flex-end; }
 .cam-tooltip footer .el-button { padding: 4px 10px; }
 
-.map-legend { position: absolute; z-index: 5; right: 14px; bottom: 14px; display: flex; flex-direction: column; gap: 5px; padding: 9px 11px; background: rgba(255,255,255,.95); border: 1px solid #e1e7ef; border-radius: 6px; box-shadow: 0 3px 12px rgba(45,62,83,.1); }
+.map-legend { position: absolute; z-index: 5; left: 330px; bottom: 14px; display: flex; flex-direction: column; gap: 5px; padding: 9px 11px; background: rgba(255,255,255,.95); border: 1px solid #e1e7ef; border-radius: 6px; box-shadow: 0 3px 12px rgba(45,62,83,.1); }
 .map-legend span { display: inline-flex; align-items: center; gap: 6px; color: #5b6a82; font-size: 11px; }
-.map-legend .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
-.map-legend .dot--capture { background: #f5222d; }
-.map-legend .dot--multi { background: #fa541c; box-shadow: 0 0 0 3px #ffd6c0; }
+.map-legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+.map-legend .dot--capture { background: #4776e6; box-shadow: 0 0 0 1.5px rgba(71, 118, 230, .3); }
+.map-legend .chip-mini { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 9px; background: #4776e6; color: #fff; font-size: 10px; font-weight: 600; font-style: normal; }
 
 .map-empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #6c7c93; z-index: 1; }
 .map-empty .el-icon { color: #9aa5b5; }
@@ -893,9 +901,9 @@ function openVisitPreview(cameraId: string, sequence: number) {
 .preview-dialog__desc :deep(.el-descriptions__label) { width: 80px; color: #7989a0; }
 .preview-dialog__desc :deep(.el-descriptions__content) { color: #253a55; }
 
-@media (max-width: 1380px) { .alert-panel { width: 280px; } .detail-panel { width: 340px; } }
-@media (max-width: 1180px) { .alert-panel { width: 252px; } .detail-panel { width: 312px; } .target-card { padding: 0 12px 12px; } .target-stats { margin: 10px 12px; } .timeline-header { padding: 12px 12px 4px; } .timeline { padding: 0 12px 4px; } .cam-marker__chips { font-size: 9px; } }
-@media (max-width: 980px) { .alert-panel { width: 232px; } .detail-panel { width: 290px; } }
+@media (max-width: 1380px) { .alert-panel { width: 280px; } .map-legend { left: 306px; } .detail-panel { width: 340px; } }
+@media (max-width: 1180px) { .alert-panel { width: 252px; } .map-legend { left: 278px; } .detail-panel { width: 312px; } .target-card { padding: 0 12px 12px; } .target-stats { margin: 10px 12px; } .timeline-header { padding: 12px 12px 4px; } .timeline { padding: 0 12px 4px; } .cam-marker__chips { font-size: 9px; } }
+@media (max-width: 980px) { .alert-panel { width: 232px; } .map-legend { left: 258px; } .detail-panel { width: 290px; } }
 @media (max-width: 760px) { .trajectory-page { min-height: 100%; } .alert-panel { top: 10px; right: 10px; bottom: auto; left: 10px; width: auto; max-height: 38vh; } .detail-panel { top: auto; right: 10px; bottom: 10px; left: 10px; width: auto; max-height: 42vh; } }
 </style>
 
