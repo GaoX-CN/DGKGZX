@@ -363,6 +363,17 @@ const defaultPages: PrototypePage[] = [
         ],
       },
       {
+        pageId: 'RepairAssetImport',
+        pageName: '报修资产导入管理',
+        pagePath: '/facility/repair-asset-import',
+        modules: [
+          { moduleId: 'rai-actions', moduleName: '操作栏', moduleType: 'form', pageId: 'RepairAssetImport', requirementId: 'rai-actions', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+          { moduleId: 'rai-search', moduleName: '搜索栏', moduleType: 'form', pageId: 'RepairAssetImport', requirementId: 'rai-search', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+          { moduleId: 'rai-table', moduleName: '资产列表', moduleType: 'table', pageId: 'RepairAssetImport', requirementId: 'rai-table', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+          { moduleId: 'rai-import', moduleName: '导入资产', moduleType: 'form', pageId: 'RepairAssetImport', requirementId: 'rai-import', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+        ],
+      },
+      {
         pageId: '设备巡检',
         pageName: '设备巡检',
         isFolder: true,

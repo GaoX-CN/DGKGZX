@@ -182,14 +182,47 @@
               </el-row>
             </template>
 
-            <!-- 其他资产报修 - 手动填写 -->
+            <!-- 其他资产报修 -->
             <template v-if="createForm.repairType === 'other'">
-              <el-form-item label="资产位置" prop="assetLocation">
-                <el-input v-model="createForm.assetLocation" placeholder="如：CT楼 1F 楼梯间防火门" />
+              <el-form-item label="报修方式" v-if="otherAssetStore.count > 0">
+                <el-radio-group v-model="createForm.otherAssetMode" size="small">
+                  <el-radio value="manual">手动填写资产信息</el-radio>
+                  <el-radio value="select">从已导入资产选择</el-radio>
+                </el-radio-group>
               </el-form-item>
-              <el-form-item label="资产名称" prop="assetName">
-                <el-input v-model="createForm.assetName" placeholder="如：消防防火门（乙级）" />
-              </el-form-item>
+
+              <!-- 从资产库选择 -->
+              <template v-if="otherAssetStore.count > 0 && createForm.otherAssetMode === 'select'">
+                <el-form-item label="报修资产" prop="selectedAssetIds">
+                  <div class="rm-device-select-section">
+                    <div class="rm-device-select-section__header">
+                      <span class="rm-device-select-section__count">已选资产（{{ createForm.selectedAssetIds.length }}）</span>
+                      <el-button size="small" type="primary" @click="openAssetPicker">添加报修资产</el-button>
+                    </div>
+                    <el-table :data="selectedAssetTable" border size="small" max-height="160" style="width: 100%" v-if="selectedAssetTable.length > 0">
+                      <el-table-column prop="assetName" label="资产名称" min-width="130" show-overflow-tooltip />
+                      <el-table-column prop="assetNo" label="资产编号" width="150" show-overflow-tooltip />
+                      <el-table-column prop="location" label="位置" min-width="160" show-overflow-tooltip />
+                      <el-table-column label="操作" width="50" align="center">
+                        <template #default="{ $index }">
+                          <el-button link type="danger" size="small" @click="removeSelectedAsset($index)">移除</el-button>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                    <div v-else class="rm-device-select-empty">暂未选择报修资产</div>
+                  </div>
+                </el-form-item>
+              </template>
+
+              <!-- 手动填写（无导入资产时默认） -->
+              <template v-if="otherAssetStore.count === 0 || createForm.otherAssetMode === 'manual'">
+                <el-form-item label="资产位置" prop="assetLocation">
+                  <el-input v-model="createForm.assetLocation" placeholder="如：CT楼 1F 楼梯间防火门" />
+                </el-form-item>
+                <el-form-item label="资产名称" prop="assetName">
+                  <el-input v-model="createForm.assetName" placeholder="如：消防防火门（乙级）" />
+                </el-form-item>
+              </template>
             </template>
 
             <el-form-item label="维修内容" prop="content">
@@ -245,7 +278,6 @@
             </el-form-item>
           </el-form>
         </div>
-
 
       </div>
       <template #footer>
@@ -550,12 +582,43 @@
           </template>
 
           <template v-if="editForm.repairType === 'other'">
-            <el-form-item label="资产位置" prop="assetLocation">
-              <el-input v-model="editForm.assetLocation" placeholder="如：CT楼 1F 楼梯间防火门" />
+            <el-form-item label="报修方式" v-if="otherAssetStore.count > 0">
+              <el-radio-group v-model="editForm.otherAssetMode" size="small">
+                <el-radio value="manual">手动填写资产信息</el-radio>
+                <el-radio value="select">从已导入资产选择</el-radio>
+              </el-radio-group>
             </el-form-item>
-            <el-form-item label="资产名称" prop="assetName">
-              <el-input v-model="editForm.assetName" placeholder="如：消防防火门（乙级）" />
-            </el-form-item>
+
+            <template v-if="otherAssetStore.count > 0 && editForm.otherAssetMode === 'select'">
+              <el-form-item label="报修资产">
+                <div class="rm-device-select-section">
+                  <div class="rm-device-select-section__header">
+                    <span class="rm-device-select-section__count">已选资产（{{ editForm.selectedAssetIds.length }}）</span>
+                    <el-button size="small" type="primary" @click="openAssetPickerEdit">添加报修资产</el-button>
+                  </div>
+                  <el-table :data="editSelectedAssetTable" border size="small" max-height="160" style="width: 100%" v-if="editSelectedAssetTable.length > 0">
+                    <el-table-column prop="assetName" label="资产名称" min-width="130" show-overflow-tooltip />
+                    <el-table-column prop="assetNo" label="资产编号" width="150" show-overflow-tooltip />
+                    <el-table-column prop="location" label="位置" min-width="160" show-overflow-tooltip />
+                    <el-table-column label="操作" width="50" align="center">
+                      <template #default="{ $index }">
+                        <el-button link type="danger" size="small" @click="removeEditSelectedAsset($index)">移除</el-button>
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                  <div v-else class="rm-device-select-empty">暂未选择报修资产</div>
+                </div>
+              </el-form-item>
+            </template>
+
+            <template v-if="otherAssetStore.count === 0 || editForm.otherAssetMode === 'manual'">
+              <el-form-item label="资产位置" prop="assetLocation">
+                <el-input v-model="editForm.assetLocation" placeholder="如：CT楼 1F 楼梯间防火门" />
+              </el-form-item>
+              <el-form-item label="资产名称" prop="assetName">
+                <el-input v-model="editForm.assetName" placeholder="如：消防防火门（乙级）" />
+              </el-form-item>
+            </template>
           </template>
 
           <el-form-item label="维修内容" prop="content">
@@ -614,27 +677,32 @@
     <el-dialog v-model="repairDevicePickerVisible" title="添加报修设备" width="700px" :close-on-click-modal="false">
       <el-form inline size="small" class="rm-device-picker-filter">
         <el-form-item label="空间">
-          <el-select v-model="repairPickerFilter.building" placeholder="全部建筑" clearable style="width: 140px" @change="repairPickerFilter.floor = ''">
-            <el-option v-for="b in pickerBuildings" :key="b.value" :label="b.label" :value="b.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-select v-model="repairPickerFilter.floor" placeholder="全部楼层" clearable style="width: 120px">
-            <el-option v-for="f in repairPickerFloors" :key="f.value" :label="f.label" :value="f.value" />
-          </el-select>
+          <el-cascader
+            v-model="pickerCascaderValue"
+            :options="pickerBuildingFloorOptions"
+            :props="{ checkStrictly: true, emitPath: false }"
+            placeholder="全部空间"
+            clearable
+            style="width: 240px"
+            @change="onPickerCascaderChange"
+          />
         </el-form-item>
         <el-form-item label="设备类型">
-          <el-select v-model="repairPickerFilter.type" placeholder="全部" clearable style="width: 130px">
+          <el-select v-model="repairPickerQuery.type" placeholder="全部" clearable style="width: 130px">
             <el-option v-for="dt in deviceTypeOptions" :key="dt.value" :label="dt.label" :value="dt.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="设备名称">
-          <el-input v-model="repairPickerFilter.keyword" placeholder="请输入" clearable style="width: 140px" />
+          <el-input v-model="repairPickerQuery.keyword" placeholder="请输入" clearable style="width: 140px" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" :icon="Search" @click="applyRepairPickerFilter">查询</el-button>
+          <el-button :icon="Refresh" @click="resetRepairPickerFilter">重置</el-button>
         </el-form-item>
       </el-form>
 
       <el-table
-        :data="filteredRepairDevices"
+        :data="pagedRepairDevices"
         border size="small" style="width: 100%" max-height="320"
         @select="onRepairDeviceSelect"
         ref="repairDeviceTableRef"
@@ -646,9 +714,80 @@
         </el-table-column>
         <el-table-column prop="location" label="设备位置" width="160" show-overflow-tooltip />
       </el-table>
+      <div class="rm-pagination">
+        <el-pagination
+          v-model:current-page="repairPickerPage"
+          v-model:page-size="repairPickerPageSize"
+          :page-sizes="[5, 10, 20]"
+          :total="repairPickerTotal"
+          layout="total, sizes, prev, pager, next"
+          small
+          @size-change="repairPickerPage = 1"
+        />
+      </div>
       <template #footer>
         <el-button @click="repairDevicePickerVisible = false">取消</el-button>
         <el-button type="primary" @click="confirmRepairDevicePick">确认选择</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- ==================== 报修资产选择弹窗 ==================== -->
+    <el-dialog v-model="assetPickerVisible" title="添加报修资产" width="850px" :close-on-click-modal="false">
+      <el-form inline size="small" class="rm-device-picker-filter">
+        <el-form-item label="资产名称">
+          <el-input v-model="assetPickerQuery.assetName" placeholder="请输入" clearable style="width: 140px" />
+        </el-form-item>
+        <el-form-item label="资产编号">
+          <el-input v-model="assetPickerQuery.assetNo" placeholder="请输入" clearable style="width: 140px" />
+        </el-form-item>
+        <el-form-item label="建筑">
+          <el-input v-model="assetPickerQuery.building" placeholder="请输入建筑" clearable style="width: 150px" />
+        </el-form-item>
+        <el-form-item label="楼层">
+          <el-input v-model="assetPickerQuery.floor" placeholder="请输入楼层" clearable style="width: 130px" />
+        </el-form-item>
+        <el-form-item label="资产分类">
+          <el-input v-model="assetPickerQuery.category" placeholder="请输入" clearable style="width: 120px" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" :icon="Search" @click="applyAssetPickerFilter">查询</el-button>
+          <el-button :icon="Refresh" @click="resetAssetPickerFilter">重置</el-button>
+        </el-form-item>
+      </el-form>
+
+      <el-table
+        :data="pagedPickerAssets"
+        border size="small" style="width: 100%" max-height="340"
+        @select="onAssetPickerSelect"
+        ref="assetPickerTableRef"
+      >
+        <el-table-column type="selection" width="45" />
+        <el-table-column prop="assetName" label="资产名称" min-width="140" show-overflow-tooltip />
+        <el-table-column prop="assetNo" label="资产编号" width="140" show-overflow-tooltip />
+        <el-table-column prop="category" label="分类" width="80" />
+        <el-table-column prop="building" label="建筑" width="130" />
+        <el-table-column prop="floor" label="楼层" width="60" />
+        <el-table-column prop="location" label="位置" min-width="100" show-overflow-tooltip />
+        <el-table-column label="状态" width="80" align="center">
+          <template #default="{ row }">
+            <el-tag :type="row.status === '在用' ? 'success' : row.status === '闲置' ? 'info' : 'warning'" size="small">{{ row.status }}</el-tag>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="rm-pagination">
+        <el-pagination
+          v-model:current-page="assetPickerPage"
+          v-model:page-size="assetPickerPageSize"
+          :page-sizes="[5, 10, 20]"
+          :total="assetPickerTotal"
+          layout="total, sizes, prev, pager, next"
+          small
+          @size-change="assetPickerPage = 1"
+        />
+      </div>
+      <template #footer>
+        <el-button @click="assetPickerVisible = false">取消</el-button>
+        <el-button type="primary" @click="confirmAssetPick">确认选择</el-button>
       </template>
     </el-dialog>
 
@@ -824,6 +963,9 @@ import { ref, reactive, computed, nextTick, watch } from 'vue'
 import { Plus, Search, Refresh, Tools, Van, OfficeBuilding } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessageBox } from 'element-plus'
+import { useOtherAssetStore } from '@/stores/otherAssetStore'
+
+const otherAssetStore = useOtherAssetStore()
 
 interface RepairOrder {
   id: number
@@ -1034,22 +1176,35 @@ function mockOrders(): RepairOrder[] {
   const items: RepairOrder[] = []
   const baseDate = '2026-07-0'
 
+  const mockTargets = [
+    { repairType: 'device', targetName: 'CT-140 配电柜（CT楼 1F 配电间）', deviceBuilding: 'CT楼', deviceFloor: '1F', deviceName: 'CT-140 配电柜（CT楼 1F 配电间）' },
+    { repairType: 'device', targetName: 'FF-134 发电机组（FF楼 1F 发电机房）', deviceBuilding: 'FF楼', deviceFloor: '1F', deviceName: 'FF-134 发电机组（FF楼 1F 发电机房）' },
+    { repairType: 'device', targetName: 'OB-118 配电柜（OB 1F 配电间）', deviceBuilding: '海关联检大楼(OB)', deviceFloor: '1F', deviceName: 'OB-118 配电柜（OB 1F 配电间）' },
+    { repairType: 'platform', targetName: '1号月台（CT楼）', deviceBuilding: '', deviceFloor: '', deviceName: '' },
+    { repairType: 'platform', targetName: '2号月台（FF楼）', deviceBuilding: '', deviceFloor: '', deviceName: '' },
+    { repairType: 'device', targetName: 'B1 消防水泵（CT楼 B1 泵房）', deviceBuilding: 'CT楼', deviceFloor: 'B1', deviceName: 'B1 消防水泵（CT楼 B1 泵房）' },
+    { repairType: 'other', targetName: '办公桌 - CT楼 3F 302办公室', deviceBuilding: '', deviceFloor: '', deviceName: '' },
+    { repairType: 'device', targetName: 'FF-801 电梯曳引机（FF楼 8F 电梯机房）', deviceBuilding: 'FF楼', deviceFloor: '8F', deviceName: 'FF-801 电梯曳引机（FF楼 8F 电梯机房）' },
+    { repairType: 'device', targetName: 'FF-701 送风机（FF楼 7F 送风机房）', deviceBuilding: 'FF楼', deviceFloor: '7F', deviceName: 'FF-701 送风机（FF楼 7F 送风机房）' },
+  ]
+
   statuses.forEach((status, i) => {
     const day = String(i + 1)
+    const tgt = mockTargets[i % mockTargets.length]
     const order: RepairOrder = {
       id: 100 + i,
       orderNo: `BX202607${String(i + 1).padStart(4, '0')}`,
-      repairType: 'device',
-      targetName: 'CT-140 配电柜',
-      content: '设备运行异常，频繁自动重启，需要检修',
+      repairType: tgt.repairType,
+      targetName: tgt.targetName,
+      content: i % 3 === 0 ? '设备运行异常，频繁自动重启，需要检修' : i % 3 === 1 ? '月台升降平台卡顿，液压系统异常' : '资产损坏需维修，影响正常使用',
       urgency: i % 3 === 0 ? 'critical' : i % 3 === 1 ? 'urgent' : 'normal',
       status,
-      reporter: '张伟',
-      phone: '138****8001',
+      reporter: ['张伟', '李明', '王芳'][i % 3],
+      phone: `138****${String(8001 + i).slice(-4)}`,
       reportTime: `${baseDate}${day} 08:00:00`,
-      deviceBuilding: 'CT楼',
-      deviceFloor: '1F',
-      deviceName: 'CT-140 配电柜',
+      deviceBuilding: tgt.deviceBuilding,
+      deviceFloor: tgt.deviceFloor,
+      deviceName: tgt.deviceName,
       chargePerson: allChargers[i % allChargers.length],
     }
 
@@ -1164,6 +1319,8 @@ const defaultCreateForm = () => ({
   platformName: '',
   assetLocation: '',
   assetName: '',
+  selectedAssetIds: [] as string[],
+  otherAssetMode: 'manual' as string,
   content: '',
   reporter: '',
   phone: '',
@@ -1219,14 +1376,48 @@ const allDevicesArr = computed(() => {
   return arr
 })
 
-const pickerBuildings = [{ value: 'CT楼', label: 'CT楼' }, { value: 'FF楼', label: 'FF楼' }, { value: '海关联检大楼(OB)', label: '海关联检大楼(OB)' }]
-const repairPickerFloors = computed(() => {
-  if (!repairPickerFilter.building) return []
-  const keys = Object.keys(deviceDatabase).filter(k => k.startsWith(repairPickerFilter.building))
-  return [...new Set(keys.map(k => k.split('|')[1]))].map(f => ({ value: f, label: f }))
+const pickerBuildingFloorOptions = computed(() => {
+  const buildings = [...new Set(Object.keys(deviceDatabase).map(k => k.split('|')[0]))]
+  return buildings.map(b => {
+    const floors = [...new Set(Object.keys(deviceDatabase).filter(k => k.startsWith(b + '|')).map(k => k.split('|')[1]))]
+    return {
+      value: b,
+      label: b,
+      children: floors.map(f => ({ value: b + '|' + f, label: f }))
+    }
+  })
 })
 
+const repairPickerQuery = reactive({ building: '', floor: '', type: '', keyword: '' })
 const repairPickerFilter = reactive({ building: '', floor: '', type: '', keyword: '' })
+
+const pickerCascaderValue = ref<string>('')
+function onPickerCascaderChange(val: string) {
+  if (!val) {
+    repairPickerQuery.building = ''
+    repairPickerQuery.floor = ''
+  } else if (val.includes('|')) {
+    const [building, floor] = val.split('|')
+    repairPickerQuery.building = building
+    repairPickerQuery.floor = floor
+  } else {
+    repairPickerQuery.building = val
+    repairPickerQuery.floor = ''
+  }
+}
+
+function applyRepairPickerFilter() {
+  repairPickerPage.value = 1
+  Object.assign(repairPickerFilter, repairPickerQuery)
+}
+
+function resetRepairPickerFilter() {
+  repairPickerPage.value = 1
+  Object.assign(repairPickerQuery, { building: '', floor: '', type: '', keyword: '' })
+  Object.assign(repairPickerFilter, { building: '', floor: '', type: '', keyword: '' })
+  pickerCascaderValue.value = ''
+}
+
 const filteredRepairDevices = computed(() => {
   let list = allDevicesArr.value
   if (repairPickerFilter.building) list = list.filter(d => d.building === repairPickerFilter.building)
@@ -1234,6 +1425,14 @@ const filteredRepairDevices = computed(() => {
   if (repairPickerFilter.type) list = list.filter(d => d.type === repairPickerFilter.type)
   if (repairPickerFilter.keyword) list = list.filter(d => d.name.includes(repairPickerFilter.keyword))
   return list
+})
+
+const repairPickerPage = ref(1)
+const repairPickerPageSize = ref(10)
+const repairPickerTotal = computed(() => filteredRepairDevices.value.length)
+const pagedRepairDevices = computed(() => {
+  const start = (repairPickerPage.value - 1) * repairPickerPageSize.value
+  return filteredRepairDevices.value.slice(start, start + repairPickerPageSize.value)
 })
 
 const repairDevicePickerVisible = ref(false)
@@ -1256,32 +1455,26 @@ const editRepairDeviceTable = computed(() => {
 })
 
 function openRepairDevicePicker() {
-  repairPickerFilter.building = ''
-  repairPickerFilter.floor = ''
-  repairPickerFilter.type = ''
-  repairPickerFilter.keyword = ''
+  resetRepairPickerFilter()
   tempRepairDeviceNames.value = [...createForm.deviceNames]
   repairDevicePickerVisible.value = true
   nextTick(() => syncRepairTableSelection())
 }
 
 function openRepairDevicePickerEdit() {
-  repairPickerFilter.building = ''
-  repairPickerFilter.floor = ''
-  repairPickerFilter.type = ''
-  repairPickerFilter.keyword = ''
+  resetRepairPickerFilter()
   tempRepairDeviceNames.value = [...editForm.deviceNames]
   repairDevicePickerVisible.value = true
   nextTick(() => syncRepairTableSelection())
 }
 
-watch(filteredRepairDevices, () => { nextTick(() => syncRepairTableSelection()) })
+watch(pagedRepairDevices, () => { nextTick(() => syncRepairTableSelection()) })
 
 function syncRepairTableSelection() {
   if (!repairDeviceTableRef.value) return
   syncingRepair.value = true
   repairDeviceTableRef.value.clearSelection()
-  filteredRepairDevices.value.forEach(d => {
+  pagedRepairDevices.value.forEach(d => {
     if (tempRepairDeviceNames.value.includes(d.name)) {
       repairDeviceTableRef.value.toggleRowSelection(d, true)
     }
@@ -1402,14 +1595,24 @@ function confirmCreate() {
   let deviceFloor = ''
   let deviceName = ''
   if (createForm.repairType === 'device') {
-    targetName = createForm.deviceNames.join('、')
+    targetName = createForm.deviceNames.map(name => {
+      const dev = allDevicesArr.value.find(d => d.name === name)
+      return dev ? `${name}（${dev.location}）` : name
+    }).join('、')
     deviceBuilding = createForm.deviceBuilding
     deviceFloor = createForm.deviceFloor
     deviceName = targetName
   } else if (createForm.repairType === 'platform') {
-    targetName = createForm.platformName
+    targetName = `${createForm.platformName}（${createForm.platformBuilding}）`
   } else {
-    targetName = `${createForm.assetLocation} - ${createForm.assetName}`
+    if (createForm.selectedAssetIds.length > 0) {
+      targetName = createForm.selectedAssetIds.map(id => {
+        const a = otherAssetStore.assets.find(x => x.id === id)
+        return a ? `${a.assetName}（${a.building} ${a.floor} ${a.location}）` : ''
+      }).filter(Boolean).join('、')
+    } else {
+      targetName = `${createForm.assetLocation} - ${createForm.assetName}`
+    }
   }
 
   allData.value.unshift({
@@ -1483,6 +1686,8 @@ const defaultEditForm = () => ({
   platformName: '',
   assetLocation: '',
   assetName: '',
+  selectedAssetIds: [] as string[],
+  otherAssetMode: 'manual' as string,
   content: '',
   reporter: '',
   phone: '',
@@ -1532,14 +1737,24 @@ function buildEditTarget() {
   let deviceFloor = ''
   let deviceName = ''
   if (editForm.repairType === 'device') {
-    targetName = editForm.deviceNames.join('、')
+    targetName = editForm.deviceNames.map((name: string) => {
+      const dev = allDevicesArr.value.find(d => d.name === name)
+      return dev ? `${name}（${dev.location}）` : name
+    }).join('、')
     deviceBuilding = editForm.deviceBuilding
     deviceFloor = editForm.deviceFloor
     deviceName = targetName
   } else if (editForm.repairType === 'platform') {
-    targetName = editForm.platformName
+    targetName = `${editForm.platformName}（${editForm.platformBuilding}）`
   } else {
-    targetName = `${editForm.assetLocation} - ${editForm.assetName}`
+    if ((editForm.selectedAssetIds || []).length > 0) {
+      targetName = editForm.selectedAssetIds.map((id: string) => {
+        const a = otherAssetStore.assets.find(x => x.id === id)
+        return a ? `${a.assetName}（${a.building} ${a.floor} ${a.location}）` : ''
+      }).filter(Boolean).join('、')
+    } else {
+      targetName = `${editForm.assetLocation} - ${editForm.assetName}`
+    }
   }
   return { targetName, deviceBuilding, deviceFloor, deviceName }
 }
@@ -1732,6 +1947,113 @@ function openDetail(row: RepairOrder) {
   detailLogs.value = logs
   detailVisible.value = true
 }
+
+// ==================== 其他资产选择 ====================
+const assetPickerVisible = ref(false)
+const assetPickerTableRef = ref()
+const tempSelectedAssetIds = ref<string[]>([])
+const assetPickerTarget = ref<'create' | 'edit'>('create')
+const syncingAsset = ref(false)
+
+const assetPickerQuery = reactive({ assetName: '', assetNo: '', building: '', floor: '', category: '' })
+const assetPickerFilter = reactive({ assetName: '', assetNo: '', building: '', floor: '', category: '' })
+
+function applyAssetPickerFilter() {
+  assetPickerPage.value = 1
+  Object.assign(assetPickerFilter, assetPickerQuery)
+}
+
+function resetAssetPickerFilter() {
+  assetPickerPage.value = 1
+  Object.assign(assetPickerQuery, { assetName: '', assetNo: '', building: '', floor: '', category: '' })
+  Object.assign(assetPickerFilter, { assetName: '', assetNo: '', building: '', floor: '', category: '' })
+}
+
+const filteredPickerAssets = computed(() => {
+  let list = otherAssetStore.assets
+  if (assetPickerFilter.assetName) list = list.filter(a => a.assetName.includes(assetPickerFilter.assetName))
+  if (assetPickerFilter.assetNo) list = list.filter(a => a.assetNo.includes(assetPickerFilter.assetNo))
+  if (assetPickerFilter.building) list = list.filter(a => (a.building || '').includes(assetPickerFilter.building))
+  if (assetPickerFilter.floor) list = list.filter(a => (a.floor || '').includes(assetPickerFilter.floor))
+  if (assetPickerFilter.category) list = list.filter(a => a.category.includes(assetPickerFilter.category))
+  return list
+})
+
+const assetPickerPage = ref(1)
+const assetPickerPageSize = ref(10)
+const assetPickerTotal = computed(() => filteredPickerAssets.value.length)
+const pagedPickerAssets = computed(() => {
+  const start = (assetPickerPage.value - 1) * assetPickerPageSize.value
+  return filteredPickerAssets.value.slice(start, start + assetPickerPageSize.value)
+})
+
+const selectedAssetTable = computed(() => {
+  return createForm.selectedAssetIds.map(id => {
+    const asset = otherAssetStore.assets.find(a => a.id === id)
+    return asset || { id, assetName: '', assetNo: '', location: '' }
+  })
+})
+
+const editSelectedAssetTable = computed(() => {
+  return (editForm.selectedAssetIds || []).map((id: string) => {
+    const asset = otherAssetStore.assets.find(a => a.id === id)
+    return asset || { id, assetName: '', assetNo: '', location: '' }
+  })
+})
+
+watch(pagedPickerAssets, () => { nextTick(() => syncAssetTableSelection()) })
+
+function syncAssetTableSelection() {
+  if (!assetPickerTableRef.value) return
+  syncingAsset.value = true
+  assetPickerTableRef.value.clearSelection()
+  pagedPickerAssets.value.forEach(a => {
+    if (tempSelectedAssetIds.value.includes(a.id)) {
+      assetPickerTableRef.value.toggleRowSelection(a, true)
+    }
+  })
+  nextTick(() => { syncingAsset.value = false })
+}
+
+function onAssetPickerSelect(_selection: any, row: any) {
+  if (syncingAsset.value) return
+  const idx = tempSelectedAssetIds.value.indexOf(row.id)
+  if (idx >= 0) tempSelectedAssetIds.value.splice(idx, 1)
+  else tempSelectedAssetIds.value.push(row.id)
+}
+
+function openAssetPicker() {
+  resetAssetPickerFilter()
+  tempSelectedAssetIds.value = [...createForm.selectedAssetIds]
+  assetPickerTarget.value = 'create'
+  assetPickerVisible.value = true
+  nextTick(() => syncAssetTableSelection())
+}
+
+function openAssetPickerEdit() {
+  resetAssetPickerFilter()
+  tempSelectedAssetIds.value = [...(editForm.selectedAssetIds || [])]
+  assetPickerTarget.value = 'edit'
+  assetPickerVisible.value = true
+  nextTick(() => syncAssetTableSelection())
+}
+
+function confirmAssetPick() {
+  if (assetPickerTarget.value === 'create') {
+    createForm.selectedAssetIds = [...tempSelectedAssetIds.value]
+  } else {
+    editForm.selectedAssetIds = [...tempSelectedAssetIds.value]
+  }
+  assetPickerVisible.value = false
+}
+
+function removeSelectedAsset(index: number) {
+  createForm.selectedAssetIds.splice(index, 1)
+}
+
+function removeEditSelectedAsset(index: number) {
+  editForm.selectedAssetIds.splice(index, 1)
+}
 </script>
 
 <style scoped>
@@ -1878,4 +2200,5 @@ function openDetail(row: RepairOrder) {
 .rm-ab-item:last-child { border-bottom: none; }
 .rm-ab-item__name { font-weight: 600; color: #303133; }
 .rm-ab-item__desc { color: #606266; }
+
 </style>

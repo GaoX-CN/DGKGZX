@@ -80,6 +80,11 @@ const router = createRouter({
           component: () => import('@/pages/facility/RepairManagement.vue'),
         },
         {
+          path: '/facility/repair-asset-import',
+          name: 'RepairAssetImport',
+          component: () => import('@/pages/facility/RepairAssetImport.vue'),
+        },
+        {
           path: '/facility/inspection/items',
           name: 'InspectionItems',
           component: () => import('@/pages/facility/inspection/InspectionItems.vue'),

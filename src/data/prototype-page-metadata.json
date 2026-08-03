@@ -2,6 +2,16 @@
   "pages": {
     "RepairManagement": {
       "status": "completed",
+      "versions": [
+        {
+          "version": 1,
+          "createdAt": "2026-08-03T02:48:49.261Z",
+          "description": "在其他资产报修时，允许用户选择已导入的资产"
+        }
+      ]
+    },
+    "RepairAssetImport": {
+      "status": "completed",
       "versions": []
     },
     "InspectionTeams": {
