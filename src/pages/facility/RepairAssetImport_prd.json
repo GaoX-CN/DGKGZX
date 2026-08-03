@@ -1,0 +1,584 @@
+{
+  "pageName": "RepairAssetImport",
+  "pageId": "RepairAssetImport",
+  "version": "1.0.0",
+  "lastUpdated": "2026-08-03T03:00:00Z",
+  "intent": {
+    "type": "manage",
+    "summary": "管理其他资产报修所需的资产台账：支持 Excel 批量导入、模板下载、多维筛选查询、单条/批量删除，为其他资产报修提供资产数据源"
+  },
+  "overview": "报修资产导入管理页面是「其他资产报修」的资产数据源管理入口。运营人员可通过 Excel 文件批量导入园区内未纳入物联设备体系的资产（办公家具、生活电器、IT 设备、工具器具等），系统解析文件内容并生成导入预览，确认后合并入库；导入时按资产编号及名称-建筑-楼层-位置组合进行去重。已入库资产以台账列表形式展示，支持按资产名称、编号、分类、所属建筑、资产状态多维筛选，支持单条删除与批量删除，并提供标准导入模板下载以规范数据格式。",
+  "modules": [
+    {
+      "id": "rai-search",
+      "title": "搜索栏",
+      "purpose": "帮助运营人员从资产台账中快速定位目标资产",
+      "summary": "支持按资产名称、资产编号、资产分类进行模糊匹配查询，按所属建筑、资产状态进行精确筛选，提供查询与重置操作，查询或重置后回到第一页。",
+      "requirements": [
+        {
+          "title": "资产名称模糊查询",
+          "priority": "P1",
+          "details": "支持输入资产名称关键词进行模糊匹配查询。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "资产编号模糊查询",
+          "priority": "P1",
+          "details": "支持输入资产编号关键词进行模糊匹配查询。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "资产分类模糊查询",
+          "priority": "P2",
+          "details": "支持输入资产分类关键词进行模糊匹配查询。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "所属建筑筛选",
+          "priority": "P1",
+          "details": "支持按 CT楼、FF楼、海关联检大楼(OB)等园区建筑精确筛选，默认展示全部。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "资产状态筛选",
+          "priority": "P1",
+          "details": "支持按在用、闲置、维修中、待报废四种资产状态精确筛选。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "查询与重置",
+          "priority": "P1",
+          "details": "点击查询后按当前条件筛选并回到第一页；点击重置清空全部筛选条件并回到第一页。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "assetName",
+          "label": "资产名称",
+          "type": "string",
+          "required": false,
+          "description": "资产名称关键词模糊搜索",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "assetNo",
+          "label": "资产编号",
+          "type": "string",
+          "required": false,
+          "description": "资产编号关键词模糊搜索",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "category",
+          "label": "资产分类",
+          "type": "string",
+          "required": false,
+          "description": "资产分类关键词模糊搜索",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "building",
+          "label": "所属建筑",
+          "type": "select",
+          "required": false,
+          "description": "按园区建筑精确筛选，默认全部",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "status",
+          "label": "资产状态",
+          "type": "select",
+          "required": false,
+          "description": "在用/闲置/维修中/待报废，默认全部",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "查询或重置后列表回到第一页",
+        "资产名称、编号、分类为模糊匹配，所属建筑、状态为精确匹配"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击查询",
+          "action": "按当前筛选条件过滤资产列表并回到第一页",
+          "description": "资产名称、编号、分类模糊匹配，建筑、状态精确匹配",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击重置",
+          "action": "清空全部筛选条件并恢复全量列表",
+          "description": "重置后列表回到第一页",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "rai-actions",
+      "title": "操作栏",
+      "purpose": "提供资产台账的批量操作入口与数据总量统计",
+      "summary": "提供导入资产、下载模板、批量删除三个操作入口，批量删除按钮展示当前勾选数量，未勾选时不可用；同时展示资产台账当前总记录数。",
+      "requirements": [
+        {
+          "title": "导入资产入口",
+          "priority": "P0",
+          "details": "点击打开导入资产功能，支持通过 Excel 文件批量录入资产数据。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "下载导入模板",
+          "priority": "P1",
+          "details": "支持一键下载标准 Excel 导入模板，模板包含全部字段、必填标注及填写提示，规范数据格式。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "批量删除",
+          "priority": "P1",
+          "details": "勾选资产后可批量删除，按钮实时展示勾选数量；未勾选任何资产时按钮不可用；删除前需二次确认，操作不可恢复。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "记录数统计",
+          "priority": "P2",
+          "details": "展示当前资产台账总记录数，随导入与删除实时更新。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [],
+      "rules": [
+        "批量删除按钮在未勾选任何资产时置灰不可用",
+        "批量删除需二次确认，确认后不可恢复",
+        "批量删除完成后列表回到第一页"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击导入资产",
+          "action": "打开导入资产弹窗",
+          "description": "进入 Excel 批量导入流程",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击下载模板",
+          "action": "生成并下载标准 Excel 导入模板",
+          "description": "模板包含字段名称、必填标注与填写提示",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击批量删除",
+          "action": "二次确认后删除全部勾选资产",
+          "description": "删除后清空勾选、回到第一页并提示删除结果",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "rai-table",
+      "title": "资产列表",
+      "purpose": "以台账形式展示已入库资产明细，支持选择与单条删除",
+      "summary": "以列表形式展示资产台账，包含序号、资产名称、资产编号、资产分类、规格型号、品牌、所属建筑、楼层、具体位置、数量、使用部门、责任人、资产状态、重要级别等字段，未填写资产编号显示为「未填写」。支持勾选多行用于批量删除，支持单条删除，支持分页浏览。",
+      "requirements": [
+        {
+          "title": "资产台账展示",
+          "priority": "P0",
+          "details": "列表展示资产全量明细信息，包括名称、编号、分类、规格、品牌、建筑、楼层、位置、数量、部门、责任人、状态、重要级别。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "资产编号缺失提示",
+          "priority": "P2",
+          "details": "资产编号未填写时列表中以「未填写」占位显示。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "资产状态标识",
+          "priority": "P1",
+          "details": "资产状态以标签形式展示，在用、闲置、维修中、待报废四种状态样式区分。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "多选",
+          "priority": "P1",
+          "details": "支持勾选一行或多行资产，勾选结果同步到操作栏批量删除按钮的数量展示。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "单条删除",
+          "priority": "P1",
+          "details": "支持对单条资产执行删除，删除前需二次确认，删除后列表同步更新。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "分页浏览",
+          "priority": "P1",
+          "details": "支持分页展示资产列表，可切换每页条数（10/20/50）与页码，实时展示总记录数。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "assetName",
+          "label": "资产名称",
+          "type": "string",
+          "required": true,
+          "description": "资产的通用名称",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "assetNo",
+          "label": "资产编号",
+          "type": "string",
+          "required": false,
+          "description": "资产唯一编号，未填写时显示为「未填写」",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "category",
+          "label": "资产分类",
+          "type": "string",
+          "required": true,
+          "description": "资产所属分类，如办公家具、生活电器、IT 设备",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "spec",
+          "label": "规格型号",
+          "type": "string",
+          "required": false,
+          "description": "资产的规格型号描述",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "brand",
+          "label": "品牌",
+          "type": "string",
+          "required": false,
+          "description": "资产的品牌信息",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "building",
+          "label": "所属建筑",
+          "type": "string",
+          "required": true,
+          "description": "资产所在园区建筑，如 CT楼、FF楼",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "floor",
+          "label": "楼层",
+          "type": "string",
+          "required": true,
+          "description": "资产所在楼层，如 3F、B1",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "location",
+          "label": "具体位置",
+          "type": "string",
+          "required": true,
+          "description": "资产在楼层内的具体位置描述",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "quantity",
+          "label": "数量",
+          "type": "number",
+          "required": true,
+          "description": "资产数量，与计量单位组合展示",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "unit",
+          "label": "计量单位",
+          "type": "string",
+          "required": true,
+          "description": "数量的计量单位，如张、把、台、个",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "department",
+          "label": "使用部门",
+          "type": "string",
+          "required": false,
+          "description": "资产的使用部门",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "responsible",
+          "label": "责任人",
+          "type": "string",
+          "required": false,
+          "description": "资产的负责人员",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "status",
+          "label": "资产状态",
+          "type": "select",
+          "required": true,
+          "description": "在用/闲置/维修中/待报废",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "priority",
+          "label": "重要级别",
+          "type": "string",
+          "required": false,
+          "description": "资产重要程度，如一般、重要",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "单条删除需二次确认，确认后不可恢复",
+        "勾选状态与批量删除按钮的选中数量实时联动",
+        "列表分页展示，每页可选 10/20/50 条"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "勾选行",
+          "action": "记录勾选的资产并联动操作栏选中数量",
+          "description": "支持多行勾选",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击删除",
+          "action": "二次确认后删除该条资产",
+          "description": "删除后列表与总记录数同步更新",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "切换页码或每页条数",
+          "action": "按当前筛选条件分页展示资产",
+          "description": "每页可选 10/20/50 条",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "rai-import",
+      "title": "导入资产",
+      "purpose": "通过 Excel 文件批量录入资产数据到资产台账",
+      "summary": "支持上传 .xlsx/.xls 格式的 Excel 文件，系统解析文件内容生成导入预览（最多展示前 50 条），解析失败或数据为空时给出明确错误提示；确认导入时按资产编号及名称-建筑-楼层-位置组合去重后合并入库，并反馈成功与跳过数量；支持重新选择文件与下载导入模板。",
+      "requirements": [
+        {
+          "title": "Excel 文件上传",
+          "priority": "P0",
+          "details": "支持拖拽或点击上传 .xlsx/.xls 格式文件，单个文件导入。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "文件解析与预览",
+          "priority": "P0",
+          "details": "上传后自动解析文件首个工作表，生成导入预览列表（最多展示前 50 条），展示名称、编号、分类、建筑、楼层、位置、部门、状态等关键字段。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "解析异常提示",
+          "priority": "P1",
+          "details": "文件格式错误、解析失败或未解析到有效数据时，展示明确错误提示，引导用户检查文件内容。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "数据去重",
+          "priority": "P0",
+          "details": "确认导入时按资产编号唯一去重；无编号时按「名称+建筑+楼层+位置」组合去重，重复数据自动跳过。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "确认导入",
+          "priority": "P0",
+          "details": "确认后执行导入，反馈成功导入条数；存在重复数据时反馈跳过条数；导入完成后关闭弹窗并刷新台账列表。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "重新选择",
+          "priority": "P2",
+          "details": "预览后支持重新选择文件，清空当前预览数据。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "assetName",
+          "label": "资产名称",
+          "type": "string",
+          "required": true,
+          "description": "必填，资产的通用名称",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "assetNo",
+          "label": "资产编号",
+          "type": "string",
+          "required": false,
+          "description": "选填，须保证唯一，用于导入去重",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "category",
+          "label": "资产分类",
+          "type": "string",
+          "required": true,
+          "description": "必填，如办公家具",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "building",
+          "label": "所属建筑",
+          "type": "string",
+          "required": true,
+          "description": "必填，如 CT楼",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "floor",
+          "label": "所在楼层",
+          "type": "string",
+          "required": true,
+          "description": "必填，如 3F",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "location",
+          "label": "具体位置",
+          "type": "string",
+          "required": true,
+          "description": "必填，如 302办公室",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "quantity",
+          "label": "数量",
+          "type": "number",
+          "required": true,
+          "description": "必填，正整数，默认 1",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "unit",
+          "label": "计量单位",
+          "type": "string",
+          "required": true,
+          "description": "必填，如张、把、套、台",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "status",
+          "label": "资产状态",
+          "type": "select",
+          "required": true,
+          "description": "必填，在用/闲置/维修中/待报废，缺省时默认为在用",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "仅支持 .xlsx/.xls 格式文件，单次导入单个文件",
+        "资产名称、资产编号、资产分类、所属建筑、所在楼层、具体位置、数量、计量单位、资产状态为导入必填项",
+        "资产状态缺省时默认为「在用」，数量缺省时默认为 1",
+        "导入预览最多展示前 50 条数据",
+        "已导入数据与既有台账基于资产编号做去重",
+        "未解析到有效数据或解析失败时不允许确认导入"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "上传 Excel 文件",
+          "action": "解析文件内容并生成导入预览",
+          "description": "解析失败或数据为空时展示错误提示",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击确认导入",
+          "action": "去重后合并入库并反馈导入结果",
+          "description": "反馈成功导入条数及跳过的重复数据条数",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击重新选择",
+          "action": "清空当前预览与错误提示，重新上传文件",
+          "description": "用于更换导入文件",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击导入模板链接",
+          "action": "下载标准 Excel 导入模板",
+          "description": "模板含字段必填标注与填写提示",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    }
+  ]
+}
