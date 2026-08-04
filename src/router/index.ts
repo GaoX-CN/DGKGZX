@@ -104,6 +104,16 @@ const router = createRouter({
           name: 'InspectionOrders',
           component: () => import('@/pages/facility/inspection/InspectionOrders.vue'),
         },
+        {
+          path: '/energy/high-voltage-inlet-management',
+          name: 'HighVoltageInletManagement',
+          component: () => import('@/pages/energy/HighVoltageInletManagement.vue'),
+        },
+        {
+          path: '/energy/supply-contract-management',
+          name: 'SupplyContractManagement',
+          component: () => import('@/pages/energy/SupplyContractManagement.vue'),
+        },
       ],
     },
   ],

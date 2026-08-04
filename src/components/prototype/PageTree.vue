@@ -2,14 +2,24 @@
   <div class="page-tree">
     <div class="page-tree__header">
       <span class="page-tree__title">页面列表</span>
+      <el-input
+        v-model="searchKeyword"
+        class="page-tree__search"
+        size="small"
+        placeholder="搜索页面"
+        clearable
+        :prefix-icon="Search"
+      />
     </div>
     <el-tree
+      ref="treeRef"
       :data="treeData"
       node-key="pageId"
       default-expand-all
       :props="{ label: 'pageName', children: 'children' }"
       highlight-current
       :current-node-key="prototypeStore.currentPageId"
+      :filter-node-method="filterNode"
       @node-click="onNodeClick"
     >
       <template #default="{ data }">
@@ -69,9 +79,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { CircleCheck, Clock, Document } from '@element-plus/icons-vue'
+import { CircleCheck, Clock, Document, Search } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { usePrototypeStore } from '@/stores/prototypeStore'
 import type { PrototypePage, PrototypeVersionRecord } from '@/types/prototype'
@@ -83,6 +93,22 @@ const historyVisible = ref(false)
 const historyPage = ref<PrototypePage | null>(null)
 const versionDescription = ref('')
 const saving = ref(false)
+const searchKeyword = ref('')
+const treeRef = ref()
+
+function filterNode(value: string, data: PrototypePage) {
+  if (!value) return true
+  const keyword = value.trim().toLowerCase()
+  if (!keyword) return true
+  return (
+    data.pageName.toLowerCase().includes(keyword) ||
+    data.pageId.toLowerCase().includes(keyword)
+  )
+}
+
+watch(searchKeyword, (val) => {
+  treeRef.value?.filter(val)
+})
 
 const treeData = computed(() => prototypeStore.pages)
 const versions = computed<PrototypeVersionRecord[]>(() =>
@@ -153,9 +179,20 @@ function formatTime(value: string) {
   height: 100%;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+
+  :deep(.el-tree) {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
 }
 
 .page-tree__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   padding: 12px 16px;
   border-bottom: 1px solid $border-color;
 }
@@ -166,6 +203,17 @@ function formatTime(value: string) {
   color: $text-secondary;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.page-tree__search {
+  width: 130px;
+  flex-shrink: 0;
+
+  :deep(.el-input__wrapper) {
+    padding: 0 8px;
+  }
 }
 
 .page-tree__node {

@@ -1,0 +1,440 @@
+{
+  "pageName": "HighVoltageInletManagement",
+  "pageId": "HighVoltageInletManagement",
+  "version": "1.1.0",
+  "lastUpdated": "2026-08-03T08:20:00Z",
+  "intent": {
+    "type": "manage",
+    "summary": "维护园区高压进线基础信息、供电合同关联和计费计量点关联，支持按区域和运行状态快速查询进线。"
+  },
+  "overview": "高压进线管理用于统一维护东莞空港中心各区域的高压供电接入信息。业务人员可按名称、编号、电压等级、状态、供电单位和区域筛选记录；可新增、编辑、删除和查看进线详情，并按需关联供电合同及计费计量点。供电合同允许暂不关联，进线的区域及接入配电室需明确维护，以支撑园区供电资产归属和运行管理。",
+  "modules": [
+    {
+      "id": "hv-search",
+      "title": "进线查询",
+      "purpose": "帮助业务人员快速定位目标高压进线。",
+      "summary": "支持按进线名称或编号、电压等级、当前状态、供电单位和区域组合筛选，并支持清空筛选条件。",
+      "requirements": [
+        {
+          "title": "多条件筛选进线",
+          "priority": "P0",
+          "details": "支持按关键词、电压等级、当前状态、供电单位和区域组合查询高压进线。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "区域层级筛选",
+          "priority": "P1",
+          "details": "区域支持从东莞空港中心逐级选择主地块或码头，以及具体楼栋或作业区进行筛选。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "keyword",
+          "label": "进线名称 / 编号",
+          "type": "string",
+          "required": false,
+          "description": "按高压进线名称或进线编号进行关键词匹配。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "voltageLevel",
+          "label": "电压等级",
+          "type": "select",
+          "required": false,
+          "description": "可选10kV、20kV或35kV。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "status",
+          "label": "当前状态",
+          "type": "select",
+          "required": false,
+          "description": "可按在运、停运或检修中筛选。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "supplier",
+          "label": "供电单位",
+          "type": "string",
+          "required": false,
+          "description": "按所属供电单位名称筛选。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "area",
+          "label": "区域",
+          "type": "cascader",
+          "required": false,
+          "description": "园区区域层级，包含东莞空港中心、主地块或码头及下属楼栋或作业区。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "区域筛选可选择任意层级，选择上级区域时包含其下属区域的进线。",
+        "执行查询和清空筛选后，结果均从第一页展示。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击查询",
+          "action": "筛选高压进线",
+          "description": "按当前填写的筛选条件展示匹配的高压进线。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击重置",
+          "action": "清空筛选条件",
+          "description": "清空全部查询条件并恢复展示所有高压进线。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "hv-list",
+      "title": "高压进线列表",
+      "purpose": "集中展示高压进线的基础信息、关联信息和运行状态，并提供维护入口。",
+      "summary": "展示进线名称、编号、电压等级、电源名称、区域、接入配电室、供电单位、供电合同、计费计量点、合同容量和状态，支持分页浏览、查看详情、编辑和删除。",
+      "requirements": [
+        {
+          "title": "展示高压进线台账",
+          "priority": "P0",
+          "details": "列表应展示高压进线的基础信息、区域归属、供电合同与计量点关联信息及当前状态。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "维护高压进线",
+          "priority": "P0",
+          "details": "业务人员可发起新增、查看详情、编辑和删除操作。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "查看合同摘要",
+          "priority": "P1",
+          "details": "已关联合同的进线可查看对应合同摘要信息；未关联合同的进线明确展示为空状态。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "label": "进线名称",
+          "type": "string",
+          "required": true,
+          "description": "高压进线的业务名称。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "code",
+          "label": "进线编号",
+          "type": "string",
+          "required": true,
+          "description": "高压进线唯一识别编号。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "area",
+          "label": "区域",
+          "type": "cascader",
+          "required": true,
+          "description": "进线服务的园区区域层级。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "accessDistributionRoom",
+          "label": "接入配电室",
+          "type": "string",
+          "required": true,
+          "description": "高压进线实际接入的配电室或变配电房名称。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "contractId",
+          "label": "供电合同",
+          "type": "reference",
+          "required": false,
+          "description": "关联的供电合同，可暂不关联。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "meterId",
+          "label": "计费计量点",
+          "type": "reference",
+          "required": true,
+          "description": "用于该进线计费计量的计量点。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "status",
+          "label": "状态",
+          "type": "select",
+          "required": true,
+          "description": "高压进线当前运行状态。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "供电合同未关联时，供电合同名称、合同容量及合同摘要均展示为空状态。",
+        "合同容量由已关联供电合同带出，仅供查看。",
+        "删除高压进线前需要进行确认。",
+        "分页浏览保持当前筛选条件。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击新增高压进线",
+          "action": "进入新增维护流程",
+          "description": "填写高压进线基础信息和关联信息后保存新记录。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击详情",
+          "action": "查看进线详情",
+          "description": "展示高压进线基础信息、关联信息和已关联合同的只读信息。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击编辑",
+          "action": "修改进线信息",
+          "description": "载入已有进线信息，修改后保存。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "确认删除",
+          "action": "删除高压进线",
+          "description": "确认后从高压进线台账中移除该记录。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "hv-maintenance",
+      "title": "高压进线新增与编辑",
+      "purpose": "维护高压进线的基础属性、区域归属和供电关联关系。",
+      "summary": "维护进线名称、编号、电压等级、状态、电源名称、区域、接入配电室、供电单位、供电合同、计费计量点和备注；供电合同可选，计费计量点必须关联。",
+      "requirements": [
+        {
+          "title": "维护进线基础信息",
+          "priority": "P0",
+          "details": "支持维护进线标识、电压等级、运行状态、电源名称、区域、接入配电室和所属供电单位。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "选择供电合同",
+          "priority": "P1",
+          "details": "支持选择已维护的供电合同，也支持在未签约或暂未明确合同时不关联合同。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "关联计费计量点",
+          "priority": "P0",
+          "details": "从可用计量点中选择一条作为高压进线的计费计量点。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "voltageLevel",
+          "label": "电压等级",
+          "type": "select",
+          "required": true,
+          "description": "高压进线的额定电压等级，可选10kV、20kV或35kV。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "powerSource",
+          "label": "电源名称",
+          "type": "string",
+          "required": true,
+          "description": "上级供电电源或母线名称。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "supplier",
+          "label": "所属供电单位",
+          "type": "string",
+          "required": true,
+          "description": "负责该进线供电服务的单位名称，由用户手工填写。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "remark",
+          "label": "备注",
+          "type": "textarea",
+          "required": false,
+          "description": "补充记录进线用途、运行安排或其他说明。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "进线名称、进线编号、电压等级、电源名称、区域、接入配电室、所属供电单位和计费计量点为必填项。",
+        "供电合同为可选关联项。",
+        "选择供电合同后，可查看合同容量、计费方式和基本电价，合同信息不可在本流程中修改。",
+        "区域可选择东莞空港中心、主地块或码头，以及其下属具体楼栋或作业区。",
+        "所属供电单位和接入配电室由用户手工填写。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "选择供电合同",
+          "action": "带出合同摘要",
+          "description": "展示所选合同的容量、计费方式和基本电价，供用户核对。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击保存",
+          "action": "校验并保存进线",
+          "description": "校验必填信息通过后，新增或更新高压进线记录。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击取消",
+          "action": "放弃本次维护",
+          "description": "关闭维护流程，不保存当前修改。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "hv-meter-selection",
+      "title": "计费计量点关联",
+      "purpose": "为高压进线选择准确的计费计量点。",
+      "summary": "支持按计量点名称或编码、空间层级筛选可关联计量点，并确认关联单个计量点。",
+      "requirements": [
+        {
+          "title": "筛选计量点",
+          "priority": "P1",
+          "details": "支持按计量点名称或编码关键词，以及空间层级筛选计量点。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "确认计量点关联",
+          "priority": "P0",
+          "details": "支持从筛选结果中选择一条计量点并关联至当前高压进线。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "meterKeyword",
+          "label": "计量点名称",
+          "type": "string",
+          "required": false,
+          "description": "按计量点名称或编码进行关键词匹配。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "meterSpace",
+          "label": "空间层级",
+          "type": "cascader",
+          "required": false,
+          "description": "按园区、园区分区或配电房等空间层级筛选计量点。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "meterName",
+          "label": "计量点名称",
+          "type": "string",
+          "required": true,
+          "description": "被选中并关联至高压进线的计量点名称。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "meterCode",
+          "label": "计量点编码",
+          "type": "string",
+          "required": true,
+          "description": "被选中计量点的编码。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "meterLocation",
+          "label": "安装位置",
+          "type": "string",
+          "required": false,
+          "description": "计量点的安装位置，用于辅助确认关联对象。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "collectionStatus",
+          "label": "采集状态",
+          "type": "status",
+          "required": false,
+          "description": "计量点当前采集状态。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "每条高压进线必须关联一个计费计量点。",
+        "计量点名称和编码均可作为关键词查询条件。",
+        "空间层级筛选支持按已选上级空间匹配其下属计量点。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "执行计量点查询",
+          "action": "筛选可选计量点",
+          "description": "按名称、编码和空间层级展示匹配的计量点。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "确认关联",
+          "action": "更新计量点关联",
+          "description": "将选中的计量点作为当前高压进线的计费计量点。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    }
+  ]
+}

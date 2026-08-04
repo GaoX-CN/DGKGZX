@@ -422,6 +422,42 @@ const defaultPages: PrototypePage[] = [
       },
     ],
   },
+  {
+    pageId: '低碳能耗',
+    pageName: '低碳能耗',
+    isFolder: true,
+    children: [
+      {
+        pageId: '高压进线管理',
+        pageName: '高压进线管理',
+        isFolder: true,
+        children: [
+          {
+            pageId: 'HighVoltageInletManagement',
+            pageName: '高压进线管理',
+            pagePath: '/energy/high-voltage-inlet-management',
+            modules: [
+              { moduleId: 'hv-search', moduleName: '进线查询', moduleType: 'form', pageId: 'HighVoltageInletManagement', requirementId: 'hv-search', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'hv-list', moduleName: '高压进线列表', moduleType: 'table', pageId: 'HighVoltageInletManagement', requirementId: 'hv-list', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'hv-maintenance', moduleName: '高压进线新增与编辑', moduleType: 'form', pageId: 'HighVoltageInletManagement', requirementId: 'hv-maintenance', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'hv-meter-selection', moduleName: '计费计量点关联', moduleType: 'form', pageId: 'HighVoltageInletManagement', requirementId: 'hv-meter-selection', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+            ],
+          },
+          {
+            pageId: 'SupplyContractManagement',
+            pageName: '供电合同管理',
+            pagePath: '/energy/supply-contract-management',
+            modules: [
+              { moduleId: 'sc-search', moduleName: '供电合同查询', moduleType: 'form', pageId: 'SupplyContractManagement', requirementId: 'sc-search', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'sc-list', moduleName: '供电合同列表', moduleType: 'table', pageId: 'SupplyContractManagement', requirementId: 'sc-list', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'sc-maintenance', moduleName: '供电合同新增与编辑', moduleType: 'form', pageId: 'SupplyContractManagement', requirementId: 'sc-maintenance', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'sc-detail', moduleName: '供电合同详情与关联进线', moduleType: 'form', pageId: 'SupplyContractManagement', requirementId: 'sc-detail', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+            ],
+          },
+        ],
+      },
+    ],
+  },
 ]
 
 export const usePrototypeStore = defineStore('prototype', () => {

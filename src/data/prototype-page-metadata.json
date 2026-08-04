@@ -1,5 +1,13 @@
 {
   "pages": {
+    "HighVoltageInletManagement": {
+      "status": "completed",
+      "versions": []
+    },
+    "SupplyContractManagement": {
+      "status": "completed",
+      "versions": []
+    },
     "RepairManagement": {
       "status": "completed",
       "versions": [

@@ -1,0 +1,398 @@
+{
+  "pageName": "SupplyContractManagement",
+  "pageId": "SupplyContractManagement",
+  "version": "1.0.0",
+  "lastUpdated": "2026-07-24T09:19:28.000Z",
+  "intent": {
+    "type": "manage",
+    "summary": "维护园区供电合同基础信息、合同覆盖范围和关联高压进线，支撑高压进线的供电合同选择与合同信息查询。"
+  },
+  "overview": "供电合同维护用于集中管理东莞空港中心的供电合同基础资料。业务人员可按合同编号或名称、计费方式和合同状态查询合同，维护合同覆盖范围、容量、基本电价和有效期，查看每份合同关联的高压进线，并在无关联进线时识别待投运或待关联合同。已关联高压进线的合同不允许删除，以确保进线关联信息完整。",
+  "modules": [
+    {
+      "id": "sc-search",
+      "title": "供电合同查询",
+      "purpose": "帮助业务人员快速定位目标供电合同。",
+      "summary": "支持按合同编号或名称关键词、计费方式和合同状态进行组合查询，并支持重置筛选条件。",
+      "requirements": [
+        {
+          "title": "合同关键词查询",
+          "priority": "P0",
+          "details": "支持按合同编号或合同名称关键词筛选供电合同。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "计费方式与状态筛选",
+          "priority": "P1",
+          "details": "支持按按容量、按最大需量以及生效中、即将到期、已到期筛选合同。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "keyword",
+          "label": "合同编号 / 名称",
+          "type": "string",
+          "required": false,
+          "description": "按合同编号或合同名称进行关键词匹配。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "billingMethod",
+          "label": "计费方式",
+          "type": "select",
+          "required": false,
+          "description": "可按按容量或按最大需量筛选。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "status",
+          "label": "合同状态",
+          "type": "select",
+          "required": false,
+          "description": "可按生效中、即将到期或已到期筛选。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "合同状态根据合同到期日期自动判断。",
+        "到期日期早于当前日期的合同为已到期；到期日期位于当前日期后三个月内的合同为即将到期；其余合同为生效中。",
+        "执行查询和重置后，结果均从第一页展示。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击查询",
+          "action": "筛选供电合同",
+          "description": "按照当前筛选条件展示匹配的供电合同。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击重置",
+          "action": "清空筛选条件",
+          "description": "清空全部查询条件并恢复展示所有供电合同。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "sc-list",
+      "title": "供电合同列表",
+      "purpose": "展示供电合同台账、覆盖范围、关联进线情况和合同状态，并提供维护入口。",
+      "summary": "列表展示合同编号、合同名称、合同范围、合同容量、计费方式、基本电价、有效期、关联进线数量和合同状态，支持新增、详情、编辑、删除和分页浏览。",
+      "requirements": [
+        {
+          "title": "展示供电合同台账",
+          "priority": "P0",
+          "details": "集中展示供电合同的基础资料、适用范围、计费信息、有效期、状态及关联进线数量。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "查看关联进线数量",
+          "priority": "P1",
+          "details": "每份合同需展示关联高压进线数量，并支持进入合同详情查看关联进线明细。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "维护合同记录",
+          "priority": "P0",
+          "details": "业务人员可新增、查看详情、编辑和删除未关联进线的供电合同。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "code",
+          "label": "合同编号",
+          "type": "string",
+          "required": true,
+          "description": "供电合同的业务识别编号。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "name",
+          "label": "合同名称",
+          "type": "string",
+          "required": true,
+          "description": "供电合同的业务名称。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "scope",
+          "label": "合同范围",
+          "type": "cascader",
+          "required": true,
+          "description": "合同覆盖的园区范围，可定位到东莞空港中心、主地块或码头，以及具体楼栋或作业区。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "capacity",
+          "label": "合同容量",
+          "type": "number",
+          "required": true,
+          "description": "合同约定的供电容量，单位为kVA。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "billingMethod",
+          "label": "计费方式",
+          "type": "select",
+          "required": true,
+          "description": "合同基本电费的计费依据，可为按容量或按最大需量。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "basicPrice",
+          "label": "基本电价",
+          "type": "number",
+          "required": true,
+          "description": "合同约定的基本电价；按容量时单位为元/kVA·月，按最大需量时单位为元/kW·月。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "startDate",
+          "label": "生效日期",
+          "type": "date",
+          "required": true,
+          "description": "合同开始生效的日期。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "endDate",
+          "label": "到期日期",
+          "type": "date",
+          "required": true,
+          "description": "合同到期的日期。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "linkedLineCount",
+          "label": "关联进线",
+          "type": "number",
+          "required": false,
+          "description": "当前关联该供电合同的高压进线数量。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "contractStatus",
+          "label": "合同状态",
+          "type": "status",
+          "required": false,
+          "description": "根据合同有效期计算的生效中、即将到期或已到期状态。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "已关联一条或多条高压进线的合同不允许删除。",
+        "未关联高压进线的合同可展示关联进线数为0，并允许删除。",
+        "合同状态仅根据生效日期和到期日期展示。",
+        "分页浏览保持当前筛选条件。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击新增供电合同",
+          "action": "进入合同维护流程",
+          "description": "填写合同基础信息和适用范围后保存新合同。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击关联进线数量或详情",
+          "action": "查看合同详情",
+          "description": "展示合同完整信息及关联高压进线明细。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击编辑",
+          "action": "修改合同信息",
+          "description": "载入已有合同信息，修改后保存。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "确认删除",
+          "action": "删除未关联合同",
+          "description": "合同未关联高压进线时，确认后从合同台账中移除该记录。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "sc-maintenance",
+      "title": "供电合同新增与编辑",
+      "purpose": "维护供电合同的范围、容量、计费规则和有效期。",
+      "summary": "支持维护合同编号、名称、合同范围、合同容量、计费方式、基本电价、生效日期、到期日期和备注。",
+      "requirements": [
+        {
+          "title": "维护合同基础资料",
+          "priority": "P0",
+          "details": "支持新增或修改供电合同的编号、名称、容量、计费信息、有效期和备注。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "选择合同覆盖范围",
+          "priority": "P0",
+          "details": "支持选择合同适用于整个东莞空港中心、主地块或码头，也可精确选择具体楼栋或作业区。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "remark",
+          "label": "备注",
+          "type": "textarea",
+          "required": false,
+          "description": "补充记录合同用途、约定事项或其他说明。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "合同编号、合同名称、合同范围、合同容量、计费方式、基本电价、生效日期和到期日期为必填项。",
+        "合同范围可选择东莞空港中心、主地块或码头，也可继续选择其下属具体楼栋或作业区。",
+        "合同容量必须大于0。",
+        "基本电价不得小于0。",
+        "到期日期不得早于生效日期。",
+        "计费方式为按容量时，基本电价单位为元/kVA·月；计费方式为按最大需量时，基本电价单位为元/kW·月。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "选择计费方式",
+          "action": "切换基本电价计量单位",
+          "description": "按容量显示元/kVA·月，按最大需量显示元/kW·月。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击保存",
+          "action": "校验并保存合同",
+          "description": "校验必填项及日期先后关系通过后，新增或更新供电合同。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击取消",
+          "action": "放弃本次维护",
+          "description": "关闭维护流程，不保存当前修改。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "sc-detail",
+      "title": "供电合同详情与关联进线",
+      "purpose": "帮助业务人员核对合同信息及其实际关联的高压进线。",
+      "summary": "展示合同基础资料、合同状态、合同范围和计费信息；下方展示关联高压进线清单，无关联进线时展示空状态。",
+      "requirements": [
+        {
+          "title": "查看合同完整信息",
+          "priority": "P1",
+          "details": "展示合同编号、名称、范围、容量、计费方式、基本电价、有效期、状态和备注。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "查看关联高压进线",
+          "priority": "P1",
+          "details": "展示关联高压进线的名称、编号、电压等级和状态；没有关联进线时展示明确空状态。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "linkedLineName",
+          "label": "进线名称",
+          "type": "string",
+          "required": false,
+          "description": "关联高压进线的名称。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "linkedLineCode",
+          "label": "进线编号",
+          "type": "string",
+          "required": false,
+          "description": "关联高压进线的编号。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "linkedLineVoltageLevel",
+          "label": "电压等级",
+          "type": "string",
+          "required": false,
+          "description": "关联高压进线的电压等级。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "linkedLineStatus",
+          "label": "状态",
+          "type": "status",
+          "required": false,
+          "description": "关联高压进线当前的运行状态。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "关联进线数量为0时，详情中展示暂未关联高压进线。",
+        "详情仅用于查看，不在此处直接修改合同或关联进线。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "查看合同详情",
+          "action": "展示合同及关联进线信息",
+          "description": "打开合同详情，核对合同基础资料和关联高压进线情况。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击关闭",
+          "action": "退出合同详情",
+          "description": "关闭合同详情并返回合同列表。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    }
+  ]
+}
