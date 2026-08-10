@@ -41,10 +41,13 @@
 
         <aside class="group-float" :class="{ collapsed: groupCollapsed }">
           <div class="group-head"><div><h2>对讲群组 <small>{{ groups.length }} 个群组</small></h2></div><el-button circle size="small" :icon="groupCollapsed ? ArrowLeft : ArrowRight" @click="groupCollapsed = !groupCollapsed" /></div>
-          <template v-if="!groupCollapsed"><div v-for="group in groups" :key="group.id" class="group-item"><div class="group-icon"><el-icon><UserFilled /></el-icon></div><div class="group-detail"><strong>{{ group.name }}</strong><small>ID: {{ group.id }} · {{ group.members.length }} 台设备</small><div class="group-buttons"><el-button text size="small" :icon="Phone" @click="openGroupAction('call', group)">组呼</el-button><el-button text size="small" :icon="ChatDotRound" @click="openGroupAction('message', group)">群消息</el-button><el-button text size="small" @click="editGroup(group)">编辑</el-button><el-button text type="danger" size="small" @click="dissolveGroup(group)">解散</el-button></div></div></div></template>
+          <template v-if="!groupCollapsed"><div class="group-tip"><el-icon><InfoFilled /></el-icon><span>创建群组：请在左侧终端面板勾选在线终端后，点击底部「+ 创建群组」</span></div><div v-for="group in groups" :key="group.id" class="group-item"><div class="group-icon"><el-icon><UserFilled /></el-icon></div><div class="group-detail"><strong>{{ group.name }}</strong><small>ID: {{ group.id }} · {{ group.members.length }} 台设备</small><div class="group-buttons"><el-button text size="small" :icon="Phone" @click="openGroupAction('call', group)">组呼</el-button><el-button text size="small" :icon="ChatDotRound" @click="openGroupAction('message', group)">群消息</el-button><el-button text size="small" @click="editGroup(group)">编辑</el-button><el-button text type="danger" size="small" @click="dissolveGroup(group)">解散</el-button></div></div></div></template>
         </aside>
       </section>
     </main>
+
+    <el-button class="log-trigger" :icon="Document" @click="logsVisible = true">操作日志</el-button>
+    <el-drawer v-model="logsVisible" title="操作日志" direction="rtl" size="660px" :with-header="false" class="log-drawer"><header class="drawer-header"><div><h2>操作日志</h2><p>记录所有无线对讲操作</p></div><el-button text :icon="Close" @click="logsVisible = false" /></header><el-table :data="pagedLogs" stripe><el-table-column prop="time" label="时间" width="150" /><el-table-column prop="operator" label="操作人" width="70" /><el-table-column prop="target" label="操作对象" min-width="120" show-overflow-tooltip /><el-table-column prop="action" label="执行操作" width="100" /><el-table-column prop="content" label="内容详情" min-width="150" show-overflow-tooltip><template #default="{ row }">{{ row.content || '—' }}</template></el-table-column><el-table-column prop="result" label="状态" width="66"><template #default="{ row }"><el-tag size="small" :type="row.result === '成功' ? 'success' : 'danger'">{{ row.result }}</el-tag></template></el-table-column></el-table><footer class="log-pagination"><span>共 {{ logs.length }} 条</span><el-pagination v-model:current-page="currentPage" small background layout="prev, pager, next" :page-size="5" :total="logs.length" /></footer></el-drawer>
 
     <el-dialog v-model="actionDialog" :title="actionTitle" width="430px" class="action-dialog" destroy-on-close>
       <div v-if="actionType === 'call'" class="call-content"><div class="avatar-circle"><el-icon><Phone /></el-icon></div><h2>{{ actionTerminal?.name }} <small>{{ actionTerminal?.id }}</small></h2><p class="call-status"><span class="live-dot" />{{ callConnected ? '已接通 · 00:12' : '呼叫中...' }}</p><el-button type="danger" round size="large" :icon="Phone" @click="actionDialog = false">挂断</el-button></div>
@@ -72,7 +75,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { ArrowLeft, ArrowRight, ChatDotRound, Close, Microphone, Phone, Search, UserFilled, VideoCamera } from '@element-plus/icons-vue'
+import { ArrowLeft, ArrowRight, ChatDotRound, Close, Document, InfoFilled, Microphone, Phone, Search, UserFilled, VideoCamera } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import mapImage from '@/map.png'
 
@@ -95,16 +98,28 @@ const visibleTerminals = computed(() => terminals.value.filter((item) => mapFilt
 const transferMembers = computed(() => terminals.value.filter((item) => transferMemberIds.value.includes(item.id)))
 const availableTerminals = computed(() => terminals.value.filter((item) => !transferMemberIds.value.includes(item.id) && `${item.name}${item.id}`.includes(transferKeyword.value)))
 const actionTitle = computed(() => actionType.value === 'call' ? '语音呼叫' : actionType.value === 'video' ? '实时画面' : '发送消息')
-function openAction(type: 'call' | 'video' | 'message', terminal: Terminal) { actionType.value = type; actionTerminal.value = terminal; callConnected.value = false; messageText.value = ''; actionDialog.value = true }
-function openGroupAction(type: 'call' | 'message', group: Group) { groupActionType.value = type; actionGroup.value = group; messageText.value = ''; groupActionDialog.value = true }
-function sendMessage() { actionDialog.value = false; ElMessage.success(`消息已发送至 ${actionTerminal.value?.name}`) }
-function sendGroupMessage() { groupActionDialog.value = false; ElMessage.success(`群消息已发送至 ${actionGroup.value?.name}`) }
+function openAction(type: 'call' | 'video' | 'message', terminal: Terminal) { actionType.value = type; actionTerminal.value = terminal; callConnected.value = false; messageText.value = ''; actionDialog.value = true; if (type === 'call') record('发起语音呼叫', `${terminal.name}（${terminal.id}）`); else if (type === 'video') record('发起视频调阅', `${terminal.name}（${terminal.id}）`) }
+function openGroupAction(type: 'call' | 'message', group: Group) { groupActionType.value = type; actionGroup.value = group; messageText.value = ''; groupActionDialog.value = true; if (type === 'call') record('发起组呼', `${group.name}（${group.id}）`) }
+function sendMessage() { const terminal = actionTerminal.value; const text = messageText.value.trim(); actionDialog.value = false; if (terminal) { ElMessage.success(`消息已发送至 ${terminal.name}`); record('发送消息', `${terminal.name}（${terminal.id}）`, '成功', text) } }
+function sendGroupMessage() { const group = actionGroup.value; const text = messageText.value.trim(); groupActionDialog.value = false; if (group) { ElMessage.success(`群消息已发送至 ${group.name}`); record('发送群消息', `${group.name}（${group.id}）`, '成功', text) } }
 function editGroup(group: Group) { editingGroup.value = group; transferMemberIds.value = group.members.map((member) => member.match(/(\d+)）$/)?.[1] || '').filter(Boolean); transferKeyword.value = ''; editDialog.value = true }
 function addMember(terminal: Terminal) { transferMemberIds.value = [...transferMemberIds.value, terminal.id] }
 function removeMember(terminal: Terminal) { transferMemberIds.value = transferMemberIds.value.filter((id) => id !== terminal.id) }
-function saveGroupMembers() { if (!editingGroup.value) return; editingGroup.value.members = transferMembers.value.map((terminal) => `${terminal.name}（${terminal.id}）`); editDialog.value = false; ElMessage.success('群组成员已更新') }
-function createGroup() { groups.value.unshift({ name: groupName.value, id: `0${Math.floor(Math.random() * 900 + 100)}`, members: selectedTerminals.value.map((item) => `${item.name}（${item.id}）`) }); selectedTerminals.value.forEach((item) => { item.selected = false }); groupName.value = ''; groupDialog.value = false; ElMessage.success('群组创建成功') }
-function dissolveGroup(group: Group) { ElMessageBox.confirm(`确定解散“${group.name}”吗？解散后群组成员关系将被清除。`, '解散群组确认', { type: 'warning', confirmButtonText: '确认解散', cancelButtonText: '取消' }).then(() => { groups.value = groups.value.filter((item) => item.id !== group.id); ElMessage.success('群组已解散') }).catch(() => undefined) }
+function saveGroupMembers() { if (!editingGroup.value) return; editingGroup.value.members = transferMembers.value.map((terminal) => `${terminal.name}（${terminal.id}）`); record('编辑群组', `${editingGroup.value.name}（${editingGroup.value.id}）`); editDialog.value = false; ElMessage.success('群组成员已更新') }
+function createGroup() { const id = `0${Math.floor(Math.random() * 900 + 100)}`; const name = groupName.value; groups.value.unshift({ name, id, members: selectedTerminals.value.map((item) => `${item.name}（${item.id}）`) }); selectedTerminals.value.forEach((item) => { item.selected = false }); groupName.value = ''; groupDialog.value = false; ElMessage.success('群组创建成功'); record('创建群组', `${name}（${id}）`) }
+function dissolveGroup(group: Group) { ElMessageBox.confirm(`确定解散“${group.name}”吗？解散后群组成员关系将被清除。`, '解散群组确认', { type: 'warning', confirmButtonText: '确认解散', cancelButtonText: '取消' }).then(() => { groups.value = groups.value.filter((item) => item.id !== group.id); ElMessage.success('群组已解散'); record('解散群组', `${group.name}（${group.id}）`) }).catch(() => undefined) }
+const logsVisible = ref(false); const currentPage = ref(1)
+const logs = ref<{ time: string; operator: string; target: string; action: string; result: '成功' | '失败'; content?: string }[]>([
+  { time: '2026-07-16 10:28:36', operator: '张三', target: '李四（80003）', action: '发起语音呼叫', result: '成功' },
+  { time: '2026-07-16 10:16:08', operator: '李四', target: '王大（80006）', action: '发起视频调阅', result: '成功' },
+  { time: '2026-07-16 09:42:51', operator: '张三', target: '消防应急 1 组（0112）', action: '发起组呼', result: '成功' },
+  { time: '2026-07-16 09:15:24', operator: '系统', target: '赵敏（80008）', action: '发送消息', result: '失败', content: '请至 T2 北侧通道支援' },
+  { time: '2026-07-15 18:31:02', operator: '王五', target: '夜间巡逻组（0115）', action: '解散群组', result: '成功' },
+  { time: '2026-07-15 17:20:18', operator: '张三', target: '消防应急 1 组（0112）', action: '创建群组', result: '成功' },
+  { time: '2026-07-15 16:45:02', operator: '李四', target: '夜间巡逻组（0115）', action: '发送群消息', result: '成功', content: '今晚 22:00 在综合办公楼前集合巡检' },
+])
+const pagedLogs = computed(() => logs.value.slice((currentPage.value - 1) * 5, currentPage.value * 5))
+function record(action: string, target: string, result: '成功' | '失败' = '成功', content?: string) { logs.value.unshift({ time: `2026-07-16 ${new Date().toLocaleTimeString('zh-CN', { hour12: false })}`, operator: '当前用户', target, action, result, content }); currentPage.value = 1 }
 </script>
 
 <style lang="scss" scoped>
@@ -125,6 +140,12 @@ function dissolveGroup(group: Group) { ElMessageBox.confirm(`确定解散“${gr
 .terminal-footer { padding: 14px; border-top: 1px solid #edf0f5; }.terminal-footer .el-button { width: 100%; }.terminal-footer span { display: block; margin-top: 8px; color: #a8b1bf; text-align: center; font-size: 10px; }
 .group-float { top: 16px; right: 16px; bottom: 16px; width: 325px; }
 .group-float.collapsed { top: 16px; right: 16px; bottom: auto; width: 44px; height: 44px; z-index: 100; pointer-events: auto; }.group-float.collapsed .group-head { width: 44px; height: 44px; padding: 7px; border: 0; }.group-float.collapsed .group-head > div { display: none; }.group-float.collapsed .group-head .el-button { display: inline-flex; margin: 0; }
+.group-tip { display: flex; align-items: flex-start; gap: 6px; margin: 10px 12px 6px; padding: 8px 10px; border: 1px solid #dbe6fb; border-radius: 6px; background: #f2f7ff; color: #5b729c; font-size: 11px; line-height: 1.55; }.group-tip .el-icon { flex: none; margin-top: 1px; color: #4b77df; font-size: 13px; }
+.log-trigger { position: absolute; z-index: 60; top: 16px; right: 357px; box-shadow: 0 3px 12px rgba(45,62,83,.14); }
+.log-drawer :deep(.el-drawer__body) { padding: 0; }
+.log-drawer { --el-drawer-size: 100% !important; }
+.drawer-header { display: flex; align-items: center; justify-content: space-between; padding: 17px 18px 13px; border-bottom: 1px solid #edf0f5; }.drawer-header h2 { margin: 0; font-size: 15px; }.drawer-header p { margin: 5px 0 0; color: #9aa5b5; font-size: 11px; }
+.log-pagination { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; color: #96a1b0; font-size: 12px; }
 .map-marker { z-index: 30; }.map-marker.active { z-index: 40; }
 .selected-chips { justify-content: flex-start; margin: 0; }
 .transfer-editor { display: grid; grid-template-columns: 1fr 36px 1fr; gap: 12px; align-items: center; }
@@ -132,6 +153,6 @@ function dissolveGroup(group: Group) { ElMessageBox.confirm(`确定解散“${gr
 .transfer-column { min-width: 0; padding: 12px; border: 1px solid #e5eaf1; border-radius: 8px; background: #fafbfd; }
 .transfer-title { display: flex; justify-content: space-between; margin-bottom: 10px; color: #53647b; font-size: 12px; font-weight: 600; }.transfer-title span { color: #9aa7b6; font-size: 10px; font-weight: 400; }
 .transfer-list { height: 280px; margin-top: 10px; overflow: auto; }.transfer-item { display: flex; align-items: center; width: 100%; gap: 7px; padding: 9px 5px; border: 0; border-bottom: 1px solid #edf1f5; background: transparent; color: #51627b; text-align: left; cursor: pointer; }.transfer-item:hover { background: #eef3fc; }.transfer-item small { margin-left: auto; color: #a2adba; font-size: 9px; }.transfer-item b { width: 16px; color: #5276c5; text-align: center; }.transfer-empty { padding: 50px 5px; color: #a6b0bd; text-align: center; font-size: 11px; }.transfer-actions { display: flex; flex-direction: column; align-items: center; gap: 12px; color: #8ba0c8; }
-@media (max-width: 900px) { .terminal-panel { top: 12px; bottom: auto; left: 12px; width: calc(100% - 24px); min-height: 315px; max-height: 45%; }.map-toolbar { top: calc(45% + 24px); right: auto; left: 12px; }.group-float { top: calc(45% + 88px); right: 12px; bottom: 12px; width: 290px; } }
-@media (max-width: 560px) { .map-toolbar { display: none; }.group-float { top: 12px; right: 12px; bottom: 12px; width: calc(100% - 24px); }.group-float.collapsed { top: 12px; right: 12px; bottom: auto; width: 44px; height: 44px; z-index: 100; } }
+@media (max-width: 900px) { .terminal-panel { top: 12px; bottom: auto; left: 12px; width: calc(100% - 24px); min-height: 315px; max-height: 45%; }.map-toolbar { top: calc(45% + 24px); right: auto; left: 12px; }.group-float { top: calc(45% + 88px); right: 12px; bottom: 12px; width: 290px; }.log-trigger { top: 16px; right: 12px; } }
+@media (max-width: 560px) { .map-toolbar { display: none; }.group-float { top: 12px; right: 12px; bottom: 12px; width: calc(100% - 24px); }.group-float.collapsed { top: 12px; right: 12px; bottom: auto; width: 44px; height: 44px; z-index: 100; }.log-trigger { top: 64px; right: 12px; }.log-drawer { --el-drawer-size: 100% !important; } }
 </style>

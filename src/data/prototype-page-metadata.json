@@ -62,7 +62,13 @@
     },
     "RadioIntercomLinkage": {
       "status": "completed",
-      "versions": []
+      "versions": [
+        {
+          "version": 1,
+          "createdAt": "2026-08-10T08:17:34.986Z",
+          "description": "新增查看操作日志功能"
+        }
+      ]
     },
     "InformationPublishingLinkage": {
       "status": "completed",

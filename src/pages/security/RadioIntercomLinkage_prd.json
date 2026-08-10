@@ -1,13 +1,13 @@
 {
   "pageName": "RadioIntercomLinkage",
   "pageId": "RadioIntercomLinkage",
-  "version": "1.0.0",
-  "lastUpdated": "2026-07-14T00:00:00Z",
+  "version": "1.1.0",
+  "lastUpdated": "2026-08-10T08:16:31Z",
   "intent": {
     "type": "workflow",
-    "summary": "监控园区无线对讲终端状态，提供单终端通信、群组通信和群组成员管理能力。"
+    "summary": "监控园区无线对讲终端状态，提供单终端通信、群组通信、群组成员管理及操作日志追溯能力。"
   },
-  "overview": "无线对讲联动页面面向园区安保、消防和值班人员，统一查看无线对讲终端的位置和在线状态，支持发起语音呼叫、视频调阅、发送消息、创建对讲群组以及维护群组成员关系，满足日常巡逻和突发事件中的快速通信需求。",
+  "overview": "无线对讲联动页面面向园区安保、消防和值班人员，统一查看无线对讲终端的位置和在线状态，支持发起语音呼叫、视频调阅、发送消息、创建对讲群组以及维护群组成员关系，满足日常巡逻和突发事件中的快速通信需求；同时记录各类通信与群组操作日志，支持按操作对象和内容追溯历史操作。",
   "modules": [
     {
       "id": "ril-terminals",
@@ -80,12 +80,13 @@
       "id": "ril-groups",
       "title": "对讲群组管理",
       "purpose": "维护应急通信群组并对群组成员发起统一通信。",
-      "summary": "展示现有对讲群组及成员数量，支持创建群组、编辑成员、组呼、发送群消息和解散群组。",
+      "summary": "展示现有对讲群组及成员数量，提供创建群组的入口指引，并支持创建群组、编辑成员、组呼、发送群消息和解散群组。",
       "requirements": [
         { "title": "创建对讲群组", "priority": "P0", "details": "使用已选择的在线终端创建群组，群组需要填写名称并至少包含两台在线终端。", "source": "ai", "status": "generated" },
         { "title": "维护群组成员", "priority": "P0", "details": "支持从可用终端中添加成员或从当前群组中移除成员，并保存成员关系。", "source": "ai", "status": "generated" },
         { "title": "群组通信", "priority": "P0", "details": "支持对指定群组发起组呼或发送群消息。", "source": "ai", "status": "generated" },
-        { "title": "解散群组", "priority": "P1", "details": "支持解散不再使用的群组，解散后清除群组成员关系。", "source": "ai", "status": "generated" }
+        { "title": "解散群组", "priority": "P1", "details": "支持解散不再使用的群组，解散后清除群组成员关系。", "source": "ai", "status": "generated" },
+        { "title": "创建群组入口指引", "priority": "P2", "details": "在群组区域展示创建群组的操作指引，告知用户需先在终端面板勾选在线终端，再点击创建群组入口完成创建。", "source": "ai", "status": "generated" }
       ],
       "fields": [
         { "name": "groupName", "label": "群组名称", "type": "文本", "required": true, "description": "对讲群组的业务名称。", "source": "ai", "status": "generated" },
@@ -99,7 +100,8 @@
         "新建群组至少包含两台在线终端。",
         "群组通信只能针对当前群组成员发起。",
         "解散群组前必须经过用户确认。",
-        "保存成员关系后，群组成员数量和成员清单同步更新。"
+        "保存成员关系后，群组成员数量和成员清单同步更新。",
+        "群组区域需要展示创建群组的操作指引，说明需先在终端面板勾选在线终端。"
       ],
       "interactions": [
         { "trigger": "点击创建群组", "action": "填写群组信息", "description": "系统展示群组名称和已选终端，用户确认后创建群组。", "source": "ai", "status": "generated" },
@@ -107,7 +109,8 @@
         { "trigger": "点击组呼", "action": "发起群组语音通信", "description": "系统向当前群组成员发起组呼，并展示通信状态和挂断操作。", "source": "ai", "status": "generated" },
         { "trigger": "点击群消息", "action": "发送群消息", "description": "用户编辑消息并发送至当前群组成员。", "source": "ai", "status": "generated" },
         { "trigger": "点击解散群组", "action": "确认并解散群组", "description": "系统要求用户确认，确认后移除群组及其成员关系。", "source": "ai", "status": "generated" },
-        { "trigger": "收起或展开群组区域", "action": "调整群组信息可见状态", "description": "用户控制群组信息区域的展示状态，不影响地图和群组数据。", "source": "ai", "status": "generated" }
+        { "trigger": "收起或展开群组区域", "action": "调整群组信息可见状态", "description": "用户控制群组信息区域的展示状态，不影响地图和群组数据。", "source": "ai", "status": "generated" },
+        { "trigger": "查看群组区域创建指引", "action": "了解群组创建流程", "description": "系统在群组区域展示创建指引，帮助用户定位创建群组的入口。", "source": "ai", "status": "generated" }
       ],
       "ruleImages": [],
       "source": "ai",
@@ -139,6 +142,41 @@
         { "trigger": "输入消息内容", "action": "校验消息内容", "description": "系统校验消息是否为空以及是否超过长度限制。", "source": "ai", "status": "generated" },
         { "trigger": "点击发送", "action": "发送通信消息", "description": "系统向当前通信对象发送消息，并反馈发送结果。", "source": "ai", "status": "generated" },
         { "trigger": "点击挂断或取消", "action": "结束当前通信", "description": "系统结束当前语音、视频或消息操作，不再继续通信。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "ril-logs",
+      "title": "操作日志",
+      "purpose": "记录并追溯无线对讲各类操作的历史轨迹。",
+      "summary": "集中展示语音呼叫、视频调阅、消息发送、组呼、群消息以及群组创建、编辑、解散等操作的时间、操作人、操作对象、具体内容和执行结果，按时间倒序排列并分页浏览。",
+      "requirements": [
+        { "title": "查看操作日志", "priority": "P0", "details": "支持打开操作日志，按时间倒序展示语音呼叫、视频调阅、消息发送、组呼、群消息、创建群组、编辑群组、解散群组等操作记录。", "source": "ai", "status": "generated" },
+        { "title": "展示消息内容", "priority": "P1", "details": "消息类操作记录需要展示具体消息内容，便于追溯沟通过程。", "source": "ai", "status": "generated" },
+        { "title": "记录操作结果", "priority": "P0", "details": "每条操作记录展示执行结果（成功或失败），帮助用户确认操作是否生效。", "source": "ai", "status": "generated" },
+        { "title": "分页浏览日志", "priority": "P1", "details": "操作日志较多时按页展示，并显示日志总条数。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [
+        { "name": "logTime", "label": "日志时间", "type": "日期时间", "required": true, "description": "操作发生的具体时间。", "source": "ai", "status": "generated" },
+        { "name": "logOperator", "label": "操作人", "type": "文本", "required": true, "description": "执行本次操作的用户。", "source": "ai", "status": "generated" },
+        { "name": "logTarget", "label": "操作对象", "type": "文本", "required": true, "description": "本次操作涉及的对讲终端或群组。", "source": "ai", "status": "generated" },
+        { "name": "logAction", "label": "执行操作", "type": "枚举", "required": true, "description": "操作类型，包括发起语音呼叫、发起视频调阅、发送消息、发起组呼、发送群消息、创建群组、编辑群组、解散群组。", "source": "ai", "status": "generated" },
+        { "name": "logContent", "label": "内容详情", "type": "多行文本", "required": false, "description": "消息类操作发送的具体消息内容，其他操作无内容。", "source": "ai", "status": "generated" },
+        { "name": "logResult", "label": "操作结果", "type": "枚举", "required": true, "description": "操作执行结果，包括成功和失败。", "source": "ai", "status": "generated" }
+      ],
+      "rules": [
+        "操作日志按照时间倒序排列，最新操作排在最前。",
+        "消息类操作需要记录并展示具体消息内容，其他类型操作不展示内容。",
+        "操作日志超过单页容量时按页展示，并显示日志总条数。",
+        "语音、视频、消息、群组等操作执行后即时生成日志记录。"
+      ],
+      "interactions": [
+        { "trigger": "点击操作日志入口", "action": "查看操作日志", "description": "系统打开操作日志面板，展示全部历史操作记录。", "source": "ai", "status": "generated" },
+        { "trigger": "执行通信或群组操作", "action": "生成日志记录", "description": "语音、视频、消息、群组等操作执行后，系统自动生成对应的操作日志。", "source": "ai", "status": "generated" },
+        { "trigger": "切换日志页码", "action": "浏览更多记录", "description": "系统按页展示更多历史操作记录。", "source": "ai", "status": "generated" },
+        { "trigger": "关闭操作日志", "action": "退出日志查看", "description": "系统关闭操作日志面板，返回无线对讲通信页面。", "source": "ai", "status": "generated" }
       ],
       "ruleImages": [],
       "source": "ai",
