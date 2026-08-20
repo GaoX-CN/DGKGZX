@@ -1,0 +1,449 @@
+{
+  "pageName": "EnergyWorkbench",
+  "pageId": "EnergyWorkbench",
+  "version": "1.0.0",
+  "lastUpdated": "2026-08-17T09:20:00.000Z",
+  "intent": {
+    "type": "analysis",
+    "summary": "以全屏园区地图为核心，集中展示电表/水表撒点分布、用能费用、能耗与碳排放指标、碳管理进度及成本/能耗排名，支撑园区能源调度与碳排管理决策。"
+  },
+  "overview": "能源工作台面向园区能源管理员、园区运维经理和租户运营人员，集中呈现东莞空港中心（含主地块、码头）的水电计量点分布、用能费用与能耗、碳排放进度和排名信息。页面以全屏铺满的园区地图为底图展示水电计量点撒点，左右两侧以浮动面板承载指标与排名。业务人员可通过级联选择器选择园区：可选择父级「东莞空港中心」查看整体，也可下钻选择主地块、码头查看分区数据；顶部悬浮工具栏提供全局唯一的本日/本月/本年时间过滤，联动所有指标；可在地图上点击任意电表/水表查看读数、上报时间和采集状态。",
+  "modules": [
+    {
+      "id": "ew-summary",
+      "title": "用能实时监控与碳管理进度",
+      "purpose": "在单页面中集中呈现当前园区下的累计能源费、能耗量、电费、自来水费、累计碳排放，以及碳管理目标完成进度。",
+      "summary": "左侧浮动面板自上而下展示园区选择器、园区/租户统计、用能实时监控（5 项指标，带同比）和碳管理进度。所有指标统一联动顶部悬浮工具栏的全局本日/本月/本年时间过滤。",
+      "requirements": [
+        {
+          "title": "园区视角切换",
+          "priority": "P0",
+          "details": "园区层级为东莞空港中心（父级）下的主地块、码头；使用级联选择器，父级东莞空港中心与子级主地块、码头均可选择。选择父级查看整个园区数据，选择子级查看对应分区数据；切换后所有指标、地图撒点和右侧排名同步刷新。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "展示用能指标与同比",
+          "priority": "P0",
+          "details": "展示累计能源费、累计能耗量、电费、自来水费、累计碳排放五项指标，每项展示当前值与同比变化方向与百分比。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "全局统一时间粒度切换",
+          "priority": "P0",
+          "details": "页面仅在顶部悬浮工具栏提供唯一的「本日/本月/本年」时间过滤，全页面共用同一时间状态；切换后所有用能指标、碳排放进度、右侧排名同步刷新。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "碳管理目标进度",
+          "priority": "P1",
+          "details": "根据当前范围下碳排放值与目标值对比展示百分比进度；超过 90% 显示红色告警，70%-90% 显示橙色提醒，70% 以下为正常色。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "energyCost",
+          "label": "累计能源费",
+          "type": "number",
+          "required": false,
+          "description": "当前范围下园区累计能源费用（含电费、自来水费等），单位万元；带同比百分比。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "energyQuantity",
+          "label": "累计能耗量",
+          "type": "number",
+          "required": false,
+          "description": "当前范围下园区累计能耗量，单位 kgce；带同比百分比。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "electricCost",
+          "label": "电费",
+          "type": "number",
+          "required": false,
+          "description": "当前范围下电表读数累计折算电费，单位万元；带同比百分比。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "waterCost",
+          "label": "自来水费",
+          "type": "number",
+          "required": false,
+          "description": "当前范围下水表读数累计折算水费，单位万元；带同比百分比。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "carbon",
+          "label": "累计碳排放",
+          "type": "number",
+          "required": false,
+          "description": "按当前范围下电、水能耗折算的累计碳排放当量，单位 tCO₂。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "carbonTarget",
+          "label": "碳排放目标",
+          "type": "number",
+          "required": false,
+          "description": "园区当前范围下的碳排放预算上限，单位 tCO₂；用于碳管理进度计算。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "parkStats",
+          "label": "园区/租户统计",
+          "type": "object",
+          "required": false,
+          "description": "当前园区下的园区数、租户数两项基础统计。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "时间粒度切换（本日/本月/本年）联动所有 5 项用能指标、碳排放、碳管理进度与右侧排名。",
+        "同比为 0 时不展示同比提示；同比为负（节省）以绿色显示，同比为正（增长）以红色显示。",
+        "碳排放百分比 = 累计碳排放 / 目标 × 100%；超过 100% 时进度条置顶为 100%，并以红色告警提示。",
+        "级联选择器中可选择父级东莞空港中心或子级主地块、码头；选中后自动关闭面板。",
+        "级联选项仅展示园区名称，不展示表计数量等附加信息。",
+        "切换园区后地图自动清除当前选中表计。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击级联选择器",
+          "action": "展开/收起园区层级面板",
+          "description": "点击展开级联面板，可查看东莞空港中心（父级）下的主地块、码头选项，点击选项或再次点击可收起。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "选择园区",
+          "action": "切换全部指标",
+          "description": "选择父级东莞空港中心或子级主地块/码头后，用能指标、碳排放进度、地图撒点和排名同步刷新。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "切换时间粒度",
+          "action": "联动刷新指标",
+          "description": "本日/本月/本年切换会刷新左侧全部指标、碳排放进度、右侧排名，并在地图上高亮时间范围提示。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "ew-map",
+      "title": "全屏地图表计撒点",
+      "purpose": "在全屏铺满的园区地图上按实际位置撒点展示电表、水表的采集状态与最新读数，辅助快速定位异常表计和定位巡检。",
+      "summary": "地图铺满整个屏幕作为底图，将电表（⚡ 图标）和水表（💧 图标）按实际位置撒点；在线表计使用主色并附带脉冲动画，离线表计使用灰色虚线样式；点击任意撒点弹出信息卡展示名称、编号、位置、最新读数、上报时间、采集状态。左右两侧以浮动面板形式悬浮在地图之上。",
+      "requirements": [
+        {
+          "title": "电表/水表 撒点展示",
+          "priority": "P0",
+          "details": "在地图上按实际空间位置展示当前园区下所有电表（EM-xxx）与水表（WM-xxx），电表图标为蓝色⚡，水表图标为青色水滴样式。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "在线 / 离线视觉区分",
+          "priority": "P0",
+          "details": "在线表计使用主色实心圆点 + 脉冲环动画；离线表计使用灰色填充 + 虚线边框 + 斜线标签；图例同步说明。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "撒点点击查看信息",
+          "priority": "P0",
+          "details": "点击撒点弹出信息卡，展示名称、编号、位置、最新读数、上报时间、采集状态（在线/离线）。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "表计类型筛选",
+          "priority": "P1",
+          "details": "支持在顶部悬浮工具栏切换「全部 / 电表 / 水表」筛选撒点；切换后地图撒点与图例同步刷新。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "图例说明",
+          "priority": "P1",
+          "details": "地图右下角展示电表在线/离线、水表在线/离线四种状态的图例，方便业务人员快速识别。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "meterCode",
+          "label": "表计编号",
+          "type": "string",
+          "required": true,
+          "description": "表计在地图撒点上显示的编号，例如 EM-001 / WM-001。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "meterName",
+          "label": "表计名称",
+          "type": "string",
+          "required": true,
+          "description": "表计的业务名称，例如「一期总进线计量点」「CT楼1F水表井」。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "meterKind",
+          "label": "表计类型",
+          "type": "select",
+          "required": true,
+          "description": "表计类型，可为电表 (electric) 或水表 (water)。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "meterLocation",
+          "label": "安装位置",
+          "type": "string",
+          "required": true,
+          "description": "表计的空间安装位置，例如「CT 楼 1F 东区强电箱」「码头作业区 冷链区给水井」。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "leftPercent",
+          "label": "地图坐标 left",
+          "type": "number",
+          "required": true,
+          "description": "撒点相对地图容器的水平位置百分比，0~100。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "topPercent",
+          "label": "地图坐标 top",
+          "type": "number",
+          "required": true,
+          "description": "撒点相对地图容器的垂直位置百分比，0~100。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "readingValue",
+          "label": "最新读数",
+          "type": "number",
+          "required": false,
+          "description": "表计最新一次上报的累计读数。电表单位 kWh，水表单位 m³。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "lastReportTime",
+          "label": "上报时间",
+          "type": "datetime",
+          "required": true,
+          "description": "表计最后一次上报数据的时间，格式 YYYY-MM-DD HH:mm:ss。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "status",
+          "label": "采集状态",
+          "type": "select",
+          "required": true,
+          "description": "表计的当前采集状态，可为在线 (online) 或离线 (offline)。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "电表撒点颜色为 #4776e6，水表撒点颜色为 #06b6d4。",
+        "在线表计附带脉冲环动画（@keyframes ew-pulse），离线表计无动画。",
+        "离线表计的图标填充为灰色 (#b4bac4)、边框为虚线样式，鼠标悬浮态不变。",
+        "地图撒点信息卡的位置根据撒点的水平坐标自动判断左右展开方向，避免超出地图边界。",
+        "点击信息卡外部或再次点击同一撒点会关闭信息卡；信息卡关闭按钮也可关闭。",
+        "筛选条件为「全部」时同时显示电表和水表，切换表计类型后图例和撒点同步刷新。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击撒点",
+          "action": "弹出表计信息卡",
+          "description": "在撒点弹出信息卡，展示名称、编号、位置、最新读数、上报时间、采集状态。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "再次点击同一撒点",
+          "action": "关闭信息卡",
+          "description": "再次点击已选中的撒点会关闭当前信息卡。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "切换表计筛选",
+          "action": "刷新撒点",
+          "description": "点击「全部 / 电表 / 水表」切换撒点显示范围；切换后已选中的信息卡自动关闭。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "ew-cost-ranking",
+      "title": "成本排名（园区 / 租户）",
+      "purpose": "横向对比当前时间范围内各园区、租户的成本金额与占比，定位高成本来源。",
+      "summary": "右侧栏顶部展示成本排名组件；支持园区/租户两个 Tab 切换，每个 Tab 内按费用金额从高到低展示名称、费用（万元）和占比，并附迷你进度条。",
+      "requirements": [
+        {
+          "title": "园区 / 租户 成本排名 Tab 切换",
+          "priority": "P0",
+          "details": "成本排名模块支持在「园区成本」和「租户成本」两个 Tab 间切换；当前 Tab 切换会保留园区的当前时间粒度。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "园区成本排名展示",
+          "priority": "P1",
+          "details": "按园区维度展示当前时间粒度下的累计能源费用、占比；前三名使用高亮徽章。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "租户成本排名展示",
+          "priority": "P1",
+          "details": "按租户维度展示当前时间粒度下的累计能源费用、占比；前三名使用高亮徽章。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "rankName",
+          "label": "排名主体名称",
+          "type": "string",
+          "required": true,
+          "description": "园区或租户的展示名称。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "rankCost",
+          "label": "费用",
+          "type": "number",
+          "required": true,
+          "description": "当前时间粒度下的能源费用合计，单位万元。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "rankRatio",
+          "label": "占比",
+          "type": "number",
+          "required": true,
+          "description": "该主体在当前时间粒度下的能源费用占整体的比例，百分比。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "成本排名按费用从高到低展示，第一名标记为前 3 名高亮。",
+        "占比进度条颜色按 0-25% 蓝色、25-40% 橙色、≥40% 红色显示。",
+        "Tab 切换不改变左侧指标和地图数据。",
+        "时间粒度（本日/本月/本年）切换会刷新成本排名数据，园区和租户 Tab 共用时间粒度。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "切换 Tab",
+          "action": "切换园区 / 租户视图",
+          "description": "在「园区成本」和「租户成本」之间切换展示。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "悬停表格行",
+          "action": "高亮行",
+          "description": "鼠标悬停表格行时高亮背景便于查看。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "ew-energy-ranking",
+      "title": "能耗排名（园区 / 租户）",
+      "purpose": "横向对比当前时间范围内各园区、租户的能耗当量，定位高能耗来源。",
+      "summary": "右侧栏下部展示能耗排名组件；支持园区/租户两个 Tab 切换，根据当前时间粒度展示 kgce 或 万 kgce。",
+      "requirements": [
+        {
+          "title": "园区 / 租户 能耗排名 Tab 切换",
+          "priority": "P0",
+          "details": "能耗排名模块支持园区 / 租户 Tab 切换，与成本排名 Tab 互相独立。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "时间粒度联动单位",
+          "priority": "P1",
+          "details": "本年粒度下展示「万 kgce」，本月与本日展示「kgce」，列名动态切换。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "rankName",
+          "label": "排名主体名称",
+          "type": "string",
+          "required": true,
+          "description": "园区或租户的展示名称。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "rankQuantity",
+          "label": "能耗量",
+          "type": "number",
+          "required": true,
+          "description": "当前时间粒度下的能耗合计，本年单位为「万 kgce」，其他粒度为「kgce」。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "能耗排名按能耗量从高到低展示，前三名高亮徽章。",
+        "时间粒度切换会刷新园区和租户两 Tab 的数据，单位随粒度自动变化。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "切换 Tab",
+          "action": "切换园区 / 租户视图",
+          "description": "在「园区能耗」和「租户能耗」之间切换展示。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    }
+  ]
+}
