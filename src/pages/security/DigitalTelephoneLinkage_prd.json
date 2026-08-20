@@ -1,0 +1,112 @@
+{
+  "pageName": "DigitalTelephoneLinkage",
+  "pageId": "DigitalTelephoneLinkage",
+  "version": "1.0.0",
+  "lastUpdated": "2026-08-20T08:13:00Z",
+  "intent": {
+    "type": "workflow",
+    "summary": "面向园区安保与值班人员提供数字电话话机通讯录查看、状态识别、一键拨号、通话记录追溯，以及通话接通后的状态提醒能力。"
+  },
+  "overview": "数字电话联动页面面向园区安保、消防及综合值班人员，集中查看园区数字电话分机通讯录，展示姓名、分机号与话机状态（正常、免打扰、离线），支持直接发起拨号；同时按时间倒序展示通话记录，包含通话时间与通话时长，便于追溯沟通轨迹。拨号后进入独立通话界面，展示呼叫对象与分机号并支持挂断；通话接通后页面明确提醒“正在通话中，请勿关闭或切换当前页面”，并阻止在通话期间误关闭界面，确保应急通话不中断。",
+  "modules": [
+    {
+      "id": "dtl-contacts",
+      "title": "话机通讯录",
+      "purpose": "集中查看园区数字电话分机通讯录，识别话机状态并快速发起拨号。",
+      "summary": "以列表形式展示话机通讯录，包含联系人姓名、分机号与话机状态，支持按姓名或分机号搜索、按状态筛选，并可对非离线话机直接拨号。",
+      "requirements": [
+        { "title": "查看通讯录", "priority": "P0", "details": "展示话机联系人姓名和分机号，帮助值班人员快速定位通话对象。", "source": "ai", "status": "generated" },
+        { "title": "查看话机状态", "priority": "P0", "details": "用不同状态标识展示话机状态，包括正常、免打扰、离线。", "source": "ai", "status": "generated" },
+        { "title": "搜索与筛选", "priority": "P1", "details": "支持按姓名或分机号搜索，并支持按全部、正常、免打扰、离线维度筛选通讯录。", "source": "ai", "status": "generated" },
+        { "title": "直接发起拨号", "priority": "P0", "details": "对正常或免打扰状态话机提供拨号入口，点击后进入通话界面。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [
+        { "name": "contactName", "label": "联系人姓名", "type": "文本", "required": true, "description": "话机联系人姓名。", "source": "ai", "status": "generated" },
+        { "name": "extensionNo", "label": "分机号", "type": "文本", "required": true, "description": "数字电话分机号码，作为拨号依据。", "source": "ai", "status": "generated" },
+        { "name": "phoneStatus", "label": "话机状态", "type": "枚举", "required": true, "description": "话机当前状态，包括正常、免打扰、离线。", "source": "ai", "status": "generated" },
+        { "name": "contactKeyword", "label": "搜索条件", "type": "文本", "required": false, "description": "用于按姓名或分机号搜索话机。", "source": "ai", "status": "generated" },
+        { "name": "contactFilter", "label": "状态筛选", "type": "枚举", "required": false, "description": "按全部、正常、免打扰、离线维度筛选通讯录。", "source": "ai", "status": "generated" }
+      ],
+      "rules": [
+        "离线话机不可拨号，仅展示离线状态标识。",
+        "免打扰话机允许拨号，但应在拨号区域提示可能无法接通。",
+        "清空搜索条件或切换到全部状态后恢复展示全部联系人。",
+        "状态统计数字与通讯录列表实际数量保持一致。"
+      ],
+      "interactions": [
+        { "trigger": "输入姓名或分机号", "action": "筛选通讯录", "description": "系统根据搜索条件更新通讯录清单。", "source": "ai", "status": "generated" },
+        { "trigger": "点击状态筛选", "action": "按状态查看通讯录", "description": "系统按所选状态维度刷新通讯录列表。", "source": "ai", "status": "generated" },
+        { "trigger": "点击联系人拨号按钮", "action": "发起拨号", "description": "系统打开通话界面并开始向该分机发起呼叫。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "dtl-records",
+      "title": "通话记录",
+      "purpose": "追溯数字电话历史通话，掌握每次通话的时间与时长。",
+      "summary": "按通话时间倒序展示通话记录，每条记录包含对方姓名、分机号、通话时间与通话时长；支持按时间范围过滤（默认近 7 天），记录较多时分页浏览。",
+      "requirements": [
+        { "title": "查看通话记录", "priority": "P0", "details": "按通话时间倒序展示通话记录，仅展示姓名、分机号、通话时间与通话时长。", "source": "ai", "status": "generated" },
+        { "title": "时间范围过滤", "priority": "P0", "details": "支持通过日期范围选择器过滤通话记录，默认展示近 7 天记录，并提供近 7 天、近 30 天、本月快捷选项。", "source": "ai", "status": "generated" },
+        { "title": "分页浏览", "priority": "P1", "details": "记录较多时按页展示，并显示记录总条数。", "source": "ai", "status": "generated" },
+        { "title": "记录拨号过程", "priority": "P0", "details": "页面内发起的拨号在呼叫结束后自动生成通话记录，最新记录自动置顶。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [
+        { "name": "recordContact", "label": "通话对象", "type": "文本", "required": true, "description": "通话对方的姓名和分机号。", "source": "ai", "status": "generated" },
+        { "name": "callTime", "label": "通话时间", "type": "日期时间", "required": true, "description": "通话发生的具体时间。", "source": "ai", "status": "generated" },
+        { "name": "callDuration", "label": "通话时长", "type": "文本", "required": false, "description": "本次通话的时长，无时长的记录展示占位符。", "source": "ai", "status": "generated" },
+        { "name": "dateRange", "label": "时间范围", "type": "日期范围", "required": true, "description": "过滤通话记录的时间范围，默认近 7 天。", "source": "ai", "status": "generated" }
+      ],
+      "rules": [
+        "通话记录按通话时间倒序排列，最新通话置顶。",
+        "通话记录默认仅展示近 7 天数据。",
+        "切换时间范围后从第一页重新展示。",
+        "页面内拨号结束后自动生成通话记录并置顶。"
+      ],
+      "interactions": [
+        { "trigger": "调整时间范围", "action": "过滤通话记录", "description": "系统按所选日期范围刷新记录列表，并重置到第一页。", "source": "ai", "status": "generated" },
+        { "trigger": "切换分页", "action": "浏览更多记录", "description": "系统按页展示所选时间范围内的通话记录。", "source": "ai", "status": "generated" },
+        { "trigger": "结束一次通话", "action": "生成通话记录", "description": "呼叫取消或挂断后，系统自动生成对应通话记录。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "dtl-call",
+      "title": "通话界面与接通提醒",
+      "purpose": "承载拨号后的通话过程，提供挂断能力并在接通后提醒用户勿关闭或切换页面。",
+      "summary": "发起拨号后展示通话界面，显示联系人、分机号和呼叫状态，支持挂断；呼叫接通后展示已接通计时，并明确提醒“正在通话中，请勿关闭或切换当前页面”，接通期间禁止通过关闭按钮、按 Esc 或点击遮罩关闭界面。",
+      "requirements": [
+        { "title": "展示通话基础信息", "priority": "P0", "details": "通话界面展示联系人姓名、分机号及当前呼叫状态。", "source": "ai", "status": "generated" },
+        { "title": "支持挂断通话", "priority": "P0", "details": "通话界面提供挂断按钮，呼叫中可取消呼叫，接通后可挂断结束通话。", "source": "ai", "status": "generated" },
+        { "title": "展示接通状态与计时", "priority": "P0", "details": "呼叫接通后状态变更为已接通，并实时展示通话时长。", "source": "ai", "status": "generated" },
+        { "title": "接通后提醒", "priority": "P0", "details": "通话接通后明确提醒用户“正在通话中，请勿关闭或切换当前页面”。", "source": "ai", "status": "generated" },
+        { "title": "接通期间保护通话", "priority": "P0", "details": "接通期间禁止通过关闭按钮、Esc 键或点击遮罩方式关闭通话界面，只能通过挂断结束通话。", "source": "ai", "status": "generated" }
+      ],
+      "fields": [
+        { "name": "callContact", "label": "通话对象", "type": "联系人", "required": true, "description": "本次通话的联系人及其分机号。", "source": "ai", "status": "generated" },
+        { "name": "callState", "label": "呼叫状态", "type": "枚举", "required": true, "description": "呼叫中或已接通，已接通时展示实时通话时长。", "source": "ai", "status": "generated" },
+        { "name": "callElapsed", "label": "通话时长", "type": "文本", "required": false, "description": "接通后实时递增的通话时长。", "source": "ai", "status": "generated" },
+        { "name": "callWarning", "label": "接通提醒文案", "type": "文本", "required": true, "description": "“正在通话中，请勿关闭或切换当前页面”。", "source": "ai", "status": "generated" }
+      ],
+      "rules": [
+        "呼叫中状态展示“呼叫中...”，接通后展示“已接通”及通话时长。",
+        "接通后必须展示“正在通话中，请勿关闭或切换当前页面”的醒目提醒。",
+        "接通期间不允许通过关闭按钮、Esc 键或点击遮罩关闭通话界面。",
+        "挂断或取消呼叫后关闭通话界面，并生成通话记录。"
+      ],
+      "interactions": [
+        { "trigger": "点击通讯录拨号按钮", "action": "打开通话界面并呼叫", "description": "系统打开通话界面，展示呼叫对象并进入呼叫中状态。", "source": "ai", "status": "generated" },
+        { "trigger": "呼叫接通", "action": "展示接通状态与提醒", "description": "系统将状态变更为已接通并开始计时，同时提醒用户正在通话中、勿关闭或切换页面。", "source": "ai", "status": "generated" },
+        { "trigger": "点击挂断", "action": "结束通话", "description": "系统结束通话、关闭通话界面并生成通话记录。", "source": "ai", "status": "generated" },
+        { "trigger": "接通期间尝试关闭界面", "action": "阻止关闭并提示", "description": "系统拦截关闭操作，提示通话进行中请先挂断电话。", "source": "ai", "status": "generated" }
+      ],
+      "ruleImages": [],
+      "source": "ai",
+      "status": "generated"
+    }
+  ]
+}

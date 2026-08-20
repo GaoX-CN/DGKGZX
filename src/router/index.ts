@@ -75,6 +75,11 @@ const router = createRouter({
           component: () => import('@/pages/security/DigitalBroadcastLinkage.vue'),
         },
         {
+          path: '/security/digital-telephone-linkage',
+          name: 'DigitalTelephoneLinkage',
+          component: () => import('@/pages/security/DigitalTelephoneLinkage.vue'),
+        },
+        {
           path: '/facility/repair-management',
           name: 'RepairManagement',
           component: () => import('@/pages/facility/RepairManagement.vue'),
@@ -113,6 +118,11 @@ const router = createRouter({
           path: '/energy/supply-contract-management',
           name: 'SupplyContractManagement',
           component: () => import('@/pages/energy/SupplyContractManagement.vue'),
+        },
+        {
+          path: '/energy/workbench',
+          name: 'EnergyWorkbench',
+          component: () => import('@/pages/energy/EnergyWorkbench.vue'),
         },
       ],
     },

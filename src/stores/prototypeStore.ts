@@ -307,6 +307,16 @@ const defaultPages: PrototypePage[] = [
               { moduleId: 'dbl-queue', moduleName: '终端队列', moduleType: 'unknown', pageId: 'DigitalBroadcastLinkage', requirementId: 'dbl-queue', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
             ],
           },
+          {
+            pageId: 'DigitalTelephoneLinkage',
+            pageName: '数字电话联动',
+            pagePath: '/security/digital-telephone-linkage',
+            modules: [
+              { moduleId: 'dtl-contacts', moduleName: '话机通讯录', moduleType: 'table', pageId: 'DigitalTelephoneLinkage', requirementId: 'dtl-contacts', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'dtl-records', moduleName: '通话记录', moduleType: 'table', pageId: 'DigitalTelephoneLinkage', requirementId: 'dtl-records', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'dtl-call', moduleName: '通话界面与接通提醒', moduleType: 'form', pageId: 'DigitalTelephoneLinkage', requirementId: 'dtl-call', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+            ],
+          },
         ],
       },
       {
@@ -454,6 +464,17 @@ const defaultPages: PrototypePage[] = [
               { moduleId: 'sc-detail', moduleName: '供电合同详情与关联进线', moduleType: 'form', pageId: 'SupplyContractManagement', requirementId: 'sc-detail', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
             ],
           },
+        ],
+      },
+      {
+        pageId: 'EnergyWorkbench',
+        pageName: '能源工作台',
+        pagePath: '/energy/workbench',
+        modules: [
+          { moduleId: 'ew-summary', moduleName: '用能实时监控与碳管理进度', moduleType: 'card', pageId: 'EnergyWorkbench', requirementId: 'ew-summary', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+          { moduleId: 'ew-map', moduleName: '全屏地图电表/水表撒点', moduleType: 'unknown', pageId: 'EnergyWorkbench', requirementId: 'ew-map', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+          { moduleId: 'ew-cost-ranking', moduleName: '成本排名（园区/租户）', moduleType: 'table', pageId: 'EnergyWorkbench', requirementId: 'ew-cost-ranking', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+          { moduleId: 'ew-energy-ranking', moduleName: '能耗排名（园区/租户）', moduleType: 'table', pageId: 'EnergyWorkbench', requirementId: 'ew-energy-ranking', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
         ],
       },
     ],

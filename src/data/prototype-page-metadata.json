@@ -8,6 +8,16 @@
       "status": "completed",
       "versions": []
     },
+    "EnergyWorkbench": {
+      "status": "designing",
+      "versions": [
+        {
+          "version": 1,
+          "createdAt": "2026-08-17T09:20:00.000Z",
+          "description": "基于 energy-dashboard.html 设计能源工作台，集成园区选择、用能实时监控、碳管理进度、电表/水表撒点、成本/能耗排名"
+        }
+      ]
+    },
     "RepairManagement": {
       "status": "completed",
       "versions": [
@@ -77,6 +87,16 @@
     "DigitalBroadcastLinkage": {
       "status": "completed",
       "versions": []
+    },
+    "DigitalTelephoneLinkage": {
+      "status": "completed",
+      "versions": [
+        {
+          "version": 1,
+          "createdAt": "2026-08-20T08:13:00.000Z",
+          "description": "创建数字电话联动原型，支持话机通讯录、状态查看、直接拨号、通话记录与接通提醒"
+        }
+      ]
     },
     "OperationStandardization": {
       "status": "completed",
