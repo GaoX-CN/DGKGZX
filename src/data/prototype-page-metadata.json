@@ -22,6 +22,11 @@
       "status": "completed",
       "versions": [
         {
+          "version": 2,
+          "createdAt": "2026-08-26T07:42:48.703Z",
+          "description": "调整设备选择弹框，采用空间树选择"
+        },
+        {
           "version": 1,
           "createdAt": "2026-08-03T02:48:49.261Z",
           "description": "在其他资产报修时，允许用户选择已导入的资产"
@@ -42,7 +47,13 @@
     },
     "InspectionPlans": {
       "status": "completed",
-      "versions": []
+      "versions": [
+        {
+          "version": 1,
+          "createdAt": "2026-08-26T07:42:40.046Z",
+          "description": "调整设备选择弹框，采用空间树选择"
+        }
+      ]
     },
     "InspectionItems": {
       "status": "completed",

@@ -674,56 +674,72 @@
     </el-drawer>
 
     <!-- ==================== 报修设备选择弹窗 ==================== -->
-    <el-dialog v-model="repairDevicePickerVisible" title="添加报修设备" width="700px" :close-on-click-modal="false">
-      <el-form inline size="small" class="rm-device-picker-filter">
-        <el-form-item label="空间">
-          <el-cascader
-            v-model="pickerCascaderValue"
-            :options="pickerBuildingFloorOptions"
-            :props="{ checkStrictly: true, emitPath: false }"
-            placeholder="全部空间"
+    <el-dialog v-model="repairDevicePickerVisible" title="添加报修设备" width="920px" :close-on-click-modal="false">
+      <div class="rm-device-picker">
+        <!-- 左侧：空间树 -->
+        <div class="rm-device-picker__tree">
+          <el-input
+            v-model="repairSpaceKeyword"
+            placeholder="请输入空间名称"
             clearable
-            style="width: 240px"
-            @change="onPickerCascaderChange"
+            size="small"
+            class="rm-space-search"
+            :prefix-icon="Search"
           />
-        </el-form-item>
-        <el-form-item label="设备类型">
-          <el-select v-model="repairPickerQuery.type" placeholder="全部" clearable style="width: 130px">
-            <el-option v-for="dt in deviceTypeOptions" :key="dt.value" :label="dt.label" :value="dt.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="设备名称">
-          <el-input v-model="repairPickerQuery.keyword" placeholder="请输入" clearable style="width: 140px" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" :icon="Search" @click="applyRepairPickerFilter">查询</el-button>
-          <el-button :icon="Refresh" @click="resetRepairPickerFilter">重置</el-button>
-        </el-form-item>
-      </el-form>
+          <el-tree
+            ref="repairSpaceTreeRef"
+            :data="spaceTree"
+            node-key="key"
+            :props="{ label: 'label', children: 'children' }"
+            :default-expanded-keys="defaultExpandedRepairSpaceKeys"
+            :filter-node-method="filterRepairSpaceNode"
+            v-model:current-node-key="repairSelectedSpaceKey"
+            highlight-current
+            @node-click="onRepairSpaceNodeClick"
+          />
+        </div>
+        <!-- 右侧：设备列表 -->
+        <div class="rm-device-picker__right">
+          <el-form inline size="small" class="rm-device-picker-filter">
+            <el-form-item label="设备类型">
+              <el-select v-model="repairPickerQuery.type" placeholder="全部" clearable style="width: 130px">
+                <el-option v-for="dt in deviceTypeOptions" :key="dt.value" :label="dt.label" :value="dt.value" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="设备名称">
+              <el-input v-model="repairPickerQuery.keyword" placeholder="请输入" clearable style="width: 180px" @keyup.enter="applyRepairPickerFilter" />
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" :icon="Search" @click="applyRepairPickerFilter">查询</el-button>
+              <el-button :icon="Refresh" @click="resetRepairPickerFilter">重置</el-button>
+            </el-form-item>
+          </el-form>
 
-      <el-table
-        :data="pagedRepairDevices"
-        border size="small" style="width: 100%" max-height="320"
-        @select="onRepairDeviceSelect"
-        ref="repairDeviceTableRef"
-      >
-        <el-table-column type="selection" width="45" />
-        <el-table-column prop="name" label="设备名称" min-width="200" show-overflow-tooltip />
-        <el-table-column label="设备类型" width="90" align="center">
-          <template #default="{ row }">{{ row.type }}</template>
-        </el-table-column>
-        <el-table-column prop="location" label="设备位置" width="160" show-overflow-tooltip />
-      </el-table>
-      <div class="rm-pagination">
-        <el-pagination
-          v-model:current-page="repairPickerPage"
-          v-model:page-size="repairPickerPageSize"
-          :page-sizes="[5, 10, 20]"
-          :total="repairPickerTotal"
-          layout="total, sizes, prev, pager, next"
-          small
-          @size-change="repairPickerPage = 1"
-        />
+          <el-table
+            :data="pagedRepairDevices"
+            border size="small" style="width: 100%" max-height="340"
+            @select="onRepairDeviceSelect"
+            ref="repairDeviceTableRef"
+          >
+            <el-table-column type="selection" width="45" />
+            <el-table-column prop="name" label="设备名称" min-width="200" show-overflow-tooltip />
+            <el-table-column label="设备类型" width="90" align="center">
+              <template #default="{ row }">{{ row.type }}</template>
+            </el-table-column>
+            <el-table-column prop="location" label="设备位置" min-width="170" show-overflow-tooltip />
+          </el-table>
+          <div class="rm-pagination">
+            <el-pagination
+              v-model:current-page="repairPickerPage"
+              v-model:page-size="repairPickerPageSize"
+              :page-sizes="[5, 10, 20]"
+              :total="repairPickerTotal"
+              layout="total, sizes, prev, pager, next"
+              small
+              @size-change="repairPickerPage = 1"
+            />
+          </div>
+        </div>
       </div>
       <template #footer>
         <el-button @click="repairDevicePickerVisible = false">取消</el-button>
@@ -964,6 +980,7 @@ import { Plus, Search, Refresh, Tools, Van, OfficeBuilding } from '@element-plus
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessageBox } from 'element-plus'
 import { useOtherAssetStore } from '@/stores/otherAssetStore'
+import { spaceTree, findSpaceNode, collectSpaceKeys, type SpaceNode } from '@/data/spaceTree'
 
 const otherAssetStore = useOtherAssetStore()
 
@@ -1364,47 +1381,63 @@ const currentDeviceList = computed(() => {
 })
 const currentPlatforms = computed(() => platforms[createForm.platformBuilding] || [])
 
+// 报修设备库空间键("建筑|楼层") → 空间树 key 映射（部分楼层在新树中无独立节点，归入就近楼层）
+const repairSpaceKeyMap: Record<string, string> = {
+  'CT楼|1F': 'ct-L1',
+  'CT楼|2F': 'ct-L2',
+  'CT楼|3F': 'ct-L3',
+  'CT楼|4F': 'ct-L4',
+  'CT楼|5F': 'ct-L5',
+  'CT楼|6F': 'ct-L6',
+  'CT楼|屋顶层': 'ct-L7',
+  'CT楼|B1': 'ct-L1',
+  'FF楼|1F': 'ff-L1',
+  'FF楼|S夹层': 'ff-L1',
+  'FF楼|7F': 'ff-L7',
+  'FF楼|8F': 'ff-L7',
+  '海关联检大楼(OB)|1F': 'hg-L1',
+  '海关联检大楼(OB)|2F': 'hg-L2',
+}
+
 const allDevicesArr = computed(() => {
   const arr: { name: string; type: string; location: string; building: string; floor: string; space: string }[] = []
   Object.entries(deviceDatabase).forEach(([key, devices]) => {
     const [building, floor] = key.split('|')
     const typeLabelMap: Record<string, string> = { door: '门禁', fire: '消防', electrical: '配电', mechanical: '给排水', elevator: '电梯', lighting: '照明', it: '弱电', ac: '空调', other: '其他' }
     devices.forEach(d => {
-      arr.push({ name: d.name, type: typeLabelMap[d.type] || d.type, location: `${building} ${d.location}`, building, floor, space: key })
+      arr.push({ name: d.name, type: typeLabelMap[d.type] || d.type, location: `${building} ${d.location}`, building, floor, space: repairSpaceKeyMap[key] || key })
     })
   })
   return arr
 })
 
-const pickerBuildingFloorOptions = computed(() => {
-  const buildings = [...new Set(Object.keys(deviceDatabase).map(k => k.split('|')[0]))]
-  return buildings.map(b => {
-    const floors = [...new Set(Object.keys(deviceDatabase).filter(k => k.startsWith(b + '|')).map(k => k.split('|')[1]))]
-    return {
-      value: b,
-      label: b,
-      children: floors.map(f => ({ value: b + '|' + f, label: f }))
-    }
-  })
+const repairPickerQuery = reactive({ type: '', keyword: '' })
+const repairPickerFilter = reactive({ type: '', keyword: '' })
+
+// 空间树选择：默认选中主地块（全部设备）
+const repairSpaceTreeRef = ref()
+const repairSelectedSpaceKey = ref('root')
+const defaultExpandedRepairSpaceKeys = ['root']
+
+// 空间树名称检索
+const repairSpaceKeyword = ref('')
+function filterRepairSpaceNode(value: string, data: SpaceNode): boolean {
+  if (!value) return true
+  return data.label.includes(value)
+}
+watch(repairSpaceKeyword, (val) => {
+  repairSpaceTreeRef.value?.filter(val)
 })
 
-const repairPickerQuery = reactive({ building: '', floor: '', type: '', keyword: '' })
-const repairPickerFilter = reactive({ building: '', floor: '', type: '', keyword: '' })
-
-const pickerCascaderValue = ref<string>('')
-function onPickerCascaderChange(val: string) {
-  if (!val) {
-    repairPickerQuery.building = ''
-    repairPickerQuery.floor = ''
-  } else if (val.includes('|')) {
-    const [building, floor] = val.split('|')
-    repairPickerQuery.building = building
-    repairPickerQuery.floor = floor
-  } else {
-    repairPickerQuery.building = val
-    repairPickerQuery.floor = ''
-  }
+function onRepairSpaceNodeClick(node: SpaceNode) {
+  repairSelectedSpaceKey.value = node.key
 }
+
+// 当前选中空间节点及其全部子孙节点的 key 集合
+const repairSelectedSpaceKeys = computed(() => {
+  const node = findSpaceNode(spaceTree, repairSelectedSpaceKey.value)
+  return node ? collectSpaceKeys(node) : []
+})
 
 function applyRepairPickerFilter() {
   repairPickerPage.value = 1
@@ -1413,15 +1446,15 @@ function applyRepairPickerFilter() {
 
 function resetRepairPickerFilter() {
   repairPickerPage.value = 1
-  Object.assign(repairPickerQuery, { building: '', floor: '', type: '', keyword: '' })
-  Object.assign(repairPickerFilter, { building: '', floor: '', type: '', keyword: '' })
-  pickerCascaderValue.value = ''
+  Object.assign(repairPickerQuery, { type: '', keyword: '' })
+  Object.assign(repairPickerFilter, { type: '', keyword: '' })
+  repairSelectedSpaceKey.value = 'root'
 }
 
 const filteredRepairDevices = computed(() => {
   let list = allDevicesArr.value
-  if (repairPickerFilter.building) list = list.filter(d => d.building === repairPickerFilter.building)
-  if (repairPickerFilter.floor) list = list.filter(d => d.floor === repairPickerFilter.floor)
+  const keys = repairSelectedSpaceKeys.value
+  list = list.filter(d => keys.includes(d.space))
   if (repairPickerFilter.type) list = list.filter(d => d.type === repairPickerFilter.type)
   if (repairPickerFilter.keyword) list = list.filter(d => d.name.includes(repairPickerFilter.keyword))
   return list
@@ -2194,6 +2227,19 @@ function removeEditSelectedAsset(index: number) {
 .rm-device-select-section__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .rm-device-select-section__count { font-size: 13px; color: #606266; }
 .rm-device-select-empty { padding: 16px; text-align: center; font-size: 13px; color: #c0c4cc; border: 1px solid #ebeef5; border-radius: 4px; background: #fafbfc; }
+.rm-device-picker { display: flex; gap: 12px; align-items: flex-start; }
+.rm-device-picker__tree {
+  width: 240px;
+  flex-shrink: 0;
+  max-height: 420px;
+  overflow: auto;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  padding: 8px;
+  background: #fafbfc;
+}
+.rm-space-search { margin-bottom: 8px; }
+.rm-device-picker__right { flex: 1; min-width: 0; }
 .rm-device-picker-filter { background: #fafbfc; padding: 12px 16px; border-radius: 4px; margin-bottom: 12px; }
 
 .rm-ab-item { padding: 4px 0; border-bottom: 1px solid #f2f3f5; font-size: 13px; }

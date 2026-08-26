@@ -191,47 +191,67 @@
     </el-drawer>
 
     <!-- 选择设备弹窗 -->
-    <el-dialog v-model="deviceDialogVisible" title="选择巡检设备" width="750px" :close-on-click-modal="false">
-      <el-form inline size="small" class="ip-device-filter">
-        <el-form-item label="空间">
-          <el-select v-model="deviceFilter.building" placeholder="全部建筑" clearable style="width: 140px" @change="deviceFilter.floor = ''">
-            <el-option v-for="b in buildings" :key="b.value" :label="b.label" :value="b.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-select v-model="deviceFilter.floor" placeholder="全部楼层" clearable style="width: 120px">
-            <el-option v-for="f in currentFilterFloors" :key="f.value" :label="f.label" :value="f.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="设备类型">
-          <el-select v-model="deviceFilter.type" placeholder="全部" clearable style="width: 130px">
-            <el-option v-for="dt in deviceTypes" :key="dt.value" :label="dt.label" :value="dt.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="设备名称">
-          <el-input v-model="deviceFilter.keyword" placeholder="请输入" clearable style="width: 160px" />
-        </el-form-item>
-      </el-form>
+    <el-dialog v-model="deviceDialogVisible" title="选择巡检设备" width="920px" :close-on-click-modal="false">
+      <div class="ip-device-picker">
+        <!-- 左侧：空间树 -->
+        <div class="ip-device-picker__tree">
+          <el-input
+            v-model="spaceKeyword"
+            placeholder="请输入空间名称"
+            clearable
+            size="small"
+            class="ip-space-search"
+            :prefix-icon="Search"
+          />
+          <el-tree
+            ref="spaceTreeRef"
+            :data="spaceTree"
+            node-key="key"
+            :props="{ label: 'label', children: 'children' }"
+            :default-expanded-keys="defaultExpandedSpaceKeys"
+            :filter-node-method="filterSpaceNode"
+            v-model:current-node-key="selectedSpaceKey"
+            highlight-current
+            @node-click="onSpaceNodeClick"
+          />
+        </div>
+        <!-- 右侧：设备列表 -->
+        <div class="ip-device-picker__right">
+          <el-form inline size="small" class="ip-device-filter">
+            <el-form-item label="设备类型">
+              <el-select v-model="deviceFilter.type" placeholder="全部" clearable style="width: 130px">
+                <el-option v-for="dt in deviceTypes" :key="dt.value" :label="dt.label" :value="dt.value" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="设备名称">
+              <el-input v-model="deviceFilter.keyword" placeholder="请输入" clearable style="width: 180px" @keyup.enter="applyDeviceFilter" />
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="applyDeviceFilter">查询</el-button>
+            </el-form-item>
+          </el-form>
 
-      <el-table
-        :data="filteredDeviceTable"
-        border
-        size="small"
-        style="width: 100%"
-        max-height="320"
-        @selection-change="() => {}"
-        @select="onDeviceRowSelect"
-        ref="deviceTableRef"
-      >
-        <el-table-column type="selection" width="45" />
-        <el-table-column prop="name" label="设备名称" min-width="200" show-overflow-tooltip />
-        <el-table-column label="设备类型" width="90" align="center">
-          <template #default="{ row }">
-            <el-tag size="small">{{ deviceTypeLabel(row.type) }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="location" label="设备位置" width="160" show-overflow-tooltip />
-      </el-table>
+          <el-table
+            :data="filteredDeviceTable"
+            border
+            size="small"
+            style="width: 100%"
+            max-height="340"
+            @selection-change="() => {}"
+            @select="onDeviceRowSelect"
+            ref="deviceTableRef"
+          >
+            <el-table-column type="selection" width="45" />
+            <el-table-column prop="name" label="设备名称" min-width="200" show-overflow-tooltip />
+            <el-table-column label="设备类型" width="90" align="center">
+              <template #default="{ row }">
+                <el-tag size="small">{{ deviceTypeLabel(row.type) }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="location" label="设备位置" min-width="170" show-overflow-tooltip />
+          </el-table>
+        </div>
+      </div>
 
       <template #footer>
         <el-button @click="deviceDialogVisible = false">取消</el-button>
@@ -286,6 +306,7 @@
 import { ref, reactive, computed, nextTick, watch } from 'vue'
 import { Plus, Search, Refresh } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
+import { spaceTree, findSpaceNode, collectSpaceKeys, type SpaceNode } from '@/data/spaceTree'
 
 interface InspectionPlan {
   id: number
@@ -313,58 +334,38 @@ const deviceTypes = [
   { value: 'door', label: '门禁' }, { value: 'it', label: '弱电' }, { value: 'other', label: '其他' },
 ]
 
-const buildings = [
-  { value: 'ct', label: 'CT楼' },
-  { value: 'ff', label: 'FF楼' },
-  { value: 'ob', label: '海关联检大楼(OB)' },
-]
-const buildingFloors: Record<string, { value: string; label: string }[]> = {
-  ct: [
-    { value: 'ct-1f', label: '1F' }, { value: 'ct-2f', label: '2F' }, { value: 'ct-3f', label: '3F' },
-    { value: 'ct-4f', label: '4F' }, { value: 'ct-5f', label: '5F' }, { value: 'ct-6f', label: '6F' },
-    { value: 'ct-roof', label: '屋顶层' }, { value: 'ct-b1', label: 'B1' },
-  ],
-  ff: [
-    { value: 'ff-1f', label: '1F' }, { value: 'ff-s', label: 'S夹层' },
-    { value: 'ff-7f', label: '7F' }, { value: 'ff-8f', label: '8F' },
-  ],
-  ob: [
-    { value: 'ob-1f', label: '1F' }, { value: 'ob-2f', label: '2F' },
-  ],
-}
-const currentFilterFloors = computed(() => deviceFilter.building ? (buildingFloors[deviceFilter.building] || []) : [])
 
 interface DeviceEntry { key: string; name: string; type: string; location: string; space: string }
 
 const allDevices: DeviceEntry[] = [
-  { key: 'd1', name: '1F 配电柜 A', type: 'electrical', location: 'CT楼 1F 配电房', space: 'ct-1f' },
-  { key: 'd2', name: '1F 空调主机', type: 'ac', location: 'CT楼 1F 空调机房', space: 'ct-1f' },
-  { key: 'd3', name: '1F 消防泵', type: 'fire', location: 'CT楼 1F 泵房', space: 'ct-1f' },
-  { key: 'd4', name: '1F 货梯', type: 'elevator', location: 'CT楼 1F 大厅北侧', space: 'ct-1f' },
-  { key: 'd5', name: '1F 照明回路 A', type: 'lighting', location: 'CT楼 1F 走廊', space: 'ct-1f' },
-  { key: 'd6', name: '1F 门禁控制器 A', type: 'door', location: 'CT楼 1F 主入口', space: 'ct-1f' },
-  { key: 'd7', name: '2F 发电机', type: 'electrical', location: 'CT楼 2F 发电机房', space: 'ct-2f' },
-  { key: 'd8', name: '2F 制冷机组', type: 'ac', location: 'CT楼 2F 制冷机房', space: 'ct-2f' },
-  { key: 'd9', name: '2F 照明回路 B', type: 'lighting', location: 'CT楼 2F 办公区', space: 'ct-2f' },
-  { key: 'd10', name: '3F 仓储区照明', type: 'lighting', location: 'CT楼 3F 仓储区', space: 'ct-3f' },
-  { key: 'd11', name: '3F 货运电梯', type: 'elevator', location: 'CT楼 3F 货运区', space: 'ct-3f' },
-  { key: 'd12', name: '4F 配电柜 B', type: 'electrical', location: 'CT楼 4F 配电间', space: 'ct-4f' },
-  { key: 'd13', name: '4F 防火卷帘', type: 'fire', location: 'CT楼 4F 通道', space: 'ct-4f' },
-  { key: 'd14', name: '5F 空调室内机', type: 'ac', location: 'CT楼 5F 海关功能区', space: 'ct-5f' },
-  { key: 'd15', name: '6F IT控制主机', type: 'it', location: 'CT楼 6F IT控制机房', space: 'ct-6f' },
-  { key: 'd16', name: '屋顶层 排风机', type: 'mechanical', location: 'CT楼 屋顶层风机房', space: 'ct-roof' },
-  { key: 'd17', name: 'B1 加压风机', type: 'mechanical', location: 'CT楼 B1 加压机房', space: 'ct-b1' },
-  { key: 'd18', name: 'B1 消防水泵', type: 'mechanical', location: 'CT楼 B1 泵房', space: 'ct-b1' },
-  { key: 'd19', name: '1F 变压器', type: 'electrical', location: 'FF楼 1F 变电所', space: 'ff-1f' },
-  { key: 'd20', name: '1F 发电机组', type: 'electrical', location: 'FF楼 1F 发电机房', space: 'ff-1f' },
-  { key: 'd21', name: '1F 卸货平台液压升降台', type: 'mechanical', location: 'FF楼 1F 平台', space: 'ff-1f' },
-  { key: 'd22', name: 'S夹层 货运电梯', type: 'elevator', location: 'FF楼 S夹层', space: 'ff-s' },
-  { key: 'd23', name: 'S夹层 照明回路', type: 'lighting', location: 'FF楼 S夹层', space: 'ff-s' },
-  { key: 'd24', name: '7F 送风机', type: 'mechanical', location: 'FF楼 7F 送风机房', space: 'ff-7f' },
-  { key: 'd25', name: '8F 电梯曳引机', type: 'elevator', location: 'FF楼 8F 电梯机房', space: 'ff-8f' },
-  { key: 'd26', name: '1F 配电柜', type: 'electrical', location: 'OB 1F 配电间', space: 'ob-1f' },
-  { key: 'd27', name: '1F 门禁控制器', type: 'door', location: 'OB 1F 控制室', space: 'ob-1f' },
-  { key: 'd28', name: '2F 空调外机', type: 'ac', location: 'OB 2F 室外', space: 'ob-2f' },
+  { key: 'd1', name: '1F 配电柜 A', type: 'electrical', location: 'CT楼 L1 配电间', space: 'ct-L1' },
+  { key: 'd2', name: '1F 空调主机', type: 'ac', location: 'CT楼 L1 空调机房', space: 'ct-L1' },
+  { key: 'd3', name: '1F 消防泵', type: 'fire', location: 'CT楼 L1 泵房', space: 'ct-L1' },
+  { key: 'd4', name: '1F 货梯', type: 'elevator', location: 'CT楼 L1 1号电梯厅', space: 'ct-L1-elevator-1' },
+  { key: 'd5', name: '1F 照明回路 A', type: 'lighting', location: 'CT楼 L1 出口整板箱卸货区', space: 'ct-L1-export' },
+  { key: 'd6', name: '1F 门禁控制器 A', type: 'door', location: 'CT楼 L1 员工出入口', space: 'ct-L1-staff' },
+  { key: 'd7', name: '2F 发电机', type: 'electrical', location: 'CT楼 L2 发电机房', space: 'ct-L2' },
+  { key: 'd8', name: '2F 制冷机组', type: 'ac', location: 'CT楼 L2 制冷机房', space: 'ct-L2' },
+  { key: 'd9', name: '2F 照明回路 B', type: 'lighting', location: 'CT楼 L2 装卸货区', space: 'ct-L2-load' },
+  { key: 'd10', name: '3F 仓储区照明', type: 'lighting', location: 'CT楼 L3 出口卸货区', space: 'ct-L3-export' },
+  { key: 'd11', name: '3F 货运电梯', type: 'elevator', location: 'CT楼 L3 1号电梯厅', space: 'ct-L3-elevator-1' },
+  { key: 'd12', name: '4F 配电柜 B', type: 'electrical', location: 'CT楼 L4 配电间', space: 'ct-L4' },
+  { key: 'd13', name: '4F 防火卷帘', type: 'fire', location: 'CT楼 L4 出口卸货区', space: 'ct-L4-export' },
+  { key: 'd14', name: '5F 空调室内机', type: 'ac', location: 'CT楼 L5 进口提货区', space: 'ct-L5-import' },
+  { key: 'd15', name: '6F IT控制主机', type: 'it', location: 'CT楼 L6 进口提货区', space: 'ct-L6-import' },
+  { key: 'd16', name: '屋顶层 排风机', type: 'mechanical', location: 'CT楼 L7 电梯厅', space: 'ct-L7-elevator-1' },
+  { key: 'd17', name: 'B1 加压风机', type: 'mechanical', location: 'CT楼 L1 加压机房', space: 'ct-L1' },
+  { key: 'd18', name: 'B1 消防水泵', type: 'mechanical', location: 'CT楼 L1 泵房', space: 'ct-L1' },
+  { key: 'd19', name: '1F 变压器', type: 'electrical', location: 'FF楼 L1 变电所', space: 'ff-L1' },
+  { key: 'd20', name: '1F 发电机组', type: 'electrical', location: 'FF楼 L1 发电机房', space: 'ff-L1' },
+  { key: 'd21', name: '1F 卸货平台液压升降台', type: 'mechanical', location: 'FF楼 L1 货代出口卸货区', space: 'ff-L1-export' },
+  { key: 'd22', name: 'S夹层 货运电梯', type: 'elevator', location: 'FF楼 L1 1号电梯厅', space: 'ff-L1-elevator-1' },
+  { key: 'd23', name: 'S夹层 照明回路', type: 'lighting', location: 'FF楼 L1 货代出口卸货区', space: 'ff-L1-export' },
+  { key: 'd24', name: '7F 送风机', type: 'mechanical', location: 'FF楼 L7 送风机房', space: 'ff-L7-elevator-1' },
+  { key: 'd25', name: '8F 电梯曳引机', type: 'elevator', location: 'FF楼 L7 1号电梯厅', space: 'ff-L7-elevator-1' },
+  { key: 'd26', name: '1F 配电柜', type: 'electrical', location: '海关大楼 L1 配电间', space: 'hg-L1' },
+  { key: 'd27', name: '1F 门禁控制器', type: 'door', location: '海关大楼 L1 控制室', space: 'hg-L1' },
+  { key: 'd28', name: '2F 空调外机', type: 'ac', location: '海关大楼 L2 室外', space: 'hg-L2' },
 ]
 
 function deviceTypeLabel(v: string): string {
@@ -451,22 +452,55 @@ const selectedDevices = ref<DeviceEntry[]>([])
 const deviceDialogVisible = ref(false)
 const deviceTableRef = ref()
 const tempSelectedDevices = ref<DeviceEntry[]>([])
-const deviceFilter = reactive({ building: '', floor: '', type: '', keyword: '' })
+const deviceFilter = reactive({ type: '', keyword: '' })
+// 点击【查询】后生效的类型/名称过滤条件
+const appliedDeviceFilter = reactive({ type: '', keyword: '' })
+
+// 空间树选择：默认选中主地块（全部设备）
+const spaceTreeRef = ref()
+const selectedSpaceKey = ref('root')
+const defaultExpandedSpaceKeys = ['root']
+
+// 空间树名称检索
+const spaceKeyword = ref('')
+function filterSpaceNode(value: string, data: SpaceNode): boolean {
+  if (!value) return true
+  return data.label.includes(value)
+}
+watch(spaceKeyword, (val) => {
+  spaceTreeRef.value?.filter(val)
+})
+
+// 当前选中空间节点及其全部子孙节点的 key 集合
+const selectedSpaceKeys = computed(() => {
+  const node = findSpaceNode(spaceTree, selectedSpaceKey.value)
+  return node ? collectSpaceKeys(node) : []
+})
+
+function onSpaceNodeClick(node: SpaceNode) {
+  selectedSpaceKey.value = node.key
+}
 
 const filteredDeviceTable = computed(() => {
   let list = allDevices
-  if (deviceFilter.building) list = list.filter(d => d.space.startsWith(deviceFilter.building))
-  if (deviceFilter.floor) list = list.filter(d => d.space === deviceFilter.floor)
-  if (deviceFilter.type) list = list.filter(d => d.type === deviceFilter.type)
-  if (deviceFilter.keyword) list = list.filter(d => d.name.includes(deviceFilter.keyword))
+  const keys = selectedSpaceKeys.value
+  list = list.filter(d => keys.includes(d.space))
+  if (appliedDeviceFilter.type) list = list.filter(d => d.type === appliedDeviceFilter.type)
+  if (appliedDeviceFilter.keyword) list = list.filter(d => d.name.includes(appliedDeviceFilter.keyword))
   return list
 })
 
+function applyDeviceFilter() {
+  appliedDeviceFilter.type = deviceFilter.type
+  appliedDeviceFilter.keyword = deviceFilter.keyword
+}
+
 function openDeviceDialog() {
-  deviceFilter.building = ''
-  deviceFilter.floor = ''
   deviceFilter.type = ''
   deviceFilter.keyword = ''
+  appliedDeviceFilter.type = ''
+  appliedDeviceFilter.keyword = ''
+  selectedSpaceKey.value = 'root'
   tempSelectedDevices.value = [...selectedDevices.value]
   deviceDialogVisible.value = true
   nextTick(() => syncTableSelection())
@@ -614,5 +648,18 @@ function confirmSave() {
 .ip-detail-devices { margin-top: 16px; }
 .ip-detail-devices__title { font-size: 14px; font-weight: 600; color: #303133; margin: 0 0 10px; padding-left: 10px; border-left: 3px solid #409eff; }
 
+.ip-device-picker { display: flex; gap: 12px; align-items: flex-start; }
+.ip-device-picker__tree {
+  width: 240px;
+  flex-shrink: 0;
+  max-height: 420px;
+  overflow: auto;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  padding: 8px;
+  background: #fafbfc;
+}
+.ip-space-search { margin-bottom: 8px; }
+.ip-device-picker__right { flex: 1; min-width: 0; }
 .ip-device-filter { background: #fafbfc; padding: 12px 16px; border-radius: 4px; margin-bottom: 12px; }
 </style>
