@@ -124,7 +124,7 @@
                   <span v-else class="pfr-mom--na">—</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="peakHour" label="高峰时段" width="140" align="center" />
+              <el-table-column prop="peakHour" :label="query.granularity === 'day' ? '高峰时段' : '高峰日'" width="150" align="center" />
               <el-table-column prop="peakFlow" label="高峰流量" width="100" align="center" sortable />
             </el-table>
           </div>
@@ -285,7 +285,13 @@
       </el-table>
     </el-drawer>
 
-    <el-dialog v-model="addAreaVisible" :title="editingAreaId ? '编辑统计区域' : '新增统计区域'" width="760px" :close-on-click-modal="false" destroy-on-close>
+    <el-drawer
+      v-model="addAreaVisible"
+      :title="editingAreaId ? '编辑统计区域' : '新增统计区域'"
+      direction="rtl"
+      size="min(560px, 100%)"
+      :close-on-click-modal="false"
+    >
       <el-form ref="addAreaFormRef" :model="addAreaForm" :rules="addAreaRules" label-width="100px">
         <el-form-item label="统计区域名称" prop="name">
           <el-input v-model="addAreaForm.name" maxlength="30" show-word-limit placeholder="请输入统计区域名称" />
@@ -295,40 +301,94 @@
             <el-option v-for="option in statisticAreaOptions" :key="option.id" :label="option.label" :value="option.id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="点位位置筛选">
-          <el-cascader
-            v-model="addAreaForm.locationPath"
-            :options="accessLocationOptions"
-            :props="{ checkStrictly: true }"
-            clearable
-            placeholder="请选择建筑、楼层或功能区域"
-            style="width: 100%"
-          />
-        </el-form-item>
-        <el-form-item label="统计点位" prop="pointIds">
-          <el-transfer
-            v-model="addAreaForm.pointIds"
-            :data="filteredAccessPointOptions"
-            :titles="['可选点位', '已选点位']"
-            filterable
-            filter-placeholder="搜索点位名称或编号"
-            class="pfr-point-transfer"
-          />
-        </el-form-item>
+
+        <div class="pfr-points-block">
+          <div class="pfr-points-block__bar">
+            <el-button type="primary" plain :icon="Link" @click="openPointSelector">关联门禁点位</el-button>
+            <span v-if="selectedPoints.length" class="pfr-points-block__count">已关联 {{ selectedPoints.length }} 个门禁点位</span>
+            <span v-else class="pfr-points-block__empty">尚未关联门禁点位</span>
+          </div>
+          <el-table v-if="selectedPoints.length" :data="selectedPoints" size="small" border class="pfr-points-block__table">
+            <el-table-column prop="name" label="点位名称" min-width="220" show-overflow-tooltip />
+            <el-table-column label="操作" width="70" align="center">
+              <template #default="{ row }">
+                <el-button link type="danger" size="small" @click="removeSelectedPoint(row.id)">移除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
       </el-form>
       <template #footer>
         <el-button @click="addAreaVisible = false">取消</el-button>
         <el-button type="primary" @click="saveStatisticArea">确定</el-button>
+      </template>
+    </el-drawer>
+
+    <el-dialog v-model="pointSelectorVisible" title="选择门禁点位" width="min(920px, 94vw)" :close-on-click-modal="false">
+      <div class="pfr-point-picker">
+        <!-- 左侧：空间树（建筑 → 楼层 → 功能区域，支持搜索） -->
+        <aside class="pfr-point-picker__tree">
+          <el-input
+            v-model="pointSpaceKeyword"
+            placeholder="搜索空间名称"
+            clearable
+            size="small"
+            class="pfr-point-picker__space-search"
+            :prefix-icon="Search"
+          />
+          <el-tree
+            ref="pointSpaceTreeRef"
+            :data="pointSpaceTree"
+            node-key="key"
+            :props="{ label: 'label', children: 'children' }"
+            :filter-node-method="filterPointSpaceNode"
+            default-expand-all
+            :expand-on-click-node="false"
+            highlight-current
+            v-model:current-node-key="pointSpaceKey"
+          />
+        </aside>
+        <!-- 右侧：选中空间下绑定的门禁点位 -->
+        <section class="pfr-point-picker__main">
+          <el-input
+            v-model="pointQuery.keyword"
+            placeholder="请输入点位名称或编码搜索"
+            clearable
+            :prefix-icon="Search"
+            class="pfr-point-picker__name-search"
+          />
+          <el-table
+            ref="pointTableRef"
+            :data="filteredPoints"
+            border
+            stripe
+            max-height="420"
+            row-key="id"
+            @selection-change="onPointSelectionChange"
+          >
+            <el-table-column type="selection" width="44" align="center">
+              <template #header />
+            </el-table-column>
+            <el-table-column prop="name" label="点位名称" min-width="200" show-overflow-tooltip />
+            <el-table-column label="所属空间" min-width="260" show-overflow-tooltip>
+              <template #default="{ row }">{{ pointSpaceText(row) }}</template>
+            </el-table-column>
+          </el-table>
+        </section>
+      </div>
+      <template #footer>
+        <el-button @click="pointSelectorVisible = false">取消</el-button>
+        <el-button type="primary" @click="confirmPoints">确认关联</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, watch, nextTick } from 'vue'
 import exportTemplateUrl from './PeopleFlowReport_导出报表模板.xls?url'
 import {
-  Search, Refresh, Download, Setting, Plus,
+  Search, Refresh, Download, Setting, Plus, Link,
   UserFilled, TopRight, BottomLeft,
   Top, Bottom, HomeFilled, ArrowRight
 } from '@element-plus/icons-vue'
@@ -449,13 +509,11 @@ const editingAreaId = ref('')
 const addAreaForm = reactive({
   name: '',
   parentId: '' as string | null,
-  locationPath: [] as string[],
   pointIds: [] as string[],
 })
 
 const addAreaRules = {
   name: [{ required: true, message: '请输入统计区域名称', trigger: 'blur' }],
-  pointIds: [{ type: 'array', min: 1, message: '请至少选择一个统计点位', trigger: 'change' }],
 }
 
 const accessLocationOptions: CascaderOption[] = [
@@ -540,16 +598,109 @@ const statisticAreaOptions = computed(() => {
   return options
 })
 
-const filteredAccessPointOptions = computed(() => {
-  const path = addAreaForm.locationPath
-  // Empty cascader selection intentionally restores the complete point inventory.
-  return accessPointInventory
-    .filter((point) => path.length === 0 || path.every((segment, index) => point.locationPath[index] === segment))
-    .map((point) => ({
-      key: point.id,
-      label: `${point.name}（${point.code}，${point.direction === 'entry' ? '进入' : '离开'}）`,
-    }))
+// ==================== 关联门禁点位（选择弹框） ====================
+
+interface PfrSpaceNode {
+  key: string
+  value: string
+  label: string
+  children?: PfrSpaceNode[]
+}
+
+// 由点位位置级联结构派生左侧空间树（建筑 → 楼层 → 功能区域），key 为去重后的路径
+function toPointSpaceTree(nodes: CascaderOption[], prefix: string[] = []): PfrSpaceNode[] {
+  return nodes.map((node) => {
+    const path = [...prefix, node.value]
+    return {
+      key: path.join('/'),
+      value: node.value,
+      label: node.label,
+      children: node.children ? toPointSpaceTree(node.children, path) : undefined,
+    }
+  })
+}
+
+const pointSpaceTree = toPointSpaceTree(accessLocationOptions)
+
+const pointSelectorVisible = ref(false)
+const pointTableRef = ref<{ clearSelection: () => void; toggleRowSelection: (row: AccessPointOption, selected?: boolean) => void }>()
+const pointSelected = ref<AccessPointOption[]>([])
+const pointQuery = reactive({ keyword: '' })
+const pointSpaceKeyword = ref('')
+const pointSpaceTreeRef = ref<{ setCurrentKey: (key?: string | number | null) => void; filter: (value: string) => void }>()
+const pointSpaceKey = ref('')
+
+const selectedPointPath = computed<string[]>(() => (pointSpaceKey.value ? pointSpaceKey.value.split('/') : []))
+
+function filterPointSpaceNode(value: string, data: PfrSpaceNode) {
+  return !value || data.label.includes(value)
+}
+
+watch(pointSpaceKeyword, (value) => {
+  pointSpaceTreeRef.value?.filter(value)
 })
+
+function pointSpaceText(point: AccessPointOption) {
+  return point.locationPath.join('\\')
+}
+
+const filteredPoints = computed(() => {
+  const keyword = pointQuery.keyword.trim().toLowerCase()
+  const scope = selectedPointPath.value
+  return accessPointInventory.filter((point) => {
+    const matchesKeyword = !keyword || point.name.toLowerCase().includes(keyword) || point.code.toLowerCase().includes(keyword)
+    const matchesSpace = !scope.length || scope.every((segment, index) => point.locationPath[index] === segment)
+    return matchesKeyword && matchesSpace
+  })
+})
+
+const selectedPoints = computed(() =>
+  addAreaForm.pointIds
+    .map((id) => accessPointInventory.find((point) => point.id === id))
+    .filter((point): point is AccessPointOption => !!point),
+)
+
+function removeSelectedPoint(id: string) {
+  addAreaForm.pointIds = addAreaForm.pointIds.filter((item) => item !== id)
+}
+
+function onPointSelectionChange(rows: AccessPointOption[]) {
+  pointSelected.value = rows
+}
+
+// 求一组点位 locationPath 的最近共同所属空间路径，用于打开弹框时定位左侧空间树
+function commonPointPath(pointList: AccessPointOption[]): string[] {
+  if (!pointList.length) return []
+  let prefix = [...pointList[0].locationPath]
+  for (const point of pointList.slice(1)) {
+    const path = point.locationPath
+    let i = 0
+    while (i < prefix.length && i < path.length && prefix[i] === path[i]) i++
+    prefix = prefix.slice(0, i)
+    if (!prefix.length) return []
+  }
+  return prefix
+}
+
+function openPointSelector() {
+  pointQuery.keyword = ''
+  pointSpaceKeyword.value = ''
+  const presetPoints = selectedPoints.value
+  const anchor = commonPointPath(presetPoints).join('/')
+  pointSpaceKey.value = anchor
+  pointSelectorVisible.value = true
+  nextTick(() => {
+    pointSpaceTreeRef.value?.setCurrentKey(anchor || null)
+    const table = pointTableRef.value
+    table?.clearSelection()
+    presetPoints.forEach((point) => table?.toggleRowSelection(point, true))
+  })
+}
+
+function confirmPoints() {
+  addAreaForm.pointIds = pointSelected.value.map((point) => point.id)
+  pointSelectorVisible.value = false
+}
 
 const currentNode = ref<AreaTreeNode | null>(null)
 const currentNodeKey = computed(() => currentNode.value?.key ?? '')
@@ -596,7 +747,6 @@ function openAddStatisticArea() {
   editingAreaId.value = ''
   addAreaForm.name = ''
   addAreaForm.parentId = null
-  addAreaForm.locationPath = []
   addAreaForm.pointIds = []
   addAreaVisible.value = true
 }
@@ -608,7 +758,6 @@ function openEditStatisticArea(areaId: string) {
   editingAreaId.value = area.id
   addAreaForm.name = area.name
   addAreaForm.parentId = area.parentId
-  addAreaForm.locationPath = []
   addAreaForm.pointIds = [...area.pointIds]
   addAreaVisible.value = true
 }
@@ -616,6 +765,11 @@ function openEditStatisticArea(areaId: string) {
 async function saveStatisticArea() {
   const valid = await addAreaFormRef.value?.validate().catch(() => false)
   if (!valid) return
+
+  if (!addAreaForm.pointIds.length) {
+    ElMessage.warning('请先关联门禁点位')
+    return
+  }
 
   if (editingAreaId.value) {
     const index = statisticAreas.value.findIndex((area) => area.id === editingAreaId.value)
@@ -928,16 +1082,23 @@ function generateMockTrend(): TrendItem[] {
   return days
 }
 
-function generateMockStats(): StatRow[] {
-  const raw = trendData.value
-  return raw.map((d, idx) => ({
-    date: d.date,
-    entry: d.entry,
-    exit: d.exit,
-    mom: idx === 0 || raw[idx - 1].entry === 0 ? null : ((d.entry - raw[idx - 1].entry) / raw[idx - 1].entry * 100),
-    peakHour: getPeakHourLabel(d.date),
-    peakFlow: Math.round((d.entry + d.exit) * (0.3 + seededRatio(`${d.date}-peak`) * 0.12)),
-  }))
+function buildStatRows(rows: StatSourceRow[]): StatRow[] {
+  const isDay = query.granularity === 'day'
+  return rows.map((row, idx) => {
+    const prev = rows[idx - 1]
+    const peakDay = isDay ? null : pickPeakDay(row.days)
+    return {
+      date: row.date,
+      entry: row.entry,
+      exit: row.exit,
+      mom: !prev || prev.entry === 0 ? null : ((row.entry - prev.entry) / prev.entry * 100),
+      // 按日粒度展示高峰时段；按周/月展示该周期内人流最高的日期
+      peakHour: isDay ? getPeakHourLabel(row.date) : peakDay!.date,
+      peakFlow: isDay
+        ? Math.round((row.entry + row.exit) * (0.3 + seededRatio(`${row.date}-peak`) * 0.12))
+        : dailyTotal(peakDay!),
+    }
+  })
 }
 
 function updateStats() {
@@ -1060,38 +1221,59 @@ function filterTrendByRange(data: TrendItem[]) {
   return data.slice(-getDefaultRangeDays())
 }
 
-function aggregateWeekly(data: TrendItem[]) {
-  const weekly: TrendItem[] = []
-  for (let i = 0; i < data.length; i += 7) {
-    const chunk = data.slice(i, i + 7)
-    if (chunk.length === 0) continue
-    weekly.push({
-      date: `${chunk[0].date.slice(5)}~${chunk[chunk.length - 1].date.slice(5)}`,
-      entry: Math.round(chunk.reduce((sum, item) => sum + item.entry, 0) / chunk.length),
-      exit: Math.round(chunk.reduce((sum, item) => sum + item.exit, 0) / chunk.length),
-    })
-  }
-  return weekly
+// 带覆盖原始日数据的粒度行：用于趋势图聚合与统计明细（周/月需据此求峰值日）
+interface StatSourceRow {
+  date: string
+  entry: number
+  exit: number
+  days: TrendItem[]
 }
 
-function aggregateMonthly(data: TrendItem[]) {
-  const monthly: TrendItem[] = []
-  const groups: Record<string, TrendItem[]> = {}
-  data.forEach((item) => {
-    const month = item.date.slice(0, 7)
-    if (!groups[month]) groups[month] = []
-    groups[month].push(item)
-  })
+function buildStatSourceRows(data: TrendItem[]): StatSourceRow[] {
+  if (query.granularity === 'week') {
+    const rows: StatSourceRow[] = []
+    for (let i = 0; i < data.length; i += 7) {
+      const chunk = data.slice(i, i + 7)
+      if (chunk.length === 0) continue
+      rows.push({
+        date: `${chunk[0].date.slice(5)}~${chunk[chunk.length - 1].date.slice(5)}`,
+        entry: Math.round(chunk.reduce((sum, item) => sum + item.entry, 0) / chunk.length),
+        exit: Math.round(chunk.reduce((sum, item) => sum + item.exit, 0) / chunk.length),
+        days: chunk,
+      })
+    }
+    return rows
+  }
 
-  Object.entries(groups).forEach(([month, items]) => {
-    monthly.push({
-      date: month,
-      entry: Math.round(items.reduce((sum, item) => sum + item.entry, 0) / items.length),
-      exit: Math.round(items.reduce((sum, item) => sum + item.exit, 0) / items.length),
+  if (query.granularity === 'month') {
+    const rows: StatSourceRow[] = []
+    const groups: Record<string, TrendItem[]> = {}
+    data.forEach((item) => {
+      const month = item.date.slice(0, 7)
+      if (!groups[month]) groups[month] = []
+      groups[month].push(item)
     })
-  })
+    Object.entries(groups).forEach(([month, items]) => {
+      rows.push({
+        date: month,
+        entry: Math.round(items.reduce((sum, item) => sum + item.entry, 0) / items.length),
+        exit: Math.round(items.reduce((sum, item) => sum + item.exit, 0) / items.length),
+        days: items,
+      })
+    })
+    return rows
+  }
 
-  return monthly
+  return data.map((item) => ({ ...item, days: [item] }))
+}
+
+function dailyTotal(item: TrendItem) {
+  return item.entry + item.exit
+}
+
+// 取一组日中流量（进入+离开）最大的那一天
+function pickPeakDay(days: TrendItem[]): TrendItem {
+  return days.reduce((peak, item) => (dailyTotal(item) > dailyTotal(peak) ? item : peak))
 }
 
 watch(() => query.granularity, () => {
@@ -1101,14 +1283,9 @@ watch(() => query.granularity, () => {
 
 function regenerateTrendData() {
   const baseTrend = filterTrendByRange(generateMockTrend())
-  if (query.granularity === 'week') {
-    trendData.value = aggregateWeekly(baseTrend)
-  } else if (query.granularity === 'month') {
-    trendData.value = aggregateMonthly(baseTrend)
-  } else {
-    trendData.value = baseTrend
-  }
-  allStatTableData.value = generateMockStats()
+  const rows = buildStatSourceRows(baseTrend)
+  trendData.value = rows.map(({ date, entry, exit }) => ({ date, entry, exit }))
+  allStatTableData.value = buildStatRows(rows)
   activeTrendIndex.value = trendData.value.length > 0 ? trendData.value.length - 1 : null
   applyStatPagination()
 }
@@ -1279,24 +1456,64 @@ updateStats()
   margin-bottom: 16px;
 }
 
-.pfr-point-transfer {
-  width: 100%;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 52px minmax(0, 1fr);
+.pfr-points-block {
+  margin-top: 4px;
+}
+
+.pfr-points-block__bar {
+  display: flex;
   align-items: center;
+  gap: 12px;
 }
 
-.pfr-point-transfer :deep(.el-transfer-panel) {
-  width: auto;
+.pfr-points-block__count {
+  font-size: 13px;
+  color: #606266;
+}
+
+.pfr-points-block__empty {
+  font-size: 13px;
+  color: #c0c4cc;
+}
+
+.pfr-points-block__table {
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* 选择门禁点位弹框（左空间树 + 右勾选列表） */
+.pfr-point-picker {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.pfr-point-picker__tree {
+  width: 250px;
+  flex-shrink: 0;
+  max-height: 420px;
+  overflow: auto;
+  padding: 10px;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  background: #fafbfc;
+}
+
+.pfr-point-picker__space-search {
+  margin-bottom: 8px;
+}
+
+.pfr-point-picker__main {
+  flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.pfr-point-transfer :deep(.el-transfer__buttons) {
-  padding: 0 8px;
-}
-
-.pfr-point-transfer :deep(.el-transfer-panel__body) {
-  height: 230px;
+.pfr-point-picker__name-search {
+  align-self: flex-end;
+  width: 240px;
 }
 
 .pfr-config-hierarchy {
