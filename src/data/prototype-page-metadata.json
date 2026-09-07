@@ -2,7 +2,13 @@
   "pages": {
     "HighVoltageInletManagement": {
       "status": "completed",
-      "versions": []
+      "versions": [
+        {
+          "version": 1,
+          "createdAt": "2026-09-07T03:20:00.000Z",
+          "description": "计费计量点改为多选：新增/编辑表单以“计量点名称+移除”两列列表展示关联计量点，选择弹窗改为左侧空间树（复用系统园区空间数据、支持搜索）＋右侧计量点勾选列表，打开时自动定位并预勾选；主列表与详情同步展示多个计量点；计费计量点、备注字段调整至关联信息分区上方。"
+        }
+      ]
     },
     "SupplyContractManagement": {
       "status": "completed",
@@ -145,6 +151,10 @@
     },
     "Welcome": {
       "status": "completed",
+      "versions": []
+    },
+    "EmergencyRoute": {
+      "status": "designing",
       "versions": []
     }
   }

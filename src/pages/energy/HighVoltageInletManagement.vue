@@ -50,8 +50,8 @@
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column label="计费计量点" width="160" show-overflow-tooltip>
-        <template #default="{ row }">{{ getMeter(row.meterId)?.name || '-' }}</template>
+      <el-table-column label="计费计量点" min-width="200" show-overflow-tooltip>
+        <template #default="{ row }">{{ meterNames(row.meterIds) }}</template>
       </el-table-column>
       <el-table-column label="合同容量" width="110" align="right">
         <template #default="{ row }">{{ formatCapacity(row.contractId) }}</template>
@@ -90,6 +90,20 @@
         <el-form-item label="接入配电室" prop="accessDistributionRoom"><el-input v-model="form.accessDistributionRoom" placeholder="请输入接入配电室" maxlength="100" /></el-form-item>
         <el-form-item label="所属供电单位" prop="supplier"><el-input v-model="form.supplier" placeholder="请输入供电单位" maxlength="100" /></el-form-item>
 
+        <el-form-item label="计费计量点" prop="meterIds">
+          <el-table v-if="selectedMeters.length" :data="selectedMeters" size="small" border class="hv-meter-selected-table">
+            <el-table-column prop="name" label="计量点名称" min-width="260" show-overflow-tooltip />
+            <el-table-column label="操作" width="84" align="center">
+              <template #default="{ row }"><el-button link type="danger" size="small" @click="removeSelectedMeter(row.id)">移除</el-button></template>
+            </el-table-column>
+          </el-table>
+          <div class="hv-meter-selected-entry">
+            <span v-if="!selectedMeters.length" class="hv-selector-line__empty">暂未关联计费计量点</span>
+            <el-button type="primary" plain size="small" :icon="Plus" @click="openMeterSelector">选择计量点</el-button>
+          </div>
+        </el-form-item>
+        <el-form-item label="备注"><el-input v-model="form.remark" type="textarea" :rows="3" maxlength="200" show-word-limit placeholder="请输入备注" /></el-form-item>
+
         <el-divider content-position="left">关联信息</el-divider>
         <el-form-item label="所属供电合同" prop="contractId">
           <el-select v-model="form.contractId" placeholder="请选择供电合同" filterable style="width: 100%"><el-option v-for="item in contracts" :key="item.id" :label="`${item.code} · ${item.name}`" :value="item.id" /></el-select>
@@ -100,14 +114,6 @@
           <span>计费方式 <b>{{ selectedContract.billingMethod }}</b></span>
           <span>基本电价 <b>{{ selectedContract.basicPrice }} 元/{{ selectedContract.billingMethod === '按容量' ? 'kVA·月' : 'kW·月' }}</b></span>
         </div>
-        <el-form-item label="计费计量点" prop="meterId">
-          <div class="hv-selector-line">
-            <span v-if="selectedMeter" class="hv-selector-line__selected"><b>{{ selectedMeter.name }}</b>（{{ selectedMeter.code }}）</span>
-            <span v-else class="hv-selector-line__empty">暂未关联</span>
-            <el-button type="primary" plain size="small" @click="openMeterSelector">选择计量点</el-button>
-          </div>
-        </el-form-item>
-        <el-form-item label="备注"><el-input v-model="form.remark" type="textarea" :rows="3" maxlength="200" show-word-limit placeholder="请输入备注" /></el-form-item>
       </el-form>
       <template #footer><el-button @click="formVisible = false">取消</el-button><el-button type="primary" @click="saveLine">保存</el-button></template>
     </el-drawer>
@@ -124,7 +130,7 @@
           <el-descriptions-item label="接入配电室">{{ detailRow.accessDistributionRoom }}</el-descriptions-item>
           <el-descriptions-item label="所属供电单位">{{ detailRow.supplier }}</el-descriptions-item>
           <el-descriptions-item label="供电合同" span="2"><template v-if="getContract(detailRow.contractId)">{{ getContract(detailRow.contractId)?.code }} · {{ getContract(detailRow.contractId)?.name }}</template><span v-else>-</span></el-descriptions-item>
-          <el-descriptions-item label="计费计量点" span="2">{{ getMeter(detailRow.meterId)?.name }}（{{ getMeter(detailRow.meterId)?.code }}）</el-descriptions-item>
+          <el-descriptions-item label="计费计量点" span="2"><template v-if="detailMeterText(detailRow.meterIds)">{{ detailMeterText(detailRow.meterIds) }}</template><span v-else>-</span></el-descriptions-item>
           <el-descriptions-item label="备注" span="2">{{ detailRow.remark || '-' }}</el-descriptions-item>
         </el-descriptions>
         <div class="hv-detail-section"><h4>合同信息（只读）</h4><el-descriptions :column="2" border size="small"><el-descriptions-item label="合同容量">{{ formatCapacity(detailRow.contractId) }}</el-descriptions-item><el-descriptions-item label="计费方式">{{ getContract(detailRow.contractId)?.billingMethod || '-' }}</el-descriptions-item><el-descriptions-item label="基本电价">{{ contractPrice(detailRow.contractId) }}</el-descriptions-item><el-descriptions-item label="合同有效期">{{ contractPeriod(detailRow.contractId) }}</el-descriptions-item></el-descriptions></div>
@@ -132,16 +138,58 @@
       <template #footer><el-button @click="detailVisible = false">关闭</el-button></template>
     </el-drawer>
 
-    <el-dialog v-model="meterSelectorVisible" title="选择计费计量点" width="min(900px, 94vw)" :close-on-click-modal="false">
-      <el-form :model="meterQuery" inline class="hv-meter-search">
-        <el-form-item label="计量点名称"><el-input v-model="meterQuery.keyword" placeholder="请输入名称或编码" clearable style="width: 220px" /></el-form-item>
-        <el-form-item label="空间层级"><el-cascader v-model="meterQuery.space" :options="spaceOptions" :props="{ checkStrictly: true, emitPath: true }" clearable placeholder="请选择" style="width: 250px" /></el-form-item>
-        <el-form-item><el-button type="primary" :icon="Search">查询</el-button><el-button @click="resetMeterQuery">重置</el-button></el-form-item>
-      </el-form>
-      <el-table :data="filteredMeters" border stripe max-height="380" highlight-current-row @current-change="pendingMeter = $event">
-        <el-table-column width="52" align="center"><template #default="{ row }"><el-radio v-model="pendingMeterId" :value="row.id" /></template></el-table-column>
-        <el-table-column prop="name" label="计量点名称" min-width="180" /><el-table-column prop="code" label="计量点编码" width="160" /><el-table-column prop="location" label="安装位置" min-width="200" /><el-table-column prop="status" label="采集状态" width="100" align="center"><template #default="{ row }"><el-tag :type="row.status === '在线' ? 'success' : 'info'" size="small">{{ row.status }}</el-tag></template></el-table-column>
-      </el-table>
+    <el-dialog v-model="meterSelectorVisible" title="选择计费计量点" width="min(960px, 94vw)" :close-on-click-modal="false">
+      <div class="hv-meter-picker">
+        <!-- 左侧：空间树（支持搜索） -->
+        <aside class="hv-meter-picker__tree">
+          <el-input
+            v-model="meterSpaceKeyword"
+            placeholder="搜索空间名称"
+            clearable
+            size="small"
+            class="hv-meter-picker__space-search"
+            :prefix-icon="Search"
+          />
+          <el-tree
+            ref="meterSpaceTreeRef"
+            :data="spaceTree"
+            node-key="key"
+            :props="{ label: 'label', children: 'children' }"
+            :filter-node-method="filterSpaceNode"
+            :default-expanded-keys="['root']"
+            :expand-on-click-node="false"
+            highlight-current
+            v-model:current-node-key="meterSpaceKey"
+          />
+        </aside>
+        <!-- 右侧：选中空间下绑定的计量点 -->
+        <section class="hv-meter-picker__main">
+          <el-input
+            v-model="meterQuery.keyword"
+            placeholder="请输入计量点名称搜索"
+            clearable
+            :prefix-icon="Search"
+            class="hv-meter-picker__name-search"
+          />
+          <el-table
+            ref="meterTableRef"
+            :data="filteredMeters"
+            border
+            stripe
+            max-height="420"
+            row-key="id"
+            @selection-change="onMeterSelectionChange"
+          >
+            <el-table-column type="selection" width="44" align="center">
+              <template #header />
+            </el-table-column>
+            <el-table-column prop="name" label="计量点名称" min-width="150" show-overflow-tooltip />
+            <el-table-column label="所属空间" min-width="230" show-overflow-tooltip>
+              <template #default="{ row }">{{ meterSpaceText(row) }}</template>
+            </el-table-column>
+          </el-table>
+        </section>
+      </div>
       <template #footer><el-button @click="meterSelectorVisible = false">取消</el-button><el-button type="primary" @click="confirmMeter">确认关联</el-button></template>
     </el-dialog>
 
@@ -150,14 +198,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, nextTick, reactive, ref, watch } from 'vue'
 import { Plus, Refresh, Search } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
+import { spaceTree, findSpaceNode, collectSpaceKeys, type SpaceNode } from '@/data/spaceTree'
 
 type Status = 'running' | 'stopped' | 'maintenance'
 interface Contract { id: number; code: string; name: string; capacity: number; billingMethod: '按容量' | '按最大需量'; basicPrice: number; startDate: string; endDate: string; remark: string }
-interface Meter { id: number; name: string; code: string; location: string; space: string[]; status: string }
-interface InletLine { id: number; name: string; code: string; voltageLevel: string; powerSource: string; area: string[]; accessDistributionRoom: string; supplier: string; contractId?: number; meterId: number; status: Status; remark: string }
+interface Meter { id: number; name: string; code: string; location: string; spaceKeys: string[]; status: string }
+interface InletLine { id: number; name: string; code: string; voltageLevel: string; powerSource: string; area: string[]; accessDistributionRoom: string; supplier: string; contractId?: number; meterIds: number[]; status: Status; remark: string }
 const voltageOptions = ['10kV', '20kV', '35kV']
 const areaOptions = [
   { value: 'airport-center', label: '东莞空港中心', children: [
@@ -188,17 +237,18 @@ const contracts = ref<Contract[]>([
   { id: 3, code: 'GD-HT-2026-001', name: '联检大楼供电合同', capacity: 4000, billingMethod: '按最大需量', basicPrice: 42, startDate: '2026-01-01', endDate: '2028-12-31', remark: '' },
 ])
 const meters: Meter[] = [
-  { id: 1, name: '一期总进线计量点', code: 'IOT-EM-10K-001', location: '一期总配电房 10kV 进线柜', space: ['park-a', 'phase-1', 'main-distribution'], status: '在线' },
-  { id: 2, name: '货运区专线计量点', code: 'IOT-EM-10K-002', location: '货运区变电所 10kV 进线柜', space: ['park-a', 'cargo-area', 'cargo-substation'], status: '在线' },
-  { id: 3, name: '联检大楼计量点', code: 'IOT-EM-10K-003', location: '联检大楼变配电房', space: ['park-a', 'joint-inspection', 'distribution-room'], status: '在线' },
-  { id: 4, name: '备用电源计量点', code: 'IOT-EM-10K-004', location: '一期总配电房备用柜', space: ['park-a', 'phase-1', 'main-distribution'], status: '离线' },
+  // 所属空间（spaceKeys）按空间树 spaceTree 的节点 key 路径绑定：root=主地块，ff=FF楼，hg=海关大楼
+  { id: 1, name: '一期总进线计量点', code: 'IOT-EM-10K-001', location: '一期总配电房 10kV 进线柜', spaceKeys: ['root'], status: '在线' },
+  { id: 2, name: '货运区专线计量点', code: 'IOT-EM-10K-002', location: '货运区变电所 10kV 进线柜', spaceKeys: ['root', 'ff'], status: '在线' },
+  { id: 3, name: '联检大楼计量点', code: 'IOT-EM-10K-003', location: '联检大楼变配电房', spaceKeys: ['root', 'hg'], status: '在线' },
+  { id: 4, name: '备用电源计量点', code: 'IOT-EM-10K-004', location: '一期总配电房备用柜', spaceKeys: ['root'], status: '离线' },
 ]
 const allLines = ref<InletLine[]>([
-  { id: 1, name: '一期主供进线', code: 'HV-01', voltageLevel: '10kV', powerSource: '东城站 10kV I 段母线', area: ['airport-center', 'main-plot'], accessDistributionRoom: '一期总配电房', supplier: '东莞供电局', contractId: 1, meterId: 1, status: 'running', remark: '园区主供电源。' },
-  { id: 2, name: '货运区专线', code: 'HV-02', voltageLevel: '10kV', powerSource: '东城站 10kV II 段母线', area: ['airport-center', 'wharf', 'wharf-operations'], accessDistributionRoom: '货运区变电所', supplier: '东城供电服务中心', contractId: 2, meterId: 2, status: 'running', remark: '货运区冷链负荷专用。' },
-  { id: 3, name: '联检大楼进线', code: 'HV-03', voltageLevel: '10kV', powerSource: '松山湖站 10kV III 段母线', area: ['airport-center', 'main-plot', 'joint-inspection-building'], accessDistributionRoom: '联检大楼变配电房', supplier: '松山湖供电服务中心', contractId: 3, meterId: 3, status: 'maintenance', remark: '当前处于年度预防性试验。' },
-  { id: 4, name: '一期备用进线', code: 'HV-04', voltageLevel: '10kV', powerSource: '东城站 10kV II 段母线', area: ['airport-center', 'main-plot'], accessDistributionRoom: '一期总配电房', supplier: '东莞供电局', contractId: 1, meterId: 4, status: 'stopped', remark: '与一期主供进线互为备用。' },
-  { id: 5, name: 'FF楼临时进线', code: 'HV-05', voltageLevel: '10kV', powerSource: '东城站 10kV III 段母线', area: ['airport-center', 'main-plot', 'ff-building'], accessDistributionRoom: 'FF楼配电房', supplier: '东莞供电局', meterId: 1, status: 'running', remark: '临时供电方案，暂未关联供电合同。' },
+  { id: 1, name: '一期主供进线', code: 'HV-01', voltageLevel: '10kV', powerSource: '东城站 10kV I 段母线', area: ['airport-center', 'main-plot'], accessDistributionRoom: '一期总配电房', supplier: '东莞供电局', contractId: 1, meterIds: [1, 4], status: 'running', remark: '园区主供电源。' },
+  { id: 2, name: '货运区专线', code: 'HV-02', voltageLevel: '10kV', powerSource: '东城站 10kV II 段母线', area: ['airport-center', 'wharf', 'wharf-operations'], accessDistributionRoom: '货运区变电所', supplier: '东城供电服务中心', contractId: 2, meterIds: [2], status: 'running', remark: '货运区冷链负荷专用。' },
+  { id: 3, name: '联检大楼进线', code: 'HV-03', voltageLevel: '10kV', powerSource: '松山湖站 10kV III 段母线', area: ['airport-center', 'main-plot', 'joint-inspection-building'], accessDistributionRoom: '联检大楼变配电房', supplier: '松山湖供电服务中心', contractId: 3, meterIds: [3], status: 'maintenance', remark: '当前处于年度预防性试验。' },
+  { id: 4, name: '一期备用进线', code: 'HV-04', voltageLevel: '10kV', powerSource: '东城站 10kV II 段母线', area: ['airport-center', 'main-plot'], accessDistributionRoom: '一期总配电房', supplier: '东莞供电局', contractId: 1, meterIds: [4], status: 'stopped', remark: '与一期主供进线互为备用。' },
+  { id: 5, name: 'FF楼临时进线', code: 'HV-05', voltageLevel: '10kV', powerSource: '东城站 10kV III 段母线', area: ['airport-center', 'main-plot', 'ff-building'], accessDistributionRoom: 'FF楼配电房', supplier: '东莞供电局', meterIds: [1], status: 'running', remark: '临时供电方案，暂未关联供电合同。' },
 ])
 const query = reactive({ keyword: '', voltageLevel: '', status: '', supplier: '', area: [] as string[] })
 const page = ref(1); const pageSize = 10
@@ -206,6 +256,17 @@ const filteredLines = computed(() => allLines.value.filter(row => (!query.keywor
 const pageRows = computed(() => filteredLines.value.slice((page.value - 1) * pageSize, page.value * pageSize))
 function getContract(id?: number) { return contracts.value.find(item => item.id === id) }
 function getMeter(id: number) { return meters.find(item => item.id === id) }
+function meterNames(ids: number[]) {
+  const names = (ids || []).map(id => getMeter(id)?.name).filter((name): name is string => !!name)
+  return names.join('、') || '-'
+}
+function detailMeterText(ids: number[]) {
+  const parts = (ids || []).map(id => {
+    const meter = getMeter(id)
+    return meter ? `${meter.name}（${meter.code}）` : ''
+  }).filter(Boolean)
+  return parts.join('；')
+}
 function formatCapacity(id?: number) { const capacity = getContract(id)?.capacity; return capacity ? `${capacity.toLocaleString()} kVA` : '-' }
 function contractPrice(id?: number) { const item = getContract(id); return item ? `${item.basicPrice} 元/${item.billingMethod === '按容量' ? 'kVA·月' : 'kW·月'}` : '-' }
 function contractPeriod(id?: number) { const item = getContract(id); return item ? `${item.startDate} 至 ${item.endDate}` : '-' }
@@ -214,35 +275,82 @@ function statusType(status: Status) { return { running: 'success', stopped: 'inf
 function areaLabel(area: string[]) { return area.map(item => areaLabelMap[item] || item).join(' / ') || '-' }
 function resetQuery() { Object.assign(query, { keyword: '', voltageLevel: '', status: '', supplier: '', area: [] }); page.value = 1 }
 const formRef = ref<FormInstance>(); const formVisible = ref(false); const editingId = ref<number | null>(null)
-const emptyForm = () => ({ name: '', code: '', voltageLevel: '10kV', powerSource: '', area: [] as string[], accessDistributionRoom: '', supplier: '', contractId: undefined as number | undefined, meterId: undefined as number | undefined, status: 'running' as Status, remark: '' })
+const emptyForm = () => ({ name: '', code: '', voltageLevel: '10kV', powerSource: '', area: [] as string[], accessDistributionRoom: '', supplier: '', contractId: undefined as number | undefined, meterIds: [] as number[], status: 'running' as Status, remark: '' })
 const form = reactive(emptyForm())
 const selectedContract = computed(() => form.contractId ? getContract(form.contractId) : undefined)
-const selectedMeter = computed(() => form.meterId ? getMeter(form.meterId) : undefined)
-const rules: FormRules = { name: [{ required: true, message: '请输入进线名称', trigger: 'blur' }], code: [{ required: true, message: '请输入进线编号', trigger: 'blur' }], voltageLevel: [{ required: true, message: '请选择电压等级', trigger: 'change' }], powerSource: [{ required: true, message: '请输入电源名称', trigger: 'blur' }], area: [{ required: true, type: 'array', min: 1, message: '请选择区域', trigger: 'change' }], accessDistributionRoom: [{ required: true, message: '请输入接入配电室', trigger: 'blur' }], supplier: [{ required: true, message: '请输入供电单位', trigger: 'blur' }], meterId: [{ required: true, message: '请选择计费计量点', trigger: 'change' }] }
+const selectedMeters = computed(() => form.meterIds.map(id => getMeter(id)).filter((meter): meter is Meter => !!meter))
+function removeSelectedMeter(id: number) { form.meterIds = form.meterIds.filter(item => item !== id) }
+const rules: FormRules = { name: [{ required: true, message: '请输入进线名称', trigger: 'blur' }], code: [{ required: true, message: '请输入进线编号', trigger: 'blur' }], voltageLevel: [{ required: true, message: '请选择电压等级', trigger: 'change' }], powerSource: [{ required: true, message: '请输入电源名称', trigger: 'blur' }], area: [{ required: true, type: 'array', min: 1, message: '请选择区域', trigger: 'change' }], accessDistributionRoom: [{ required: true, message: '请输入接入配电室', trigger: 'blur' }], supplier: [{ required: true, message: '请输入供电单位', trigger: 'blur' }], meterIds: [{ required: true, type: 'array', min: 1, message: '请选择计费计量点', trigger: 'change' }] }
 function openCreate() { editingId.value = null; Object.assign(form, emptyForm()); formVisible.value = true }
-function openEdit(row: InletLine) { editingId.value = row.id; Object.assign(form, row); formVisible.value = true }
-function saveLine() { formRef.value?.validate(valid => { if (!valid) return; if (editingId.value) { const index = allLines.value.findIndex(item => item.id === editingId.value); if (index >= 0) allLines.value[index] = { ...allLines.value[index], ...form, id: editingId.value, meterId: form.meterId! } } else { const id = Math.max(...allLines.value.map(item => item.id), 0) + 1; allLines.value.unshift({ ...form, id, meterId: form.meterId! }) } formVisible.value = false }) }
+function openEdit(row: InletLine) { editingId.value = row.id; Object.assign(form, { ...row, meterIds: [...row.meterIds] }); formVisible.value = true }
+function saveLine() { formRef.value?.validate(valid => { if (!valid) return; if (editingId.value) { const index = allLines.value.findIndex(item => item.id === editingId.value); if (index >= 0) allLines.value[index] = { ...allLines.value[index], ...form, id: editingId.value, meterIds: [...form.meterIds] } } else { const id = Math.max(...allLines.value.map(item => item.id), 0) + 1; allLines.value.unshift({ ...form, id, meterIds: [...form.meterIds] }) } formVisible.value = false }) }
 function removeLine(id: number) { allLines.value = allLines.value.filter(item => item.id !== id) }
 const detailVisible = ref(false); const detailRow = ref<InletLine | null>(null)
 function openDetail(row: InletLine) { detailRow.value = row; detailVisible.value = true }
-const spaceOptions = [
-  { value: 'park-a', label: '东莞空港中心', children: [
-    { value: 'phase-1', label: '一期园区', children: [{ value: 'main-distribution', label: '一期总配电房' }] },
-    { value: 'cargo-area', label: '货运区', children: [{ value: 'cargo-substation', label: '货运区变电所' }] },
-    { value: 'joint-inspection', label: '联检大楼', children: [{ value: 'distribution-room', label: '变配电房' }] },
-  ] },
-]
-const meterSelectorVisible = ref(false); const pendingMeterId = ref<number>(); const pendingMeter = ref<Meter | null>(null)
-const meterQuery = reactive({ keyword: '', space: [] as string[] })
-const filteredMeters = computed(() => meters.filter(item => {
+const meterSelectorVisible = ref(false)
+const meterTableRef = ref<{ clearSelection: () => void; toggleRowSelection: (row: Meter, selected?: boolean) => void }>()
+const meterSelected = ref<Meter[]>([])
+const meterQuery = reactive({ keyword: '' })
+const meterSpaceKeyword = ref('')
+const meterSpaceTreeRef = ref<{ setCurrentKey: (key?: string | number | null) => void; filter: (value: string) => void }>()
+const meterSpaceKey = ref<string>('root')
+function filterSpaceNode(value: string, data: SpaceNode) { return !value || data.label.includes(value) }
+watch(meterSpaceKeyword, value => { meterSpaceTreeRef.value?.filter(value) })
+// 空间树 key → 名称映射，用于渲染计量点所属空间路径
+const spaceLabelByKey = new Map<string, string>()
+;(function indexSpaceLabels(nodes: SpaceNode[]): void {
+  nodes.forEach(node => {
+    spaceLabelByKey.set(node.key, node.label)
+    if (node.children) indexSpaceLabels(node.children)
+  })
+})(spaceTree)
+function meterSpaceText(meter: Meter) {
+  const text = meter.spaceKeys.map(key => spaceLabelByKey.get(key) || key).join('\\')
+  return text || '-'
+}
+const filteredMeters = computed(() => {
   const keyword = meterQuery.keyword.trim().toLowerCase()
-  const matchesKeyword = !keyword || item.name.toLowerCase().includes(keyword) || item.code.toLowerCase().includes(keyword)
-  const matchesSpace = !meterQuery.space.length || meterQuery.space.every((value, index) => item.space[index] === value)
-  return matchesKeyword && matchesSpace
-}))
-function resetMeterQuery() { meterQuery.keyword = ''; meterQuery.space = [] }
-function openMeterSelector() { pendingMeterId.value = form.meterId; pendingMeter.value = getMeter(form.meterId || 0) || null; resetMeterQuery(); meterSelectorVisible.value = true }
-function confirmMeter() { const picked = pendingMeter.value || getMeter(pendingMeterId.value || 0); if (picked) form.meterId = picked.id; meterSelectorVisible.value = false }
+  const node = findSpaceNode(spaceTree, meterSpaceKey.value)
+  const scopeKeys = node ? new Set(collectSpaceKeys(node)) : new Set<string>()
+  return meters.filter(item => {
+    const matchesKeyword = !keyword || item.name.toLowerCase().includes(keyword)
+    const bindKey = item.spaceKeys[item.spaceKeys.length - 1]
+    return matchesKeyword && scopeKeys.has(bindKey)
+  })
+})
+function onMeterSelectionChange(rows: Meter[]) { meterSelected.value = rows }
+// 取一组计量点所属空间的最近共同祖先节点 key，用于定位左侧空间树
+function commonSpaceKey(meterList: Meter[]): string {
+  if (!meterList.length) return 'root'
+  let prefix = [...meterList[0].spaceKeys]
+  for (const meter of meterList.slice(1)) {
+    const keys = meter.spaceKeys
+    let i = 0
+    while (i < prefix.length && i < keys.length && prefix[i] === keys[i]) i++
+    prefix = prefix.slice(0, i)
+    if (!prefix.length) return 'root'
+  }
+  return prefix[prefix.length - 1]
+}
+function openMeterSelector() {
+  meterQuery.keyword = ''
+  meterSpaceKeyword.value = ''
+  // 打开弹窗时定位到已关联计量点的共同所属空间，并全部预勾选
+  const presetMeters = form.meterIds.map(id => getMeter(id)).filter((meter): meter is Meter => !!meter)
+  const anchor = commonSpaceKey(presetMeters)
+  meterSpaceKey.value = anchor
+  meterSelectorVisible.value = true
+  nextTick(() => {
+    meterSpaceTreeRef.value?.setCurrentKey(anchor)
+    const table = meterTableRef.value
+    table?.clearSelection()
+    presetMeters.forEach(meter => table?.toggleRowSelection(meter, true))
+  })
+}
+function confirmMeter() {
+  form.meterIds = meterSelected.value.map(meter => meter.id)
+  meterSelectorVisible.value = false
+}
 const contractPreviewVisible = ref(false); const previewContract = ref<Contract | undefined>()
 function openContractPreview(id: number) { previewContract.value = getContract(id); contractPreviewVisible.value = true }
 </script>
@@ -256,8 +364,18 @@ function openContractPreview(id: number) { previewContract.value = getContract(i
 .hv-form-hint { color: #909399; font-size: 12px; line-height: 18px; margin-top: 5px; }
 .hv-contract-readonly { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px 12px; margin: -12px 0 16px 112px; border: 1px solid #e1f3ff; border-radius: 4px; color: #606266; font-size: 12px; background: #f4faff; }
 .hv-contract-readonly span { display: flex; flex-direction: column; gap: 4px; }.hv-contract-readonly b { color: #303133; font-weight: 500; }
-.hv-selector-line { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 0 10px; height: 34px; border: 1px solid #dcdfe6; border-radius: 4px; }.hv-selector-line__selected { color: #303133; }.hv-selector-line__empty { color: #c0c4cc; }
+.hv-selector-line__empty { color: #c0c4cc; font-size: 13px; }
+.hv-meter-selected-table { width: 100%; }
+.hv-meter-selected-entry { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.hv-meter-selected-entry .hv-selector-line__empty { margin-right: auto; }
 .hv-detail-section { margin-top: 20px; }.hv-detail-section h4 { margin: 0 0 10px; padding-left: 10px; font-size: 14px; color: #303133; border-left: 3px solid #409eff; }
-.hv-meter-search { padding: 12px 12px 0; margin-bottom: 14px; border-radius: 4px; background: #fafbfc; }
+.hv-meter-picker { display: flex; gap: 12px; align-items: stretch; }
+.hv-meter-picker__tree {
+  width: 250px; flex-shrink: 0; max-height: 420px; overflow: auto;
+  padding: 10px; border: 1px solid #ebeef5; border-radius: 4px; background: #fafbfc;
+}
+.hv-meter-picker__space-search { margin-bottom: 8px; }
+.hv-meter-picker__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.hv-meter-picker__name-search { align-self: flex-end; width: 240px; }
 @media (max-width: 900px) { .hv-contract-readonly { margin-left: 0; grid-template-columns: 1fr; } }
 </style>
