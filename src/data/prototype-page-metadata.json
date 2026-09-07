@@ -12,7 +12,13 @@
     },
     "SupplyContractManagement": {
       "status": "completed",
-      "versions": []
+      "versions": [
+        {
+          "version": 1,
+          "createdAt": "2026-09-07T06:52:34.000Z",
+          "description": "新增/编辑供电合同时支持上传合同附件：可选图片、PDF、Word 文档（doc/docx）、压缩包（zip/rar/7z），单个文件不超过 50MB，选中即校验、不符自动拦截并提示；附件随合同一并保存，编辑时回显，详情抽屉中展示附件列表。"
+        }
+      ]
     },
     "EnergyWorkbench": {
       "status": "designing",
@@ -76,6 +82,11 @@
     "MaintenanceVehicle": {
       "status": "completed",
       "versions": [
+        {
+          "version": 2,
+          "createdAt": "2026-09-07T06:16:36.000Z",
+          "description": "“选择通行道闸”弹窗按高压进线管理同款交互改造：由整树复选改为左侧空间树（园区出入口空间、支持搜索）＋右侧道闸勾选列表（复选框＋道闸名称＋所属空间，支持名称搜索），打开时自动定位到已选道闸的最近共同所属空间并预勾选，确认后整体写回；道闸由树节点拆分重组为设备并绑定所属空间，历史关联数据展示不受影响。"
+        },
         {
           "version": 1,
           "createdAt": "2026-07-16T09:31:26.548Z",

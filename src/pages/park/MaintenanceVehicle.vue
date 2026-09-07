@@ -243,18 +243,62 @@
     <el-dialog
       v-model="gateSelectorVisible"
       title="选择通行道闸"
-      width="min(680px, 94vw)"
+      width="min(960px, 94vw)"
       :close-on-click-modal="false"
     >
-      <el-tree
-        ref="gateTreeRef"
-        :data="gateTree"
-        show-checkbox
-        node-key="id"
-        :props="{ label: 'label', children: 'children' }"
-        @check="handleGateCheck"
-        class="mv-gate-tree"
-      />
+      <div class="mv-gate-picker">
+        <!-- 左侧：空间树（支持搜索） -->
+        <aside class="mv-gate-picker__tree">
+          <el-input
+            v-model="gateSpaceKeyword"
+            placeholder="搜索空间名称"
+            clearable
+            size="small"
+            class="mv-gate-picker__space-search"
+            :prefix-icon="Search"
+          />
+          <el-tree
+            ref="gateSpaceTreeRef"
+            :data="gateSpaceTree"
+            node-key="key"
+            :props="{ label: 'label', children: 'children' }"
+            :filter-node-method="filterGateSpaceNode"
+            :default-expanded-keys="['main']"
+            :expand-on-click-node="false"
+            highlight-current
+            v-model:current-node-key="gateSpaceKey"
+          />
+        </aside>
+        <!-- 右侧：选中空间下绑定的道闸 -->
+        <section class="mv-gate-picker__main">
+          <el-input
+            v-model="gateQuery.keyword"
+            placeholder="请输入道闸名称搜索"
+            clearable
+            :prefix-icon="Search"
+            class="mv-gate-picker__name-search"
+          />
+          <el-table
+            ref="gateTableRef"
+            :data="filteredGates"
+            border
+            stripe
+            max-height="420"
+            row-key="id"
+            @selection-change="onGateSelectionChange"
+          >
+            <el-table-column type="selection" width="44" align="center">
+              <template #header />
+            </el-table-column>
+            <el-table-column label="道闸名称" min-width="190" show-overflow-tooltip>
+              <template #default="{ row }">{{ getGateLabel(row.id) }}</template>
+            </el-table-column>
+            <el-table-column label="所属空间" min-width="200" show-overflow-tooltip>
+              <template #default="{ row }">{{ gateSpaceText(row) }}</template>
+            </el-table-column>
+          </el-table>
+        </section>
+      </div>
       <template #footer>
         <el-button @click="gateSelectorVisible = false">取消</el-button>
         <el-button type="primary" @click="confirmGateSelection">确认</el-button>
@@ -410,9 +454,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, nextTick } from 'vue'
+import { ref, reactive, computed, onMounted, nextTick, watch } from 'vue'
 import { Plus, Search, Refresh, Close, Document } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
+import { collectSpaceKeys, findSpaceNode, type SpaceNode } from '@/data/spaceTree'
 
 interface AttachmentItem {
   name: string
@@ -505,49 +550,34 @@ function statusLabel(s: string) {
   return { pending: '待通行', passed: '已通行', expired: '已过期', cancelled: '已作废' }[s] || s
 }
 
-// 常量配置
-interface GateTreeNode {
+// 通行道闸：空间树（只含园区出入口空间）＋ 道闸设备（各自绑定所属空间）
+interface GateDevice {
   id: string
-  label: string
-  children?: GateTreeNode[]
+  spaceKeys: string[]
 }
 
-const gateTree: GateTreeNode[] = [
+const gateSpaceTree: SpaceNode[] = [
   {
-    id: 'main',
+    key: 'main',
     label: '主地块',
     children: [
-      {
-        id: 'admin',
-        label: '行政出入口',
-        children: [
-          { id: 'admin-in-1', label: '进口1' },
-          { id: 'admin-in-2', label: '进口2' },
-          { id: 'admin-out-1', label: '出口1' },
-        ]
-      },
-      {
-        id: 'cargo',
-        label: '货运出入口',
-        children: [
-          { id: 'cargo-in-1', label: '进口1' },
-          { id: 'cargo-out-1', label: '出口1' },
-          { id: 'cargo-out-2', label: '出口2' },
-        ]
-      },
-      {
-        id: 'staff',
-        label: '员工通道',
-        children: [
-          { id: 'staff-in-1', label: '进口1' },
-          { id: 'staff-out-1', label: '出口1' },
-        ]
-      }
-    ]
-  }
+      { key: 'admin', label: '行政出入口' },
+      { key: 'cargo', label: '货运出入口' },
+      { key: 'staff', label: '员工通道' },
+    ],
+  },
 ]
 
-const gateLeafIds = ['admin-in-1', 'admin-in-2', 'admin-out-1', 'cargo-in-1', 'cargo-out-1', 'cargo-out-2', 'staff-in-1', 'staff-out-1']
+const gateDevices: GateDevice[] = [
+  { id: 'admin-in-1', spaceKeys: ['main', 'admin'] },
+  { id: 'admin-in-2', spaceKeys: ['main', 'admin'] },
+  { id: 'admin-out-1', spaceKeys: ['main', 'admin'] },
+  { id: 'cargo-in-1', spaceKeys: ['main', 'cargo'] },
+  { id: 'cargo-out-1', spaceKeys: ['main', 'cargo'] },
+  { id: 'cargo-out-2', spaceKeys: ['main', 'cargo'] },
+  { id: 'staff-in-1', spaceKeys: ['main', 'staff'] },
+  { id: 'staff-out-1', spaceKeys: ['main', 'staff'] },
+]
 
 const gateLabelMap: Record<string, string> = {
   'admin-in-1': '行政出入口-进口1',
@@ -585,10 +615,8 @@ const formVisible = ref(false)
 const isEditing = ref(false)
 const editingId = ref<number | null>(null)
 const submitting = ref(false)
-const gateTreeRef = ref()
 const uploadList = ref<any[]>([])
 const gateSelectorVisible = ref(false)
-const pendingGateKeys = ref<string[]>([])
 const repairOrderVisible = ref(false)
 const repairOrderTableRef = ref()
 const pendingRepairOrders = ref<RepairOrderOption[]>([])
@@ -663,20 +691,68 @@ function handleUploadChange(file: any) {
     form.attachments = uploadList.value.map(f => ({ name: f.name, url: URL.createObjectURL(f.raw) }))
   }
 
-function handleGateCheck() {
-  pendingGateKeys.value = gateTreeRef.value?.getCheckedKeys()?.filter((k: string) => gateLeafIds.includes(k)) ?? []
+// 选择通行道闸弹窗（左侧空间树 + 右侧道闸勾选列表）
+const gateTableRef = ref<{ clearSelection: () => void; toggleRowSelection: (row: GateDevice, selected?: boolean) => void }>()
+const gateSelected = ref<GateDevice[]>([])
+const gateQuery = reactive({ keyword: '' })
+const gateSpaceKeyword = ref('')
+const gateSpaceTreeRef = ref<{ setCurrentKey: (key?: string | number | null) => void; filter: (value: string) => void }>()
+const gateSpaceKey = ref('main')
+function filterGateSpaceNode(value: string, data: SpaceNode) { return !value || data.label.includes(value) }
+watch(gateSpaceKeyword, value => { gateSpaceTreeRef.value?.filter(value) })
+// 空间树 key → 名称映射，用于渲染道闸所属空间路径
+const gateSpaceLabelByKey = new Map<string, string>()
+;(function indexGateSpaceLabels(nodes: SpaceNode[]): void {
+  nodes.forEach(node => {
+    gateSpaceLabelByKey.set(node.key, node.label)
+    if (node.children) indexGateSpaceLabels(node.children)
+  })
+})(gateSpaceTree)
+function gateSpaceText(gate: GateDevice) {
+  return gate.spaceKeys.map(key => gateSpaceLabelByKey.get(key) || key).join('\\')
 }
-
+const filteredGates = computed(() => {
+  const keyword = gateQuery.keyword.trim().toLowerCase()
+  const node = findSpaceNode(gateSpaceTree, gateSpaceKey.value)
+  const scopeKeys = node ? new Set(collectSpaceKeys(node)) : new Set<string>()
+  return gateDevices.filter(item => {
+    const matchesKeyword = !keyword || getGateLabel(item.id).toLowerCase().includes(keyword)
+    const bindKey = item.spaceKeys[item.spaceKeys.length - 1]
+    return matchesKeyword && scopeKeys.has(bindKey)
+  })
+})
+function onGateSelectionChange(rows: GateDevice[]) { gateSelected.value = rows }
+// 一组道闸所属空间的最近共同祖先 key，用于打开弹窗时定位左侧空间树
+function commonGateSpaceKey(gateList: GateDevice[]): string {
+  if (!gateList.length) return 'main'
+  let prefix = [...gateList[0].spaceKeys]
+  for (const gate of gateList.slice(1)) {
+    const keys = gate.spaceKeys
+    let i = 0
+    while (i < prefix.length && i < keys.length && prefix[i] === keys[i]) i++
+    prefix = prefix.slice(0, i)
+    if (!prefix.length) return 'main'
+  }
+  return prefix[prefix.length - 1]
+}
 function openGateSelector() {
-  pendingGateKeys.value = [...form.gates]
+  gateQuery.keyword = ''
+  gateSpaceKeyword.value = ''
+  // 打开弹窗时定位到已选道闸的共同所属空间，并全部预勾选
+  const presetGates = gateDevices.filter(item => form.gates.includes(item.id))
+  const anchor = commonGateSpaceKey(presetGates)
+  gateSpaceKey.value = anchor
   gateSelectorVisible.value = true
   nextTick(() => {
-    gateTreeRef.value?.setCheckedKeys(form.gates)
+    gateSpaceTreeRef.value?.setCurrentKey(anchor)
+    const table = gateTableRef.value
+    table?.clearSelection()
+    presetGates.forEach(gate => table?.toggleRowSelection(gate, true))
   })
 }
 
 function confirmGateSelection() {
-  form.gates = [...pendingGateKeys.value]
+  form.gates = gateSelected.value.map(gate => gate.id)
   gateSelectorVisible.value = false
 }
 
@@ -821,7 +897,6 @@ function openCreate() {
   Object.assign(form, defaultForm())
   uploadList.value = []
   formVisible.value = true
-  pendingGateKeys.value = []
 }
 function openEdit(row: MaintenanceRecord) {
   isEditing.value = true
@@ -841,7 +916,6 @@ function openEdit(row: MaintenanceRecord) {
     attachments: [...row.attachments],
   })
   uploadList.value = row.attachments.map(a => ({ name: a.name, url: a.url, uid: Date.now() + Math.random() }))
-  pendingGateKeys.value = [...row.gates]
   formVisible.value = true
 }
 function submitForm() {
@@ -995,14 +1069,14 @@ applyFilters()
   margin-right: 16px;
   margin-bottom: 4px;
 }
-.mv-gate-tree {
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  padding: 6px 12px;
-  max-height: 150px;
-  overflow-y: auto;
-  width: 100%;
+.mv-gate-picker { display: flex; gap: 12px; align-items: stretch; }
+.mv-gate-picker__tree {
+  width: 250px; flex-shrink: 0; max-height: 420px; overflow: auto;
+  padding: 10px; border: 1px solid #ebeef5; border-radius: 4px; background: #fafbfc;
 }
+.mv-gate-picker__space-search { margin-bottom: 8px; }
+.mv-gate-picker__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.mv-gate-picker__name-search { align-self: flex-end; width: 240px; }
 @media (max-width: 640px) {
   .mv-repair-link > .mv-form__hint {
     display: block;

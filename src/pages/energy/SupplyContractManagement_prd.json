@@ -1,8 +1,8 @@
 {
   "pageName": "SupplyContractManagement",
   "pageId": "SupplyContractManagement",
-  "version": "1.0.0",
-  "lastUpdated": "2026-07-24T09:19:28.000Z",
+  "version": "1.1.0",
+  "lastUpdated": "2026-09-07T06:53:00.000Z",
   "intent": {
     "type": "manage",
     "summary": "维护园区供电合同基础信息、合同覆盖范围和关联高压进线，支撑高压进线的供电合同选择与合同信息查询。"
@@ -248,7 +248,7 @@
       "id": "sc-maintenance",
       "title": "供电合同新增与编辑",
       "purpose": "维护供电合同的范围、容量、计费规则和有效期。",
-      "summary": "支持维护合同编号、名称、合同范围、合同容量、计费方式、基本电价、生效日期、到期日期和备注。",
+      "summary": "支持维护合同编号、名称、合同范围、合同容量、计费方式、基本电价、生效日期、到期日期、合同附件和备注。",
       "requirements": [
         {
           "title": "维护合同基础资料",
@@ -263,6 +263,13 @@
           "details": "支持选择合同适用于整个东莞空港中心、主地块或码头，也可精确选择具体楼栋或作业区。",
           "source": "ai",
           "status": "generated"
+        },
+        {
+          "title": "上传合同附件",
+          "priority": "P1",
+          "details": "维护合同时可上传合同电子文件作为佐证，支持图片、PDF、Word 文档（doc/docx）和压缩包（zip/rar/7z），单个文件不超过 50MB，非必填。",
+          "source": "ai",
+          "status": "generated"
         }
       ],
       "fields": [
@@ -274,6 +281,15 @@
           "description": "补充记录合同用途、约定事项或其他说明。",
           "source": "ai",
           "status": "generated"
+        },
+        {
+          "name": "attachments",
+          "label": "合同附件",
+          "type": "array",
+          "required": false,
+          "description": "随合同保存的电子文件清单，仅支持图片、PDF、Word 文档和压缩包。",
+          "source": "ai",
+          "status": "generated"
         }
       ],
       "rules": [
@@ -282,7 +298,11 @@
         "合同容量必须大于0。",
         "基本电价不得小于0。",
         "到期日期不得早于生效日期。",
-        "计费方式为按容量时，基本电价单位为元/kVA·月；计费方式为按最大需量时，基本电价单位为元/kW·月。"
+        "计费方式为按容量时，基本电价单位为元/kVA·月；计费方式为按最大需量时，基本电价单位为元/kW·月。",
+        "合同附件非必填，可上传多个。",
+        "附件格式仅支持图片（jpg/jpeg/png/gif/bmp/webp）、PDF、Word 文档（doc/docx）和压缩包（zip/rar/7z）。",
+        "单个附件大小不得超过 50MB，超出时自动拦截并提示。",
+        "选择不支持的文件类型时立即被拦截并提示，不进入附件列表。"
       ],
       "ruleImages": [],
       "interactions": [
@@ -306,6 +326,20 @@
           "description": "关闭维护流程，不保存当前修改。",
           "source": "ai",
           "status": "generated"
+        },
+        {
+          "trigger": "选择附件文件",
+          "action": "添加合同附件",
+          "description": "选择符合类型与大小要求的文件并加入附件列表。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击移除附件",
+          "action": "删除单份附件",
+          "description": "从待保存的合同附件中移除指定文件。",
+          "source": "ai",
+          "status": "generated"
         }
       ],
       "source": "ai",
@@ -315,7 +349,7 @@
       "id": "sc-detail",
       "title": "供电合同详情与关联进线",
       "purpose": "帮助业务人员核对合同信息及其实际关联的高压进线。",
-      "summary": "展示合同基础资料、合同状态、合同范围和计费信息；下方展示关联高压进线清单，无关联进线时展示空状态。",
+      "summary": "展示合同基础资料、合同状态、合同范围和计费信息、合同附件；下方展示关联高压进线清单，无关联进线时展示空状态。",
       "requirements": [
         {
           "title": "查看合同完整信息",
@@ -328,6 +362,13 @@
           "title": "查看关联高压进线",
           "priority": "P1",
           "details": "展示关联高压进线的名称、编号、电压等级和状态；没有关联进线时展示明确空状态。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "查看合同附件",
+          "priority": "P2",
+          "details": "合同存在附件时按文件名展示附件清单，方便核对合同电子文件。",
           "source": "ai",
           "status": "generated"
         }
@@ -368,11 +409,21 @@
           "description": "关联高压进线当前的运行状态。",
           "source": "ai",
           "status": "generated"
+        },
+        {
+          "name": "attachments",
+          "label": "合同附件",
+          "type": "array",
+          "required": false,
+          "description": "合同关联的电子附件名称清单。",
+          "source": "ai",
+          "status": "generated"
         }
       ],
       "rules": [
         "关联进线数量为0时，详情中展示暂未关联高压进线。",
-        "详情仅用于查看，不在此处直接修改合同或关联进线。"
+        "详情仅用于查看，不在此处直接修改合同或关联进线。",
+        "合同存在附件时，详情中按文件名展示附件清单，无附件时不展示该部分；详情仅供查看。"
       ],
       "ruleImages": [],
       "interactions": [

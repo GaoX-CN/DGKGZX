@@ -32,23 +32,41 @@
         <el-form-item label="基本电价" prop="basicPrice"><el-input-number v-model="form.basicPrice" :min="0" :precision="2" :step="0.01" controls-position="right" style="width: 260px"><template #suffix>元/{{ form.billingMethod === '按容量' ? 'kVA·月' : 'kW·月' }}</template></el-input-number></el-form-item>
         <el-row :gutter="16"><el-col :span="12"><el-form-item label="生效日期" prop="startDate"><el-date-picker v-model="form.startDate" type="date" value-format="YYYY-MM-DD" placeholder="选择日期" style="width: 100%" /></el-form-item></el-col><el-col :span="12"><el-form-item label="到期日期" prop="endDate"><el-date-picker v-model="form.endDate" type="date" value-format="YYYY-MM-DD" placeholder="选择日期" style="width: 100%" /></el-form-item></el-col></el-row>
         <el-form-item label="备注"><el-input v-model="form.remark" type="textarea" :rows="4" maxlength="200" show-word-limit placeholder="请输入备注" /></el-form-item>
+        <el-form-item label="合同附件">
+          <el-upload
+            ref="uploadRef"
+            v-model:file-list="uploadList"
+            :auto-upload="false"
+            multiple
+            :accept="contractFileAccept"
+            list-type="text"
+            @change="handleUploadChange"
+          >
+            <el-button size="small" type="primary">选择文件</el-button>
+            <template #tip>
+              <div class="el-upload__tip">支持图片、PDF、Word 文档（doc/docx）、压缩包（zip/rar/7z），单个文件不超过 50MB，可多选</div>
+            </template>
+          </el-upload>
+        </el-form-item>
       </el-form>
       <template #footer><el-button @click="formVisible = false">取消</el-button><el-button type="primary" @click="saveContract">保存</el-button></template>
     </el-drawer>
 
     <el-drawer v-model="detailVisible" title="供电合同详情" direction="rtl" size="min(720px, 100%)">
-      <template v-if="detailRow"><el-descriptions :column="2" border><el-descriptions-item label="合同编号">{{ detailRow.code }}</el-descriptions-item><el-descriptions-item label="合同状态"><el-tag :type="contractStatusType(detailRow)" size="small" effect="dark">{{ contractStatus(detailRow) }}</el-tag></el-descriptions-item><el-descriptions-item label="合同名称" span="2">{{ detailRow.name }}</el-descriptions-item><el-descriptions-item label="合同范围" span="2">{{ contractScopeLabel(detailRow.scope) }}</el-descriptions-item><el-descriptions-item label="合同容量">{{ detailRow.capacity.toLocaleString() }} kVA</el-descriptions-item><el-descriptions-item label="计费方式">{{ detailRow.billingMethod }}</el-descriptions-item><el-descriptions-item label="基本电价">{{ detailRow.basicPrice }} 元/{{ detailRow.billingMethod === '按容量' ? 'kVA·月' : 'kW·月' }}</el-descriptions-item><el-descriptions-item label="合同有效期">{{ detailRow.startDate }} 至 {{ detailRow.endDate }}</el-descriptions-item><el-descriptions-item label="备注" span="2">{{ detailRow.remark || '-' }}</el-descriptions-item></el-descriptions><div class="sc-linked"><h4>关联高压进线（{{ linkedLines(detailRow.id).length }}）</h4><el-table :data="linkedLines(detailRow.id)" border size="small"><el-table-column prop="name" label="进线名称" min-width="160" /><el-table-column prop="code" label="进线编号" width="120" /><el-table-column prop="voltageLevel" label="电压等级" width="100" /><el-table-column prop="status" label="状态" width="100" align="center"><template #default="{ row }"><el-tag :type="lineStatusType(row.status)" size="small">{{ lineStatusLabel(row.status) }}</el-tag></template></el-table-column></el-table><el-empty v-if="linkedLines(detailRow.id).length === 0" description="暂未关联高压进线" :image-size="64" /></div></template><template #footer><el-button @click="detailVisible = false">关闭</el-button></template>
+      <template v-if="detailRow"><el-descriptions :column="2" border><el-descriptions-item label="合同编号">{{ detailRow.code }}</el-descriptions-item><el-descriptions-item label="合同状态"><el-tag :type="contractStatusType(detailRow)" size="small" effect="dark">{{ contractStatus(detailRow) }}</el-tag></el-descriptions-item><el-descriptions-item label="合同名称" span="2">{{ detailRow.name }}</el-descriptions-item><el-descriptions-item label="合同范围" span="2">{{ contractScopeLabel(detailRow.scope) }}</el-descriptions-item><el-descriptions-item label="合同容量">{{ detailRow.capacity.toLocaleString() }} kVA</el-descriptions-item><el-descriptions-item label="计费方式">{{ detailRow.billingMethod }}</el-descriptions-item><el-descriptions-item label="基本电价">{{ detailRow.basicPrice }} 元/{{ detailRow.billingMethod === '按容量' ? 'kVA·月' : 'kW·月' }}</el-descriptions-item><el-descriptions-item label="合同有效期">{{ detailRow.startDate }} 至 {{ detailRow.endDate }}</el-descriptions-item><el-descriptions-item v-if="detailRow.attachments?.length" label="合同附件" span="2"><span v-for="a in detailRow.attachments" :key="a.name" class="sc-detail__file"><el-icon :size="14" color="#409eff"><Document /></el-icon><el-link type="primary" :underline="false" href="javascript:void(0)">{{ a.name }}</el-link></span></el-descriptions-item><el-descriptions-item label="备注" span="2">{{ detailRow.remark || '-' }}</el-descriptions-item></el-descriptions><div class="sc-linked"><h4>关联高压进线（{{ linkedLines(detailRow.id).length }}）</h4><el-table :data="linkedLines(detailRow.id)" border size="small"><el-table-column prop="name" label="进线名称" min-width="160" /><el-table-column prop="code" label="进线编号" width="120" /><el-table-column prop="voltageLevel" label="电压等级" width="100" /><el-table-column prop="status" label="状态" width="100" align="center"><template #default="{ row }"><el-tag :type="lineStatusType(row.status)" size="small">{{ lineStatusLabel(row.status) }}</el-tag></template></el-table-column></el-table><el-empty v-if="linkedLines(detailRow.id).length === 0" description="暂未关联高压进线" :image-size="64" /></div></template><template #footer><el-button @click="detailVisible = false">关闭</el-button></template>
     </el-drawer>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
-import type { FormInstance, FormRules } from 'element-plus'
+import { Document, Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import type { FormInstance, FormRules, UploadInstance } from 'element-plus'
 
 type BillingMethod = '按容量' | '按最大需量'
-interface Contract { id: number; code: string; name: string; scope: string[]; capacity: number; billingMethod: BillingMethod; basicPrice: number; startDate: string; endDate: string; remark: string }
+interface ContractAttachment { name: string; url?: string }
+interface Contract { id: number; code: string; name: string; scope: string[]; capacity: number; billingMethod: BillingMethod; basicPrice: number; startDate: string; endDate: string; remark: string; attachments?: ContractAttachment[] }
 interface LinkedLine { id: number; name: string; code: string; voltageLevel: string; status: 'running' | 'stopped' | 'maintenance'; contractId: number }
 const scopeOptions = [
   { value: 'airport-center', label: '东莞空港中心', children: [
@@ -74,9 +92,9 @@ const scopeLabelMap: Record<string, string> = {
   'wharf-support': '码头配套区',
 }
 const contracts = ref<Contract[]>([
-  { id: 1, code: 'GD-HT-2025-001', name: '东莞空港中心一期供电合同', scope: ['airport-center'], capacity: 12500, billingMethod: '按最大需量', basicPrice: 42, startDate: '2025-01-01', endDate: '2027-12-31', remark: '主园区生产及公共区域用电。' },
+  { id: 1, code: 'GD-HT-2025-001', name: '东莞空港中心一期供电合同', scope: ['airport-center'], capacity: 12500, billingMethod: '按最大需量', basicPrice: 42, startDate: '2025-01-01', endDate: '2027-12-31', remark: '主园区生产及公共区域用电。', attachments: [{ name: '东莞空港中心一期供电合同（扫描件）.pdf' }] },
   { id: 2, code: 'GD-HT-2025-002', name: '货运区专线供电合同', scope: ['airport-center', 'wharf', 'wharf-operations'], capacity: 6300, billingMethod: '按容量', basicPrice: 28, startDate: '2025-06-01', endDate: '2028-05-31', remark: '货运区冷链及仓储设备用电。' },
-  { id: 3, code: 'GD-HT-2026-001', name: '联检大楼供电合同', scope: ['airport-center', 'main-plot', 'joint-inspection-building'], capacity: 4000, billingMethod: '按最大需量', basicPrice: 42, startDate: '2026-01-01', endDate: '2028-12-31', remark: '' },
+  { id: 3, code: 'GD-HT-2026-001', name: '联检大楼供电合同', scope: ['airport-center', 'main-plot', 'joint-inspection-building'], capacity: 4000, billingMethod: '按最大需量', basicPrice: 42, startDate: '2026-01-01', endDate: '2028-12-31', remark: '', attachments: [{ name: '联检大楼供电合同-补充协议.docx' }, { name: '供电方案批复资料.zip' }] },
   { id: 4, code: 'GD-HT-2026-002', name: 'FF楼供电合同', scope: ['airport-center', 'main-plot', 'ff-building'], capacity: 2500, billingMethod: '按容量', basicPrice: 28, startDate: '2026-08-01', endDate: '2029-07-31', remark: '待 FF 楼进线正式投运后关联。' },
 ])
 const inletLines: LinkedLine[] = [
@@ -94,12 +112,24 @@ function linkedLines(contractId: number) { return inletLines.filter(item => item
 function contractScopeLabel(scope: string[]) { return scope.map(item => scopeLabelMap[item] || item).join(' / ') || '-' }
 function resetQuery() { Object.assign(query, { keyword: '', billingMethod: '', status: '' }); page.value = 1 }
 const formVisible = ref(false); const editingId = ref<number | null>(null); const formRef = ref<FormInstance>()
-const emptyForm = () => ({ code: '', name: '', scope: [] as string[], capacity: 0, billingMethod: '按容量' as BillingMethod, basicPrice: 0, startDate: '', endDate: '', remark: '' })
+const emptyForm = () => ({ code: '', name: '', scope: [] as string[], capacity: 0, billingMethod: '按容量' as BillingMethod, basicPrice: 0, startDate: '', endDate: '', remark: '', attachments: [] as ContractAttachment[] })
 const form = reactive(emptyForm())
 const rules: FormRules = { code: [{ required: true, message: '请输入合同编号', trigger: 'blur' }], name: [{ required: true, message: '请输入合同名称', trigger: 'blur' }], scope: [{ required: true, type: 'array', min: 1, message: '请选择合同范围', trigger: 'change' }], capacity: [{ required: true, message: '请输入合同容量', trigger: 'blur' }], billingMethod: [{ required: true, message: '请选择计费方式', trigger: 'change' }], basicPrice: [{ required: true, message: '请输入基本电价', trigger: 'blur' }], startDate: [{ required: true, message: '请选择生效日期', trigger: 'change' }], endDate: [{ required: true, message: '请选择到期日期', trigger: 'change' }] }
-function openCreate() { editingId.value = null; Object.assign(form, emptyForm()); formVisible.value = true }
-function openEdit(row: Contract) { editingId.value = row.id; Object.assign(form, row); formVisible.value = true }
-function saveContract() { formRef.value?.validate(valid => { if (!valid) return; if (form.endDate < form.startDate) return; if (editingId.value) { const index = contracts.value.findIndex(item => item.id === editingId.value); if (index >= 0) contracts.value[index] = { ...form, id: editingId.value } } else { contracts.value.unshift({ ...form, id: Math.max(...contracts.value.map(item => item.id), 0) + 1 }) }; formVisible.value = false }) }
+// 合同附件上传（仅支持图片/PDF/Word/压缩包，单个 ≤ 50MB）
+const uploadRef = ref<UploadInstance>()
+const uploadList = ref<any[]>([])
+const contractFileAccept = '.jpg,.jpeg,.png,.gif,.bmp,.webp,.pdf,.doc,.docx,.zip,.rar,.7z'
+const allowedAttachmentExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'pdf', 'doc', 'docx', 'zip', 'rar', '7z']
+function handleUploadChange(uploadFile: any) {
+  const fileName = uploadFile.name || ''
+  const dot = fileName.lastIndexOf('.')
+  const ext = dot >= 0 ? fileName.slice(dot + 1).toLowerCase() : ''
+  if (!allowedAttachmentExts.includes(ext)) { ElMessage.error(`「${fileName}」格式不支持，仅支持图片、PDF、Word 文档（doc/docx）或压缩包（zip/rar/7z）`); uploadRef.value?.handleRemove(uploadFile); return }
+  if (uploadFile.size > 50 * 1024 * 1024) { ElMessage.error(`「${fileName}」超过 50MB 限制，请压缩后重新上传`); uploadRef.value?.handleRemove(uploadFile) }
+}
+function openCreate() { editingId.value = null; Object.assign(form, emptyForm()); uploadList.value = []; formVisible.value = true }
+function openEdit(row: Contract) { editingId.value = row.id; Object.assign(form, row); uploadList.value = (row.attachments || []).map((a, i) => ({ name: a.name, url: a.url, uid: Date.now() + i, status: 'success' as const })); formVisible.value = true }
+function saveContract() { formRef.value?.validate(valid => { if (!valid) return; if (form.endDate < form.startDate) return; form.attachments = uploadList.value.map(f => ({ name: f.name, url: f.url })); if (editingId.value) { const index = contracts.value.findIndex(item => item.id === editingId.value); if (index >= 0) contracts.value[index] = { ...form, id: editingId.value } } else { contracts.value.unshift({ ...form, id: Math.max(...contracts.value.map(item => item.id), 0) + 1 }) }; formVisible.value = false }) }
 function removeContract(id: number) { contracts.value = contracts.value.filter(item => item.id !== id) }
 const detailVisible = ref(false); const detailRow = ref<Contract | null>(null)
 function openDetail(row: Contract) { detailRow.value = row; detailVisible.value = true }
@@ -108,5 +138,5 @@ function lineStatusType(status: LinkedLine['status']) { return { running: 'succe
 </script>
 
 <style scoped>
-.sc-page { max-width: 1560px; padding: 20px; }.sc-search { padding: 16px 16px 0; margin-bottom: 16px; border-radius: 4px; background: #fafbfc; }.sc-actions { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }.sc-actions__count { margin-left: auto; color: #909399; font-size: 13px; }.sc-pagination { display: flex; justify-content: flex-end; margin-top: 14px; }.sc-linked { margin-top: 20px; }.sc-linked h4 { margin: 0 0 10px; padding-left: 10px; font-size: 14px; color: #303133; border-left: 3px solid #409eff; }
+.sc-page { max-width: 1560px; padding: 20px; }.sc-search { padding: 16px 16px 0; margin-bottom: 16px; border-radius: 4px; background: #fafbfc; }.sc-actions { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }.sc-actions__count { margin-left: auto; color: #909399; font-size: 13px; }.sc-pagination { display: flex; justify-content: flex-end; margin-top: 14px; }.sc-linked { margin-top: 20px; }.sc-linked h4 { margin: 0 0 10px; padding-left: 10px; font-size: 14px; color: #303133; border-left: 3px solid #409eff; }.sc-detail__file { display: inline-flex; align-items: center; gap: 4px; margin-right: 16px; margin-bottom: 4px; }
 </style>
