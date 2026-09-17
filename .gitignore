@@ -15,6 +15,9 @@ dist-ssr
 # Vite 临时文件
 vite.config.ts.timestamp-*.mjs
 
+# Wrangler 本地临时目录
+.wrangler
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

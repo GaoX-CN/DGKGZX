@@ -1,0 +1,13 @@
+{
+  // 静态站点部署配置（Cloudflare Workers）：产物为 vite build 输出的 dist 目录
+  // 注意：本文件必须存在，否则 wrangler deploy 会尝试「框架自动配置」，
+  //      而自动配置要求 Vite >= 6（本项目为 Vite 5）并会直接报错终止部署。
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "dgkgzx",
+  "compatibility_date": "2026-09-17",
+  "assets": {
+    "directory": "./dist",
+    // 路由为 history 模式（vue-router createWebHistory），需将未命中静态资源的请求回退到 index.html
+    "not_found_handling": "single-page-application"
+  }
+}
