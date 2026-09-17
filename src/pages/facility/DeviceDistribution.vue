@@ -419,7 +419,7 @@ watch(visibleDevices, (list) => {
 
 // ==================== 提示卡定位 ====================
 
-const tipStyle = computed<Record<string, string>>(() => {
+const tipStyle = computed<Record<string, string>>((): Record<string, string> => {
   if (!activeDevice.value) return { display: 'none' }
   const device = activeDevice.value
   const top = Math.max(3, device.top - 12)
