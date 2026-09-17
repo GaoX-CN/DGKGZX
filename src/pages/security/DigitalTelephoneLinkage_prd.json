@@ -1,110 +1,638 @@
 {
   "pageName": "DigitalTelephoneLinkage",
   "pageId": "DigitalTelephoneLinkage",
-  "version": "1.0.0",
-  "lastUpdated": "2026-08-20T08:13:00Z",
+  "version": "2.0.0",
+  "lastUpdated": "2026-09-17T07:35:00Z",
   "intent": {
     "type": "workflow",
-    "summary": "面向园区安保与值班人员提供数字电话话机通讯录查看、状态识别、一键拨号、通话记录追溯，以及通话接通后的状态提醒能力。"
+    "summary": "面向园区值班人员，从数字电话话机通讯录中选择主叫话机与被叫话机发起调度，跟踪调度三阶段过程并在异常时自动终止，最终形成可追溯的调度记录。"
   },
-  "overview": "数字电话联动页面面向园区安保、消防及综合值班人员，集中查看园区数字电话分机通讯录，展示姓名、分机号与话机状态（正常、免打扰、离线），支持直接发起拨号；同时按时间倒序展示通话记录，包含通话时间与通话时长，便于追溯沟通轨迹。拨号后进入独立通话界面，展示呼叫对象与分机号并支持挂断；通话接通后页面明确提醒“正在通话中，请勿关闭或切换当前页面”，并阻止在通话期间误关闭界面，确保应急通话不中断。",
+  "overview": "数字电话联动页面面向园区安保、消防及综合值班人员，提供园区数字电话话机的统一调度能力。左侧集中展示话机通讯录，呈现话机名称、分机号与话机状态（正常、免打扰、离线），支持搜索、状态筛选与常用话机置顶，并可将话机设为主叫或设为被叫送入调度台。调度台承载调度发起与调度过程：主叫、被叫两个位置确定后可互换、清空或重新选择，主叫与被叫不可为同一话机；发起调度后依次经历等待主叫接通、等待被叫接通、通话中三个阶段，等待主叫接通阶段可取消调度，通话中阶段可拆线，被叫话机为免打扰时自动终止调度。调度记录按调度时间倒序呈现每次调度的调度时间、调度人、主叫方、被叫方、通话时长与最终状态（通话完成、主叫未接通、被叫未接通、取消调度），支持按时间范围过滤，便于追溯调度过程与结果。",
   "modules": [
     {
       "id": "dtl-contacts",
       "title": "话机通讯录",
-      "purpose": "集中查看园区数字电话分机通讯录，识别话机状态并快速发起拨号。",
-      "summary": "以列表形式展示话机通讯录，包含联系人姓名、分机号与话机状态，支持按姓名或分机号搜索、按状态筛选，并可对非离线话机直接拨号。",
+      "purpose": "集中查看园区数字电话话机并识别话机状态，为调度选择主叫与被叫。",
+      "summary": "以列表形式展示园区数字电话话机，包含话机名称、分机号与话机状态；支持按话机名称或分机号搜索、按状态筛选，支持将常用话机置顶，并可将话机设为主叫或设为被叫送入调度台。",
       "requirements": [
-        { "title": "查看通讯录", "priority": "P0", "details": "展示话机联系人姓名和分机号，帮助值班人员快速定位通话对象。", "source": "ai", "status": "generated" },
-        { "title": "查看话机状态", "priority": "P0", "details": "用不同状态标识展示话机状态，包括正常、免打扰、离线。", "source": "ai", "status": "generated" },
-        { "title": "搜索与筛选", "priority": "P1", "details": "支持按姓名或分机号搜索，并支持按全部、正常、免打扰、离线维度筛选通讯录。", "source": "ai", "status": "generated" },
-        { "title": "直接发起拨号", "priority": "P0", "details": "对正常或免打扰状态话机提供拨号入口，点击后进入通话界面。", "source": "ai", "status": "generated" }
+        {
+          "title": "查看话机通讯录",
+          "priority": "P0",
+          "details": "展示园区数字电话话机的话机名称与分机号，帮助值班人员快速定位调度对象。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "查看话机状态",
+          "priority": "P0",
+          "details": "用状态标识展示话机当前状态，包括正常、免打扰、离线，并说明各状态的含义。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "搜索与筛选",
+          "priority": "P1",
+          "details": "支持按话机名称或分机号搜索，并支持按全部、正常、免打扰、离线维度筛选话机。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "话机置顶",
+          "priority": "P2",
+          "details": "支持将常用话机置顶或取消置顶，置顶话机固定展示在列表最前，便于日后快速调度。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "设定主叫与被叫",
+          "priority": "P0",
+          "details": "每个话机提供设为主叫、设为被叫两个操作入口，点击后该话机进入调度台对应位置。",
+          "source": "ai",
+          "status": "generated"
+        }
       ],
       "fields": [
-        { "name": "contactName", "label": "联系人姓名", "type": "文本", "required": true, "description": "话机联系人姓名。", "source": "ai", "status": "generated" },
-        { "name": "extensionNo", "label": "分机号", "type": "文本", "required": true, "description": "数字电话分机号码，作为拨号依据。", "source": "ai", "status": "generated" },
-        { "name": "phoneStatus", "label": "话机状态", "type": "枚举", "required": true, "description": "话机当前状态，包括正常、免打扰、离线。", "source": "ai", "status": "generated" },
-        { "name": "contactKeyword", "label": "搜索条件", "type": "文本", "required": false, "description": "用于按姓名或分机号搜索话机。", "source": "ai", "status": "generated" },
-        { "name": "contactFilter", "label": "状态筛选", "type": "枚举", "required": false, "description": "按全部、正常、免打扰、离线维度筛选通讯录。", "source": "ai", "status": "generated" }
+        {
+          "name": "phoneName",
+          "label": "话机名称",
+          "type": "文本",
+          "required": true,
+          "description": "数字电话话机名称。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "extensionNo",
+          "label": "分机号",
+          "type": "文本",
+          "required": true,
+          "description": "话机对应的数字电话分机号码。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "phoneStatus",
+          "label": "话机状态",
+          "type": "枚举",
+          "required": true,
+          "description": "话机当前状态，包括正常、免打扰、离线。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "pinned",
+          "label": "置顶标识",
+          "type": "布尔",
+          "required": false,
+          "description": "标记话机是否置顶，置顶话机排在其他话机之前。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "slotRole",
+          "label": "调度身份",
+          "type": "枚举",
+          "required": false,
+          "description": "该话机在调度台中的身份，包括主叫、被叫；已占位的话机不可重复选择。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "contactKeyword",
+          "label": "搜索条件",
+          "type": "文本",
+          "required": false,
+          "description": "用于按话机名称或分机号搜索话机。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "contactFilter",
+          "label": "状态筛选",
+          "type": "枚举",
+          "required": false,
+          "description": "按全部、正常、免打扰、离线维度筛选话机。",
+          "source": "ai",
+          "status": "generated"
+        }
       ],
       "rules": [
-        "离线话机不可拨号，仅展示离线状态标识。",
-        "免打扰话机允许拨号，但应在拨号区域提示可能无法接通。",
-        "清空搜索条件或切换到全部状态后恢复展示全部联系人。",
-        "状态统计数字与通讯录列表实际数量保持一致。"
-      ],
-      "interactions": [
-        { "trigger": "输入姓名或分机号", "action": "筛选通讯录", "description": "系统根据搜索条件更新通讯录清单。", "source": "ai", "status": "generated" },
-        { "trigger": "点击状态筛选", "action": "按状态查看通讯录", "description": "系统按所选状态维度刷新通讯录列表。", "source": "ai", "status": "generated" },
-        { "trigger": "点击联系人拨号按钮", "action": "发起拨号", "description": "系统打开通话界面并开始向该分机发起呼叫。", "source": "ai", "status": "generated" }
+        "已被设为主叫或被叫的话机，其设为主叫、设为被叫操作均不可用，避免同一话机重复占位。",
+        "离线话机不可调度，其设为主叫、设为被叫操作均不可用。",
+        "免打扰话机可设为主叫或被叫，但作为被叫时不接听。",
+        "调度进行中，话机的设为主叫、设为被叫操作均不可用，避免中途更换调度对象。",
+        "置顶话机固定排在列表最前，同为置顶或同未置顶的话机保持原有先后顺序。",
+        "搜索条件与状态筛选仅在结果范围内生效，置顶话机在筛选结果中仍排在最前。",
+        "清空搜索条件或切换为全部状态后，恢复展示全部话机。"
       ],
       "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "输入话机名称或分机号",
+          "action": "筛选话机通讯录",
+          "description": "系统根据搜索条件更新话机清单。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "切换状态筛选",
+          "action": "按状态查看话机",
+          "description": "系统按所选状态维度刷新话机列表。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击置顶或取消置顶",
+          "action": "调整话机顺序",
+          "description": "系统将该话机置顶或取消置顶，并将置顶话机排到列表最前。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击设为主叫",
+          "action": "将话机放入主叫位置",
+          "description": "系统将该话机写入调度台主叫位置；主叫位置已有话机时以本次选择替换。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击设为被叫",
+          "action": "将话机放入被叫位置",
+          "description": "系统将该话机写入调度台被叫位置；被叫位置已有话机时以本次选择替换。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "dtl-console",
+      "title": "调度台",
+      "purpose": "承载调度发起与调度过程，提供取消调度与拆线能力，并决定本次调度的最终结果。",
+      "summary": "调度台分待发起与调度中两种形态。待发起时展示主叫、被叫两个位置及所选话机的话机名称、分机号与话机状态，支持互换主被叫、清空任一位置并可回通讯录重新选择；主叫与被叫均已选择且不为同一话机时方可发起调度。发起后依次经历等待主叫接通、等待被叫接通、通话中三个阶段，等待主叫接通阶段可取消调度，通话中阶段可拆线并展示通话时长，被叫话机为免打扰时自动终止调度。",
+      "requirements": [
+        {
+          "title": "展示主叫与被叫位置",
+          "priority": "P0",
+          "details": "调度台分别展示主叫、被叫位置，已选择话机时展示其话机名称、分机号与话机状态，未选择时提示到通讯录选择。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "修改主被叫",
+          "priority": "P0",
+          "details": "支持互换主叫与被叫、清空任一位置，并可回到通讯录重新选择该位置的话机。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "发起调度",
+          "priority": "P0",
+          "details": "主叫与被叫均已选择且互不为同一话机时，方可发起调度。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "调度三阶段过程",
+          "priority": "P0",
+          "details": "发起调度后依次经历等待主叫接通、等待被叫接通、通话中三个阶段，并标识当前所处阶段与已完成的阶段。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "等待主叫接通阶段取消调度",
+          "priority": "P0",
+          "details": "等待主叫接通阶段提供取消调度操作，结束后本次调度记为取消调度。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "等待被叫接通阶段不可结束调度",
+          "priority": "P1",
+          "details": "等待被叫接通阶段不提供可用的结束操作，本次调度只能等待接通进入通话中，或因话机状态由系统自动终止。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "通话中阶段拆线",
+          "priority": "P0",
+          "details": "通话中阶段提供拆线操作，结束后本次调度按通话完成记录并保留通话时长。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "未接通自动终止",
+          "priority": "P0",
+          "details": "被叫话机为免打扰时不接听，系统自动终止本次调度并记录为被叫未接通。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "通话中展示通话时长",
+          "priority": "P1",
+          "details": "进入通话中阶段后展示本次通话已持续的时长，结束后作为记录的通话时长。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "callerPhone",
+          "label": "主叫话机",
+          "type": "文本",
+          "required": true,
+          "description": "作为主叫发起调度的数字电话话机，展示话机名称与分机号。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "calleePhone",
+          "label": "被叫话机",
+          "type": "文本",
+          "required": true,
+          "description": "作为被叫接听调度的数字电话话机，展示话机名称与分机号。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "dispatchPhase",
+          "label": "调度阶段",
+          "type": "枚举",
+          "required": true,
+          "description": "本次调度所处阶段，包括等待主叫接通、等待被叫接通、通话中。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "dispatchAction",
+          "label": "阶段操作",
+          "type": "枚举",
+          "required": false,
+          "description": "当前阶段可执行的结束操作，等待主叫接通阶段为取消调度，通话中阶段为拆线。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "talkingDuration",
+          "label": "通话时长",
+          "type": "文本",
+          "required": false,
+          "description": "通话中阶段实时累计的通话时长。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "主叫与被叫不可为同一话机。",
+        "离线话机不可作为主叫或被叫，无法进入调度台。",
+        "主叫与被叫均确定后方可发起调度。",
+        "调度一经发起不可再更换主叫与被叫，需结束本次调度后重新发起。",
+        "调度阶段按等待主叫接通、等待被叫接通、通话中依次推进，不可跳跃。",
+        "通话中阶段提供拆线，结束后记为通话完成并保留通话时长。",
+        "调度结束后调度台回到待发起形态，主叫与被叫的选择保留，便于再次发起调度。",
+        "1、发起接口一直未返回值时，调度台状态等待主叫接通。可以执行取消调度操作\n\t1.1发起接口返回fail时，结束调度。添加调度记录，状态主叫未接通\n2、发起接口返回succ时，调度台状态等待被叫接通\n\t2.1轮询state接口，如果一直无返回值（比如15s），结束调度。添加调度记录，状态被叫未接通\n3、state接口有返回值时，调度台状态通话中。可以执行拆线操作\n\t3.1 执行拆线成功后，结束调度。添加调度记录，通话完成\n\t3.2state接口无返回值时，结束调度。添加调度记录，通话完成"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击互换主被叫",
+          "action": "交换主叫与被叫",
+          "description": "系统把主叫位置与被叫位置的话机对调；两个位置均有话机时该操作可用。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击清空",
+          "action": "清除所选位置的话机",
+          "description": "系统清除该位置的话机，该话机在通讯录中恢复为可选择。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击发起调度",
+          "action": "进入调度流程",
+          "description": "系统校验主叫与被叫后进入等待主叫接通阶段，开始调度过程。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "调度阶段推进",
+          "action": "更新调度阶段",
+          "description": "系统按话机状态依次推进阶段，进入通话中阶段后开始累计通话时长。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击取消调度",
+          "action": "结束本次调度",
+          "description": "系统结束调度并记为取消调度，调度台回到待发起形态。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击拆线",
+          "action": "结束通话",
+          "description": "系统结束通话并按通话完成记录本次调度及通话时长。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "被叫话机不接听",
+          "action": "自动终止调度",
+          "description": "被叫话机为免打扰时，系统自动终止调度并记为被叫未接通。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
       "source": "ai",
       "status": "generated"
     },
     {
       "id": "dtl-records",
-      "title": "通话记录",
-      "purpose": "追溯数字电话历史通话，掌握每次通话的时间与时长。",
-      "summary": "按通话时间倒序展示通话记录，每条记录包含对方姓名、分机号、通话时间与通话时长；支持按时间范围过滤（默认近 7 天），记录较多时分页浏览。",
+      "title": "调度记录",
+      "purpose": "追溯历史调度，掌握每次调度的调度人、双方话机、通话时长与最终结果。",
+      "summary": "按调度时间倒序展示调度记录，每条记录包含调度时间、调度人、主叫方、被叫方、通话时长与状态；支持按时间范围过滤（默认近 7 天），记录较多时分页浏览并展示总条数。",
       "requirements": [
-        { "title": "查看通话记录", "priority": "P0", "details": "按通话时间倒序展示通话记录，仅展示姓名、分机号、通话时间与通话时长。", "source": "ai", "status": "generated" },
-        { "title": "时间范围过滤", "priority": "P0", "details": "支持通过日期范围选择器过滤通话记录，默认展示近 7 天记录，并提供近 7 天、近 30 天、本月快捷选项。", "source": "ai", "status": "generated" },
-        { "title": "分页浏览", "priority": "P1", "details": "记录较多时按页展示，并显示记录总条数。", "source": "ai", "status": "generated" },
-        { "title": "记录拨号过程", "priority": "P0", "details": "页面内发起的拨号在呼叫结束后自动生成通话记录，最新记录自动置顶。", "source": "ai", "status": "generated" }
+        {
+          "title": "查看调度记录",
+          "priority": "P0",
+          "details": "按调度时间倒序展示调度记录，展示调度时间、调度人、主叫方、被叫方、通话时长与状态。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "记录调度结果状态",
+          "priority": "P0",
+          "details": "状态包括通话完成、主叫未接通、被叫未接通、取消调度；通话完成时展示通话时长，其余状态不展示通话时长。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "记录调度人",
+          "priority": "P0",
+          "details": "记录发起本次调度的操作人，取发起调度时的当前登录账号。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "时间范围过滤",
+          "priority": "P0",
+          "details": "支持按日期范围过滤调度记录，默认展示近 7 天，并提供近 7 天、近 30 天、本月快捷选项。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "分页浏览",
+          "priority": "P1",
+          "details": "记录较多时分页展示，并展示当前时间范围内的记录总条数。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "实时生成调度记录",
+          "priority": "P0",
+          "details": "页面内发起的调度在结束后自动生成一条调度记录，最新记录排在最前。",
+          "source": "ai",
+          "status": "generated"
+        }
       ],
       "fields": [
-        { "name": "recordContact", "label": "通话对象", "type": "文本", "required": true, "description": "通话对方的姓名和分机号。", "source": "ai", "status": "generated" },
-        { "name": "callTime", "label": "通话时间", "type": "日期时间", "required": true, "description": "通话发生的具体时间。", "source": "ai", "status": "generated" },
-        { "name": "callDuration", "label": "通话时长", "type": "文本", "required": false, "description": "本次通话的时长，无时长的记录展示占位符。", "source": "ai", "status": "generated" },
-        { "name": "dateRange", "label": "时间范围", "type": "日期范围", "required": true, "description": "过滤通话记录的时间范围，默认近 7 天。", "source": "ai", "status": "generated" }
+        {
+          "name": "dispatchTime",
+          "label": "调度时间",
+          "type": "日期时间",
+          "required": true,
+          "description": "本次调度发起的具体时间，作为记录排序依据。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "dispatcher",
+          "label": "调度人",
+          "type": "文本",
+          "required": true,
+          "description": "发起本次调度的操作人，取当前登录账号。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "recordCaller",
+          "label": "主叫方",
+          "type": "文本",
+          "required": true,
+          "description": "本次调度的主叫话机名称与分机号。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "recordCallee",
+          "label": "被叫方",
+          "type": "文本",
+          "required": true,
+          "description": "本次调度的被叫话机名称与分机号。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "recordDuration",
+          "label": "通话时长",
+          "type": "文本",
+          "required": false,
+          "description": "本次调度的通话时长，仅在状态为通话完成时展示，其余状态展示占位符。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "recordStatus",
+          "label": "状态",
+          "type": "枚举",
+          "required": true,
+          "description": "本次调度的最终结果，包括通话完成、主叫未接通、被叫未接通、取消调度。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "dateRange",
+          "label": "时间范围",
+          "type": "日期范围",
+          "required": true,
+          "description": "过滤调度记录的时间范围，默认近 7 天。",
+          "source": "ai",
+          "status": "generated"
+        }
       ],
       "rules": [
-        "通话记录按通话时间倒序排列，最新通话置顶。",
-        "通话记录默认仅展示近 7 天数据。",
-        "切换时间范围后从第一页重新展示。",
-        "页面内拨号结束后自动生成通话记录并置顶。"
-      ],
-      "interactions": [
-        { "trigger": "调整时间范围", "action": "过滤通话记录", "description": "系统按所选日期范围刷新记录列表，并重置到第一页。", "source": "ai", "status": "generated" },
-        { "trigger": "切换分页", "action": "浏览更多记录", "description": "系统按页展示所选时间范围内的通话记录。", "source": "ai", "status": "generated" },
-        { "trigger": "结束一次通话", "action": "生成通话记录", "description": "呼叫取消或挂断后，系统自动生成对应通话记录。", "source": "ai", "status": "generated" }
+        "调度记录按调度时间倒序排列，最新调度排在最前。",
+        "调度记录默认仅展示近 7 天数据。",
+        "调整时间范围后从第一页重新展示。",
+        "页面内发起并结束的调度自动生成记录，其调度人与发起调度的人一致，均取当前登录账号。",
+        "通话完成展示通话时长，取消调度、主叫未接通、被叫未接通均不展示通话时长。",
+        "等待主叫接通阶段取消调度记为取消调度；通话中阶段拆线记为通话完成。",
+        "被叫话机为免打扰导致自动终止时记为被叫未接通。",
+        "主叫未接通仅出现在历史调度记录中：离线话机不可进入调度台，页面内发起的调度不会再产生主叫未接通。",
+        "该时间范围内无记录时展示空状态，并提示当前范围内没有调度记录。"
       ],
       "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "调整时间范围",
+          "action": "过滤调度记录",
+          "description": "系统按所选日期范围刷新记录列表，并重置到第一页。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "切换分页",
+          "action": "浏览更多记录",
+          "description": "系统按页展示所选时间范围内的调度记录。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "结束一次调度",
+          "action": "生成调度记录",
+          "description": "调度结束后系统自动生成一条调度记录并排在最前，同时展示记录总条数。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
       "source": "ai",
       "status": "generated"
     },
     {
-      "id": "dtl-call",
-      "title": "通话界面与接通提醒",
-      "purpose": "承载拨号后的通话过程，提供挂断能力并在接通后提醒用户勿关闭或切换页面。",
-      "summary": "发起拨号后展示通话界面，显示联系人、分机号和呼叫状态，支持挂断；呼叫接通后展示已接通计时，并明确提醒“正在通话中，请勿关闭或切换当前页面”，接通期间禁止通过关闭按钮、按 Esc 或点击遮罩关闭界面。",
+      "id": "data-source",
+      "title": "数据来源",
+      "purpose": "说明本页话机与调度记录数据的来源表，供开发按表对接取数。",
+      "summary": "话机取东莞园区开发库 smart_park_dev 的设备实例表 equip_device_instance 中设备定义编码为 digitalPhone 的记录，话机名称取 device_name、所在空间取 space_full_name、在线状态取 status；分机号与免打扰状态设备实例表未登记，需由电话交换系统提供；调度记录需由调度业务侧提供，来源表待确认。",
       "requirements": [
-        { "title": "展示通话基础信息", "priority": "P0", "details": "通话界面展示联系人姓名、分机号及当前呼叫状态。", "source": "ai", "status": "generated" },
-        { "title": "支持挂断通话", "priority": "P0", "details": "通话界面提供挂断按钮，呼叫中可取消呼叫，接通后可挂断结束通话。", "source": "ai", "status": "generated" },
-        { "title": "展示接通状态与计时", "priority": "P0", "details": "呼叫接通后状态变更为已接通，并实时展示通话时长。", "source": "ai", "status": "generated" },
-        { "title": "接通后提醒", "priority": "P0", "details": "通话接通后明确提醒用户“正在通话中，请勿关闭或切换当前页面”。", "source": "ai", "status": "generated" },
-        { "title": "接通期间保护通话", "priority": "P0", "details": "接通期间禁止通过关闭按钮、Esc 键或点击遮罩方式关闭通话界面，只能通过挂断结束通话。", "source": "ai", "status": "generated" }
+        {
+          "title": "按表对接话机清单",
+          "priority": "P0",
+          "details": "话机取设备实例表 equip_device_instance 中设备定义编码 digitalPhone 的记录，一条记录即一台话机。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "按表对接话机名称与所在空间",
+          "priority": "P0",
+          "details": "话机名称取设备实例表的 device_name 字段，话机所在空间取 space_full_name 字段。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "按表对接话机在线状态",
+          "priority": "P0",
+          "details": "话机在线状态取设备实例表的 status 字段，online 按正常呈现，offline 与 unactivated 按离线呈现。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "分机号来源待确认",
+          "priority": "P0",
+          "details": "设备实例表未登记分机号字段，分机号需由电话交换系统提供，来源待确认。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "免打扰状态来源待确认",
+          "priority": "P1",
+          "details": "免打扰为话机侧状态，设备实例表未登记，需由电话交换系统提供，来源待确认。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "调度记录来源待确认",
+          "priority": "P0",
+          "details": "调度记录需由调度业务侧提供调度时间、调度人、主叫话机、被叫话机、通话时长与状态，来源表待确认。",
+          "source": "ai",
+          "status": "generated"
+        }
       ],
       "fields": [
-        { "name": "callContact", "label": "通话对象", "type": "联系人", "required": true, "description": "本次通话的联系人及其分机号。", "source": "ai", "status": "generated" },
-        { "name": "callState", "label": "呼叫状态", "type": "枚举", "required": true, "description": "呼叫中或已接通，已接通时展示实时通话时长。", "source": "ai", "status": "generated" },
-        { "name": "callElapsed", "label": "通话时长", "type": "文本", "required": false, "description": "接通后实时递增的通话时长。", "source": "ai", "status": "generated" },
-        { "name": "callWarning", "label": "接通提醒文案", "type": "文本", "required": true, "description": "“正在通话中，请勿关闭或切换当前页面”。", "source": "ai", "status": "generated" }
+        {
+          "name": "sourceDatabase",
+          "label": "来源库",
+          "type": "文本",
+          "required": true,
+          "description": "话机数据的来源库为东莞园区开发库 smart_park_dev。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "phoneSourceTable",
+          "label": "话机来源表",
+          "type": "文本",
+          "required": true,
+          "description": "话机取设备实例表 equip_device_instance，取设备定义编码 digitalPhone 的记录，一条记录对应一台话机。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "phoneNameField",
+          "label": "话机名称来源字段",
+          "type": "文本",
+          "required": true,
+          "description": "话机名称取 device_name 字段。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "phoneSpaceField",
+          "label": "话机空间来源字段",
+          "type": "文本",
+          "required": true,
+          "description": "话机所在空间取 space_full_name 字段。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "phoneStatusField",
+          "label": "话机状态来源字段",
+          "type": "文本",
+          "required": true,
+          "description": "话机在线状态取 status 字段，online 按正常呈现，offline 与 unactivated 按离线呈现。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "extensionSource",
+          "label": "分机号来源",
+          "type": "文本",
+          "required": true,
+          "description": "分机号由电话交换系统提供，来源表待确认。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "dndSource",
+          "label": "免打扰状态来源",
+          "type": "文本",
+          "required": true,
+          "description": "免打扰状态由电话交换系统提供，来源表待确认。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "dispatchRecordSource",
+          "label": "调度记录来源",
+          "type": "文本",
+          "required": true,
+          "description": "调度记录由调度业务侧提供，来源表待确认。",
+          "source": "ai",
+          "status": "generated"
+        }
       ],
       "rules": [
-        "呼叫中状态展示“呼叫中...”，接通后展示“已接通”及通话时长。",
-        "接通后必须展示“正在通话中，请勿关闭或切换当前页面”的醒目提醒。",
-        "接通期间不允许通过关闭按钮、Esc 键或点击遮罩关闭通话界面。",
-        "挂断或取消呼叫后关闭通话界面，并生成通话记录。"
-      ],
-      "interactions": [
-        { "trigger": "点击通讯录拨号按钮", "action": "打开通话界面并呼叫", "description": "系统打开通话界面，展示呼叫对象并进入呼叫中状态。", "source": "ai", "status": "generated" },
-        { "trigger": "呼叫接通", "action": "展示接通状态与提醒", "description": "系统将状态变更为已接通并开始计时，同时提醒用户正在通话中、勿关闭或切换页面。", "source": "ai", "status": "generated" },
-        { "trigger": "点击挂断", "action": "结束通话", "description": "系统结束通话、关闭通话界面并生成通话记录。", "source": "ai", "status": "generated" },
-        { "trigger": "接通期间尝试关闭界面", "action": "阻止关闭并提示", "description": "系统拦截关闭操作，提示通话进行中请先挂断电话。", "source": "ai", "status": "generated" }
+        "话机数据取自东莞园区开发库 smart_park_dev 的设备实例表 equip_device_instance。",
+        "话机取设备定义编码为 digitalPhone 的记录，一条记录对应一台话机。",
+        "话机名称取 device_name，话机所在空间取 space_full_name，话机在线状态取 status。",
+        "分机号与免打扰状态设备实例表未登记，需由电话交换系统提供。",
+        "调度时间、调度人、主被叫话机、通话时长与状态需由调度业务侧提供。",
+        "分机号、免打扰状态与历史调度记录在本页为示意数据，最终以对接来源为准。"
       ],
       "ruleImages": [],
+      "interactions": [],
       "source": "ai",
       "status": "generated"
     }

@@ -313,8 +313,8 @@ const defaultPages: PrototypePage[] = [
             pagePath: '/security/digital-telephone-linkage',
             modules: [
               { moduleId: 'dtl-contacts', moduleName: '话机通讯录', moduleType: 'table', pageId: 'DigitalTelephoneLinkage', requirementId: 'dtl-contacts', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
-              { moduleId: 'dtl-records', moduleName: '通话记录', moduleType: 'table', pageId: 'DigitalTelephoneLinkage', requirementId: 'dtl-records', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
-              { moduleId: 'dtl-call', moduleName: '通话界面与接通提醒', moduleType: 'form', pageId: 'DigitalTelephoneLinkage', requirementId: 'dtl-call', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'dtl-console', moduleName: '调度台', moduleType: 'form', pageId: 'DigitalTelephoneLinkage', requirementId: 'dtl-console', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+              { moduleId: 'dtl-records', moduleName: '调度记录', moduleType: 'table', pageId: 'DigitalTelephoneLinkage', requirementId: 'dtl-records', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
             ],
           },
         ],
