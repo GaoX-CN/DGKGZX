@@ -4,7 +4,7 @@
  * 数据来源：smart_park_dev（东莞园区开发库 192.168.161.57）
  *   · 设备分类 equip_device_def：一个 def_code 即一个设备分类，不按 def_category_code 归并大类；已排除「直连测试电表设备」
  *   · 设备实例 equip_device_instance：原始 95 条，剔除 8 条无效记录后 87 条
- * 原始数据与清洗口径见 /c材料/设备数据/
+ * 原始数据与清洗口径见 /Y原型/src/data/device/（工程内静态 mock 数据资源）
  *
  * 口径说明：
  *   · location 已去掉顶层前缀「东莞空港中心/」；实例表中未绑定空间的 14 台设备显示「—」

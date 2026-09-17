@@ -1,0 +1,71 @@
+{
+  "generatedAt": "2026-09-16T09:40:46.720Z",
+  "note": "被判定为无效而从设备清单中剔除的记录，供核对。",
+  "count": 8,
+  "rows": [
+    {
+      "id": "1df5fb42-b570-458f-bf35-0a611fa7b22c",
+      "deviceId": "emergency-phone-mt-3030",
+      "deviceName": null,
+      "defName": null,
+      "status": null,
+      "reason": "空壳记录（无名称/无模型/无状态）"
+    },
+    {
+      "id": "7ae44454-81f4-4b85-91bf-e98a6b1c8129",
+      "deviceId": "smart-ip-phone-mt-2001",
+      "deviceName": null,
+      "defName": null,
+      "status": null,
+      "reason": "空壳记录（无名称/无模型/无状态）"
+    },
+    {
+      "id": "9df41f8b-8b53-47e7-ab87-32c5eb6c2823",
+      "deviceId": "kg-mt-test-001",
+      "deviceName": null,
+      "defName": null,
+      "status": null,
+      "reason": "空壳记录（无名称/无模型/无状态）"
+    },
+    {
+      "id": "998bba86-2d17-47f8-8268-426808acbdcc",
+      "deviceId": "kg-mt-test-003",
+      "deviceName": null,
+      "defName": null,
+      "status": null,
+      "reason": "空壳记录（无名称/无模型/无状态）"
+    },
+    {
+      "id": "36732d48-840f-44de-81e4-cdc3fe5e52ef",
+      "deviceId": "hw-test",
+      "deviceName": null,
+      "defName": null,
+      "status": null,
+      "reason": "空壳记录（无名称/无模型/无状态）"
+    },
+    {
+      "id": "a819ea87-af67-45a4-a103-f3e703e64978",
+      "deviceId": "emergency-phone-mt-3031",
+      "deviceName": null,
+      "defName": null,
+      "status": null,
+      "reason": "空壳记录（无名称/无模型/无状态）"
+    },
+    {
+      "id": "e16c143a-8b77-42c9-ae87-361f630f8f62",
+      "deviceId": "mj-mt-test-001",
+      "deviceName": "门禁-码头测试设备001",
+      "defName": "门禁",
+      "status": "unactivated",
+      "reason": "设备名含「测试」"
+    },
+    {
+      "id": "f627a2fd-76d0-443a-811a-acee30709f61",
+      "deviceId": "smart-ip-phone-mt-2002",
+      "deviceName": null,
+      "defName": null,
+      "status": null,
+      "reason": "空壳记录（无名称/无模型/无状态）"
+    }
+  ]
+}

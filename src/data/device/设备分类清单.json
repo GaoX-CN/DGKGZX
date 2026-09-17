@@ -1,0 +1,196 @@
+{
+  "generatedAt": "2026-09-16T09:47:21.973Z",
+  "source": "smart_park_dev.equip_device_def（东莞园区开发库）",
+  "granularity": "defCode",
+  "note": "分类口径：一个 defCode 即一个设备分类，不按 categoryCode 归并大类。已排除「直连测试电表设备」。设备数取自 equip_device_instance 清洗后 87 台。",
+  "defTotal": 17,
+  "excluded": [
+    "直连测试电表设备"
+  ],
+  "count": 16,
+  "deviceTotal": 87,
+  "statusTotal": {
+    "online": 69,
+    "offline": 14,
+    "other": 4
+  },
+  "orphanDefCodes": [],
+  "categories": [
+    {
+      "defId": "142",
+      "defCode": "camera",
+      "defName": "摄像头",
+      "sourceType": "CAMERA",
+      "deviceTotal": 12,
+      "online": 10,
+      "offline": 2,
+      "unactivated": 0,
+      "onlineRate": 83.3
+    },
+    {
+      "defId": "143",
+      "defCode": "barriergate",
+      "defName": "道闸",
+      "sourceType": "DEVICE",
+      "deviceTotal": 6,
+      "online": 5,
+      "offline": 1,
+      "unactivated": 0,
+      "onlineRate": 83.3
+    },
+    {
+      "defId": "def_access_control",
+      "defCode": "accessControl",
+      "defName": "门禁",
+      "sourceType": "DEVICE",
+      "deviceTotal": 7,
+      "online": 6,
+      "offline": 1,
+      "unactivated": 0,
+      "onlineRate": 85.7
+    },
+    {
+      "defId": "def_intercom",
+      "defCode": "intercom",
+      "defName": "对讲机",
+      "sourceType": "DEVICE",
+      "deviceTotal": 4,
+      "online": 3,
+      "offline": 0,
+      "unactivated": 1,
+      "onlineRate": 75
+    },
+    {
+      "defId": "def_digital_phone",
+      "defCode": "digitalPhone",
+      "defName": "数字电话",
+      "sourceType": "DEVICE",
+      "deviceTotal": 4,
+      "online": 3,
+      "offline": 1,
+      "unactivated": 0,
+      "onlineRate": 75
+    },
+    {
+      "defId": "def_vhf_radio",
+      "defCode": "vhfRadio",
+      "defName": "VHF电台",
+      "sourceType": "DEVICE",
+      "deviceTotal": 2,
+      "online": 2,
+      "offline": 0,
+      "unactivated": 0,
+      "onlineRate": 100
+    },
+    {
+      "defId": "def_emergency_intercom",
+      "defCode": "emergencyIntercom",
+      "defName": "紧急对讲",
+      "sourceType": "DEVICE",
+      "deviceTotal": 4,
+      "online": 3,
+      "offline": 0,
+      "unactivated": 1,
+      "onlineRate": 75
+    },
+    {
+      "defId": "def_digital_broadcast",
+      "defCode": "digitalBroadcast",
+      "defName": "数字广播",
+      "sourceType": "DEVICE",
+      "deviceTotal": 6,
+      "online": 5,
+      "offline": 1,
+      "unactivated": 0,
+      "onlineRate": 83.3
+    },
+    {
+      "defId": "def_refrigerated_container",
+      "defCode": "refrigeratedContainer",
+      "defName": "冷藏箱",
+      "sourceType": "DEVICE",
+      "deviceTotal": 6,
+      "online": 4,
+      "offline": 1,
+      "unactivated": 1,
+      "onlineRate": 66.7
+    },
+    {
+      "defId": "def_lighting",
+      "defCode": "lighting",
+      "defName": "照明",
+      "sourceType": "DEVICE",
+      "deviceTotal": 6,
+      "online": 5,
+      "offline": 1,
+      "unactivated": 0,
+      "onlineRate": 83.3
+    },
+    {
+      "defId": "def_info_screen",
+      "defCode": "infoScreen",
+      "defName": "信息屏",
+      "sourceType": "DEVICE",
+      "deviceTotal": 5,
+      "online": 4,
+      "offline": 1,
+      "unactivated": 0,
+      "onlineRate": 80
+    },
+    {
+      "defId": "def_differential_gnss",
+      "defCode": "differentialGnss",
+      "defName": "差分定位",
+      "sourceType": "DEVICE",
+      "deviceTotal": 3,
+      "online": 2,
+      "offline": 1,
+      "unactivated": 0,
+      "onlineRate": 66.7
+    },
+    {
+      "defId": "def_charging_pile",
+      "defCode": "chargingPile",
+      "defName": "充电桩",
+      "sourceType": "DEVICE",
+      "deviceTotal": 6,
+      "online": 4,
+      "offline": 1,
+      "unactivated": 1,
+      "onlineRate": 66.7
+    },
+    {
+      "defId": "def_fire_equipment",
+      "defCode": "fireEquipment",
+      "defName": "消防设备",
+      "sourceType": "DEVICE",
+      "deviceTotal": 6,
+      "online": 5,
+      "offline": 1,
+      "unactivated": 0,
+      "onlineRate": 83.3
+    },
+    {
+      "defId": "def_energy_meter",
+      "defCode": "energyMeter",
+      "defName": "能耗表具",
+      "sourceType": "DEVICE",
+      "deviceTotal": 8,
+      "online": 7,
+      "offline": 1,
+      "unactivated": 0,
+      "onlineRate": 87.5
+    },
+    {
+      "defId": "6a63154d46cb677f93c2f110",
+      "defCode": "6a63154d46cb677f93c2f110",
+      "defName": "无线对讲",
+      "sourceType": "DEVICE",
+      "deviceTotal": 2,
+      "online": 1,
+      "offline": 1,
+      "unactivated": 0,
+      "onlineRate": 50
+    }
+  ]
+}
