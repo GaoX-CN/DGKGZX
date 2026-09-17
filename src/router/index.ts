@@ -90,6 +90,11 @@ const router = createRouter({
           component: () => import('@/pages/facility/RepairAssetImport.vue'),
         },
         {
+          path: '/facility/device-distribution',
+          name: 'DeviceDistribution',
+          component: () => import('@/pages/facility/DeviceDistribution.vue'),
+        },
+        {
           path: '/facility/inspection/items',
           name: 'InspectionItems',
           component: () => import('@/pages/facility/inspection/InspectionItems.vue'),

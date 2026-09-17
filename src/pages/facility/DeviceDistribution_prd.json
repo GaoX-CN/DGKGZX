@@ -1,0 +1,207 @@
+{
+  "pageName": "DeviceDistribution",
+  "pageId": "DeviceDistribution",
+  "version": "1.2.1",
+  "lastUpdated": "2026-09-17T03:04:00Z",
+  "intent": {
+    "type": "analysis",
+    "summary": "在园区平面图上查看各类设备的空间分布与运行状态，并按设备分类、运行状态筛选，辅助掌握设备在线情况。"
+  },
+  "overview": "设备分布页面面向园区运维与管理人员，以园区平面图为载体展示设备所在空间的分布情况，支持按设备分类（一个设备定义即一类）、按运行状态（在线、离线）筛选，查看单台设备的位置与状态信息，查看某个分类的设备清单，并通过分布概览与分类在线率掌握整体运行水平。设备分类与设备数据分别取自设备定义表与设备实例表，详见「数据来源」模块。",
+  "modules": [
+    {
+      "id": "device-category-filter",
+      "title": "设备分类筛选",
+      "purpose": "从设备分类维度缩小地图上需要关注的设备范围。",
+      "summary": "列出全部设备分类，以单选方式确定当前关注的分类，并展示各分类在当前运行状态筛选下的设备台数。",
+      "requirements": [
+        {"title":"按设备分类过滤设备","priority":"P0","details":"提供全部设备分类供用户选择，选定一个分类后地图点位与设备清单只展示该分类的设备。","source":"ai","status":"generated"},
+        {"title":"展示各分类设备台数","priority":"P1","details":"每个分类后展示该分类的设备台数，台数随运行状态筛选结果变化。","source":"ai","status":"generated"},
+        {"title":"进入分类设备清单","priority":"P1","details":"每个分类提供进入该分类设备清单的入口，进入后同时把该分类设为当前关注分类。","source":"ai","status":"generated"}
+      ],
+      "fields": [
+        {"name":"categoryName","label":"分类名称","type":"文本","required":true,"description":"设备分类的业务名称，例如摄像头、道闸、门禁。","source":"ai","status":"generated"},
+        {"name":"categoryDeviceCount","label":"分类设备台数","type":"数值","required":true,"description":"当前运行状态筛选结果下该分类的设备数量。","source":"ai","status":"generated"},
+        {"name":"categoryAvailable","label":"分类可用状态","type":"枚举","required":true,"description":"该分类在当前条件下是否存在设备，无设备时不可继续查看清单。","source":"ai","status":"generated"}
+      ],
+      "rules": [
+        "设备分类按设备定义逐一成类，不按上级大类归并。",
+        "设备分类为单选，默认选中第一个分类。",
+        "当前条件下没有设备的分类置为不可用状态。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {"trigger":"选择设备分类","action":"过滤地图与设备清单","description":"地图点位与设备清单更新为所选分类的设备。","source":"ai","status":"generated"},
+        {"trigger":"进入分类设备清单","action":"打开分类设备清单","description":"打开所选分类的设备清单，并把该分类设为当前关注分类。","source":"ai","status":"generated"}
+      ],
+      "source":"ai",
+      "status":"generated"
+    },
+    {
+      "id": "device-distribution-map",
+      "title": "园区地图设备分布",
+      "purpose": "在园区平面图上定位每台设备所在空间，并查看单台设备的运行状态。",
+      "summary": "按设备所属空间在园区平面图上展示设备点位，点位颜色对应设备分类并区分在线与离线，同时标注园区主要区域名称，点击点位查看该设备信息。",
+      "requirements": [
+        {"title":"地图展示设备分布","priority":"P0","details":"在园区平面图上按设备所在空间展示设备点位，点位颜色对应该设备所属分类，并区分在线与离线。","source":"ai","status":"generated"},
+        {"title":"查看单台设备信息","priority":"P0","details":"点击设备点位可查看设备名称、设备编号、空间归属、运行状态与状态更新时间。","source":"ai","status":"generated"},
+        {"title":"标注园区区域","priority":"P1","details":"在平面图上标注设备分布涉及的主要区域名称，便于对照设备所在位置。","source":"ai","status":"generated"},
+        {"title":"无结果提示与重置","priority":"P1","details":"当前筛选条件下没有可显示设备时给出提示，并支持重置筛选恢复默认视图。","source":"ai","status":"generated"}
+      ],
+      "fields": [
+        {"name":"deviceName","label":"设备名称","type":"文本","required":true,"description":"设备的业务名称，用于地图标识与信息展示。","source":"ai","status":"generated"},
+        {"name":"deviceId","label":"设备编号","type":"文本","required":true,"description":"设备的唯一识别编号。","source":"ai","status":"generated"},
+        {"name":"deviceCategory","label":"设备分类","type":"枚举","required":true,"description":"设备所属分类，决定设备在地图上的颜色标识。","source":"ai","status":"generated"},
+        {"name":"spaceName","label":"空间归属","type":"文本","required":false,"description":"设备所在空间，未绑定空间时以“—”展示。","source":"ai","status":"generated"},
+        {"name":"onlineStatus","label":"运行状态","type":"枚举","required":true,"description":"设备当前处于在线或离线。","source":"ai","status":"generated"},
+        {"name":"statusUpdatedAt","label":"状态更新时间","type":"时间","required":true,"description":"设备运行状态最近一次更新的时间。","source":"ai","status":"generated"},
+        {"name":"areaName","label":"区域名称","type":"文本","required":false,"description":"平面图上标注的区域名称，例如货运站、冷链仓库、A栋。","source":"ai","status":"generated"}
+      ],
+      "rules": [
+        "地图上显示的点位受设备分类与运行状态筛选共同约束。",
+        "设备信息只在点击点位后展示，点击地图空白处关闭。",
+        "设备空间归属取自设备实例数据，未绑定空间的设备其空间归属以“—”展示。",
+        "设备分类与点位颜色的对应关系以设备分类列表中各分类的颜色标识为准，地图不再单独提供图例。",
+        "未激活的设备在本页按离线呈现。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {"trigger":"点击设备点位","action":"查看设备信息","description":"展示该设备的名称、编号、空间归属、运行状态与状态更新时间；再次点击同一设备可关闭信息。","source":"ai","status":"generated"},
+        {"trigger":"点击地图空白处","action":"关闭设备信息","description":"关闭已打开的设备信息并收起分类设备清单。","source":"ai","status":"generated"},
+        {"trigger":"点击重置筛选","action":"恢复默认视图","description":"清空运行状态筛选与已选设备，恢复默认筛选结果。","source":"ai","status":"generated"}
+      ],
+      "source":"ai",
+      "status":"generated"
+    },
+    {
+      "id": "device-category-list",
+      "title": "分类设备清单",
+      "purpose": "以清单方式查看某一分类下的设备，并定位到地图上的具体设备。",
+      "summary": "展示当前分类的设备清单，包含设备名称、空间归属与运行状态，支持按名称搜索、按运行状态过滤与翻页，点击清单中的设备可在地图上定位该设备。",
+      "requirements": [
+        {"title":"查看分类设备清单","priority":"P0","details":"展示当前分类下的设备，包含设备名称、空间归属与运行状态。","source":"ai","status":"generated"},
+        {"title":"按设备名称搜索","priority":"P1","details":"支持按设备名称搜索清单中的设备。","source":"ai","status":"generated"},
+        {"title":"按运行状态过滤清单","priority":"P1","details":"支持在全部、在线、离线之间切换，过滤清单中的设备。","source":"ai","status":"generated"},
+        {"title":"翻页查看设备","priority":"P1","details":"清单按每页 8 台分页展示。","source":"ai","status":"generated"},
+        {"title":"从清单定位设备","priority":"P0","details":"点击清单中的设备可在地图上定位并展示该设备信息。","source":"ai","status":"generated"}
+      ],
+      "fields": [
+        {"name":"deviceName","label":"设备名称","type":"文本","required":true,"description":"清单中设备的业务名称。","source":"ai","status":"generated"},
+        {"name":"spaceName","label":"空间归属","type":"文本","required":false,"description":"设备所在空间，未绑定空间时以“—”展示。","source":"ai","status":"generated"},
+        {"name":"onlineStatus","label":"运行状态","type":"枚举","required":true,"description":"设备当前处于在线或离线。","source":"ai","status":"generated"},
+        {"name":"listKeyword","label":"名称关键字","type":"文本","required":false,"description":"用于按设备名称过滤清单的搜索关键字。","source":"ai","status":"generated"},
+        {"name":"listStatusFilter","label":"清单运行状态筛选","type":"枚举","required":false,"description":"清单内的运行状态过滤条件，取值为全部、在线或离线。","source":"ai","status":"generated"},
+        {"name":"pageNo","label":"当前页码","type":"数值","required":true,"description":"清单当前展示的页码。","source":"ai","status":"generated"}
+      ],
+      "rules": [
+        "清单内容受当前设备分类与清单内的名称关键字、运行状态过滤共同约束。",
+        "分类、关键字或运行状态变化后，清单回到第一页。",
+        "清单没有匹配设备时展示空状态提示。",
+        "点击清单中的设备时，若该设备因运行状态筛选未在地图显示，则先恢复运行状态为全部再定位。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {"trigger":"打开分类设备清单","action":"查看设备清单","description":"打开当前关注分类的设备清单。","source":"ai","status":"generated"},
+        {"trigger":"关闭设备清单","action":"收起清单","description":"收起设备清单，回到地图视图。","source":"ai","status":"generated"},
+        {"trigger":"输入设备名称","action":"过滤清单","description":"按名称关键字过滤清单设备，并回到第一页。","source":"ai","status":"generated"},
+        {"trigger":"切换清单运行状态","action":"过滤清单","description":"按在线或离线过滤清单设备，并回到第一页。","source":"ai","status":"generated"},
+        {"trigger":"翻页","action":"查看其他设备","description":"展示清单中下一页设备。","source":"ai","status":"generated"},
+        {"trigger":"点击清单中的设备","action":"定位设备","description":"在地图上定位该设备并展示其设备信息。","source":"ai","status":"generated"}
+      ],
+      "source":"ai",
+      "status":"generated"
+    },
+    {
+      "id": "device-status-overview",
+      "title": "分布概览",
+      "purpose": "汇总当前分类的设备规模与在线情况，并作为运行状态筛选入口。",
+      "summary": "展示当前分类下的设备总数、在线台数、离线台数与在线率，点击全部、在线、离线可按运行状态筛选地图点位与设备清单。",
+      "requirements": [
+        {"title":"查看当前分类设备规模","priority":"P0","details":"展示当前分类的设备总数、在线台数与离线台数。","source":"ai","status":"generated"},
+        {"title":"按运行状态筛选","priority":"P0","details":"点击全部、在线、离线可按运行状态筛选地图点位与设备清单。","source":"ai","status":"generated"},
+        {"title":"查看当前分类在线率","priority":"P1","details":"展示当前分类的在线设备占比。","source":"ai","status":"generated"}
+      ],
+      "fields": [
+        {"name":"totalCount","label":"设备总数","type":"数值","required":true,"description":"当前分类下的设备总台数。","source":"ai","status":"generated"},
+        {"name":"onlineCount","label":"在线台数","type":"数值","required":true,"description":"当前分类下在线设备的台数。","source":"ai","status":"generated"},
+        {"name":"offlineCount","label":"离线台数","type":"数值","required":true,"description":"当前分类下离线设备的台数。","source":"ai","status":"generated"},
+        {"name":"onlineRate","label":"在线率","type":"百分比","required":true,"description":"当前分类下在线设备占设备总数的比例。","source":"ai","status":"generated"},
+        {"name":"statusFilter","label":"运行状态筛选","type":"枚举","required":true,"description":"地图与清单的运行状态过滤条件，取值为全部、在线或离线。","source":"ai","status":"generated"}
+      ],
+      "rules": [
+        "分布概览的台数只受设备分类影响，切换运行状态时数字保持不变。",
+        "运行状态只有在线与离线两种。",
+        "默认按全部设备展示。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {"trigger":"点击全部、在线或离线","action":"按运行状态筛选","description":"地图点位与设备清单按所选运行状态更新。","source":"ai","status":"generated"}
+      ],
+      "source":"ai",
+      "status":"generated"
+    },
+    {
+      "id": "category-online-rate",
+      "title": "分类在线率",
+      "purpose": "对比各设备分类的在线水平，识别在线率偏低的分类。",
+      "summary": "以全量设备为基数统计各分类的在线率，条形区分在线与离线占比，支持按在线率从高到低或从低到高排序，悬停查看该分类的设备总数、在线与离线台数。",
+      "requirements": [
+        {"title":"查看各分类在线率","priority":"P0","details":"以设备分类为维度展示在线率，条形区分在线与离线占比。","source":"ai","status":"generated"},
+        {"title":"按在线率排序","priority":"P1","details":"支持在线率从高到低与从低到高两种排序方式。","source":"ai","status":"generated"},
+        {"title":"查看分类设备构成","priority":"P1","details":"悬停分类条形可查看该分类的设备总数、在线台数与离线台数。","source":"ai","status":"generated"},
+        {"title":"无数据提示","priority":"P2","details":"没有可统计的分类时展示无数据提示。","source":"ai","status":"generated"}
+      ],
+      "fields": [
+        {"name":"categoryName","label":"分类名称","type":"文本","required":true,"description":"参与在线率统计的设备分类名称。","source":"ai","status":"generated"},
+        {"name":"categoryOnlineRate","label":"分类在线率","type":"百分比","required":true,"description":"该分类在线设备占该分类设备总数的比例。","source":"ai","status":"generated"},
+        {"name":"categoryTotalCount","label":"分类设备总数","type":"数值","required":true,"description":"该分类的设备总台数。","source":"ai","status":"generated"},
+        {"name":"categoryOnlineCount","label":"分类在线台数","type":"数值","required":true,"description":"该分类在线设备的台数。","source":"ai","status":"generated"},
+        {"name":"categoryOfflineCount","label":"分类离线台数","type":"数值","required":true,"description":"该分类离线设备的台数。","source":"ai","status":"generated"},
+        {"name":"sortOrder","label":"排序方向","type":"枚举","required":true,"description":"分类在线率的排列方向，取值为高到低或低到高。","source":"ai","status":"generated"}
+      ],
+      "rules": [
+        "分类在线率以全量设备为统计基数，不受设备分类与运行状态筛选影响。",
+        "在线率相同的分类按设备台数从多到少排列。",
+        "没有设备的分类不参与在线率统计。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {"trigger":"切换排序方向","action":"重新排列分类","description":"按在线率从高到低或从低到高排列各分类。","source":"ai","status":"generated"},
+        {"trigger":"悬停分类条形","action":"查看分类设备构成","description":"展示该分类的设备总数、在线台数与离线台数。","source":"ai","status":"generated"}
+      ],
+      "source":"ai",
+      "status":"generated"
+    },
+    {
+      "id": "data-source",
+      "title": "数据来源",
+      "purpose": "说明本页设备分类与设备数据的来源表，供开发按表对接取数。",
+      "summary": "设备分类取设备定义表 equip_device_def，设备数据取设备实例表 equip_device_instance，两张表同属东莞园区开发库 smart_park_dev。设备的空间归属、运行状态与状态更新时间均取自设备实例表的对应字段，地图底图为园区平面示意图。",
+      "requirements": [
+        {"title":"按表对接设备分类","priority":"P0","details":"设备分类取设备定义表 equip_device_def，一个设备定义即一个分类，不按上级大类归并。","source":"ai","status":"generated"},
+        {"title":"按表对接设备数据","priority":"P0","details":"设备数据取设备实例表 equip_device_instance，设备名称、所属空间、运行状态等信息均以该表为准。","source":"ai","status":"generated"},
+        {"title":"按表对接空间、状态与更新时间","priority":"P1","details":"设备空间归属取设备实例表的空间全名字段，运行状态取状态字段，状态更新时间取状态变更时间字段。","source":"ai","status":"generated"}
+      ],
+      "fields": [
+        {"name":"sourceDatabase","label":"来源库","type":"文本","required":true,"description":"设备分类与设备数据的来源库为东莞园区开发库 smart_park_dev。","source":"ai","status":"generated"},
+        {"name":"categorySourceTable","label":"设备分类来源表","type":"文本","required":true,"description":"设备分类取设备定义表 equip_device_def，一个 def_code 即一个分类，不按 def_category_code 归并大类。","source":"ai","status":"generated"},
+        {"name":"deviceSourceTable","label":"设备数据来源表","type":"文本","required":true,"description":"设备数据取设备实例表 equip_device_instance。","source":"ai","status":"generated"},
+        {"name":"spaceNameField","label":"空间归属来源字段","type":"文本","required":true,"description":"空间归属取设备实例表的空间全名字段 space_full_name，展示时去掉「东莞空港中心/」前缀；未绑定空间的设备以“—”展示。","source":"ai","status":"generated"},
+        {"name":"deviceStatusField","label":"运行状态来源字段","type":"文本","required":true,"description":"运行状态取设备实例表的 status 字段，其中 unactivated 在本页按离线呈现。","source":"ai","status":"generated"},
+        {"name":"statusUpdatedAtField","label":"状态更新时间来源字段","type":"文本","required":true,"description":"状态更新时间取设备实例表的 last_stat_change 字段，缺失时回落到 update_time。","source":"ai","status":"generated"},
+        {"name":"mapBaseImage","label":"地图底图","type":"文本","required":true,"description":"底图为园区平面示意图，设备点位按所属空间以示意坐标落点，不代表真实经纬度。","source":"ai","status":"generated"}
+      ],
+      "rules": [
+        "设备分类与设备数据同属东莞园区开发库 smart_park_dev。",
+        "设备分类取自设备定义表 equip_device_def，一个 def_code 即一个分类，不按大类归并。",
+        "设备数据取自设备实例表 equip_device_instance。",
+        "空间归属取自设备实例表的空间全名字段，未绑定时以“—”展示；运行状态与状态更新时间同样取自设备实例表。",
+        "地图底图为园区平面示意图，设备点位为按空间归属生成的示意落点，不代表真实经纬度。"
+      ],
+      "ruleImages": [],
+      "interactions": [],
+      "source":"ai",
+      "status":"generated"
+    }
+  ]
+}

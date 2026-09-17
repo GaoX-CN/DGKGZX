@@ -384,6 +384,19 @@ const defaultPages: PrototypePage[] = [
         ],
       },
       {
+        pageId: 'DeviceDistribution',
+        pageName: '设备分布',
+        pagePath: '/facility/device-distribution',
+        modules: [
+          { moduleId: 'dd-filter', moduleName: '设备分类筛选（单选）', moduleType: 'form', pageId: 'DeviceDistribution', requirementId: 'dd-filter', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+          { moduleId: 'dd-map', moduleName: '设备分布地图', moduleType: 'unknown', pageId: 'DeviceDistribution', requirementId: 'dd-map', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+          { moduleId: 'dd-tip', moduleName: '设备信息卡（点击图标弹出）', moduleType: 'card', pageId: 'DeviceDistribution', requirementId: 'dd-tip', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+          { moduleId: 'dd-device-list', moduleName: '设备清单', moduleType: 'table', pageId: 'DeviceDistribution', requirementId: 'dd-device-list', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+          { moduleId: 'dd-overview', moduleName: '分布概览（含运行状态筛选）', moduleType: 'card', pageId: 'DeviceDistribution', requirementId: 'dd-overview', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+          { moduleId: 'dd-rank', moduleName: '分类占比', moduleType: 'card', pageId: 'DeviceDistribution', requirementId: 'dd-rank', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+        ],
+      },
+      {
         pageId: '设备巡检',
         pageName: '设备巡检',
         isFolder: true,
