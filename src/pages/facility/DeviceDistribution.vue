@@ -69,6 +69,25 @@
       </div>
     </main>
 
+    <!-- ===================== 数据状态条：手动刷新 + 自动刷新机制说明 ===================== -->
+    <div class="dd-livestatus">
+      <span class="dd-livestatus__pulse" />
+      <span class="dd-livestatus__label">实时数据</span>
+      <button
+        type="button"
+        class="dd-livestatus__btn"
+        :disabled="refreshing"
+        title="重新拉取设备数据，不影响当前筛选与选中状态"
+        @click="manualRefresh"
+      >
+        <el-icon :class="{ 'is-spinning': refreshing }"><Refresh /></el-icon>
+        {{ refreshing ? '刷新中' : '数据刷新' }}
+      </button>
+      <span class="dd-livestatus__meta">
+        每 1 分钟自动刷新 · 更新于 <b>{{ lastRefreshText }}</b>
+      </span>
+    </div>
+
     <!-- ===================== 左侧：分类筛选 + 设备清单 ===================== -->
     <aside class="dd-side dd-side--left">
       <section class="dd-card dd-card--filter">
@@ -302,9 +321,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { Component } from 'vue'
-import { Box, CaretBottom, CaretTop, Close, Filter, Histogram, OfficeBuilding, Search } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { Box, CaretBottom, CaretTop, Close, Filter, Histogram, OfficeBuilding, Refresh, Search } from '@element-plus/icons-vue'
 import {
   deviceAreaLabels,
   deviceCategories,
@@ -325,8 +345,8 @@ type StatusFilter = 'all' | DeviceStatus
 /** 设备分类（16 类） */
 const categories = deviceCategories
 
-/** 设备实例（87 台） */
-const devices = deviceList
+/** 设备实例（87 台）——集合由数据刷新从设备数据接口重新获取（原型以工程内静态 mock 模拟接口返回） */
+const devices = ref<DeviceItem[]>(deviceList.map((item) => ({ ...item })))
 
 /** 底图区域标注 */
 const areaLabels = deviceAreaLabels
@@ -355,6 +375,63 @@ function statusTagType(status: DeviceStatus) {
   return statusMeta[status].tag
 }
 
+// ==================== 数据刷新（手动刷新 + 每 1 分钟自动刷新） ====================
+// 刷新 = 重新拉取设备数据接口并替换设备集合，仅数据更新，不重置任何页面交互状态：
+// 选中的设备分类、运行状态筛选、在线率排序方向、地图选中设备、设备清单面板开关、
+// 清单内关键字 / 状态过滤 / 页码，全部保持不变。
+
+/** 自动刷新间隔：1 分钟 */
+const AUTO_REFRESH_MS = 60 * 1000
+
+/** 是否正在刷新（手动刷新时按钮转圈并置灰） */
+const refreshing = ref(false)
+
+/** 最近一次刷新完成时刻，用于向用户表明数据是动态更新的 */
+const lastRefreshAt = ref(new Date())
+const lastRefreshText = computed(() => formatClock(lastRefreshAt.value))
+
+function formatClock(date: Date): string {
+  const pad = (value: number) => String(value).padStart(2, '0')
+  return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+}
+
+/** 设备数据接口（原型：以工程内静态 mock 数据模拟接口返回，含少量请求耗时） */
+function fetchDeviceSnapshot(): Promise<DeviceItem[]> {
+  return new Promise((resolve) => {
+    window.setTimeout(() => resolve(deviceList.map((item) => ({ ...item }))), 420)
+  })
+}
+
+/** 刷新数据；silent 为 true 表示自动刷新，不弹提示 */
+async function refreshData(silent: boolean) {
+  if (refreshing.value) return
+  refreshing.value = true
+  try {
+    devices.value = await fetchDeviceSnapshot()
+    lastRefreshAt.value = new Date()
+    if (!silent) ElMessage.success('设备数据已刷新')
+  } finally {
+    refreshing.value = false
+  }
+}
+
+/** 点击「数据刷新」 */
+function manualRefresh() {
+  void refreshData(false)
+}
+
+let autoRefreshTimer: number | undefined
+
+onMounted(() => {
+  autoRefreshTimer = window.setInterval(() => {
+    void refreshData(true)
+  }, AUTO_REFRESH_MS)
+})
+
+onBeforeUnmount(() => {
+  if (autoRefreshTimer !== undefined) window.clearInterval(autoRefreshTimer)
+})
+
 // ==================== 筛选状态（分类单选 + 状态单选） ====================
 
 /** 默认选中第一个设备分类（摄像头） */
@@ -363,13 +440,13 @@ const statusFilter = ref<StatusFilter>('all')
 
 /** 当前分类范围内的设备（不含状态过滤，用于分类型徽标与概览计数） */
 const categoryBaseDevices = computed(() =>
-  devices.filter((d) => d.category === selectedCategory.value),
+  devices.value.filter((d) => d.category === selectedCategory.value),
 )
 
 /** 当前状态范围内的设备（不含分类过滤，用于分类徽标与「在线率」） */
 const statusBaseDevices = computed(() => {
-  if (statusFilter.value === 'all') return devices
-  return devices.filter((d) => d.status === statusFilter.value)
+  if (statusFilter.value === 'all') return devices.value
+  return devices.value.filter((d) => d.status === statusFilter.value)
 })
 
 /** 最终地图与清单使用的设备集合（分类 + 状态双重约束） */
@@ -399,7 +476,7 @@ const onlineRate = computed(() => {
 
 const activeDeviceId = ref<string | null>(null)
 const activeDevice = computed<DeviceItem | null>(
-  () => devices.find((d) => d.id === activeDeviceId.value) ?? null,
+  () => devices.value.find((d) => d.id === activeDeviceId.value) ?? null,
 )
 
 function selectDevice(id: string) {
@@ -464,8 +541,8 @@ const rankOrder = ref<'desc' | 'asc'>('desc')
 const categoryRank = computed<CategoryRankItem[]>(() => {
   const list = categories
     .map((cat) => {
-      const online = devices.filter((d) => d.category === cat.value && d.status === 'online').length
-      const offline = devices.filter((d) => d.category === cat.value && d.status === 'offline').length
+      const online = devices.value.filter((d) => d.category === cat.value && d.status === 'online').length
+      const offline = devices.value.filter((d) => d.category === cat.value && d.status === 'offline').length
       const count = online + offline
       const rate = count === 0 ? 0 : Math.round((online / count) * 1000) / 10
       return {
@@ -1240,6 +1317,92 @@ function resetFilter() {
 .dd-ranktip__dot--online { background: #35b37e; }
 .dd-ranktip__dot--offline { background: #c4cdd9; }
 
+// ==================== 数据状态条（数据刷新 + 自动刷新机制说明） ====================
+.dd-livestatus {
+  position: absolute;
+  z-index: 12;
+  top: 16px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, .95);
+  border: 1px solid #e0e7f0;
+  border-radius: 999px;
+  box-shadow: 0 4px 16px rgba(38, 58, 90, .16);
+  transform: translateX(-50%);
+  backdrop-filter: blur(6px);
+}
+.dd-livestatus__pulse {
+  position: relative;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  background: #35b37e;
+  border-radius: 50%;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #35b37e;
+    border-radius: 50%;
+    animation: dd-pulse 1.8s ease-out infinite;
+  }
+}
+@keyframes dd-pulse {
+  0% { transform: scale(1); opacity: .5; }
+  70%, 100% { transform: scale(2.6); opacity: 0; }
+}
+.dd-livestatus__label {
+  flex: none;
+  color: #2f4a78;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .3px;
+}
+.dd-livestatus__btn {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  gap: 4px;
+  padding: 4px 11px;
+  color: #fff;
+  background: #4776e6;
+  border: 0;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 17px;
+  cursor: pointer;
+  transition: background .14s, opacity .14s;
+
+  &:hover { background: #3a66d0; }
+  &:disabled {
+    cursor: default;
+    opacity: .75;
+
+    &:hover { background: #4776e6; }
+  }
+
+  .el-icon.is-spinning { animation: dd-spin .9s linear infinite; }
+}
+@keyframes dd-spin {
+  to { transform: rotate(360deg); }
+}
+.dd-livestatus__meta {
+  flex: none;
+  color: #6c7c93;
+  font-size: 11px;
+
+  b {
+    color: #2f4a78;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
 // ==================== 响应式 ====================
 @media (max-width: 1480px) {
   .dd-side--left { width: 300px; }
@@ -1251,9 +1414,18 @@ function resetFilter() {
   .dd-side--right { width: 288px; }
   .dd-overview__item strong { font-size: 15px; }
   .dd-slidepanel { left: 292px; width: 320px; }
+  .dd-livestatus__label { display: none; }
 }
 @media (max-width: 1100px) {
   .dd-side--right { display: none; }
+  // 右侧卡片隐藏后，把数据状态条挪到右下角，避免与左侧分类卡重叠
+  .dd-livestatus {
+    top: auto;
+    right: 16px;
+    bottom: 16px;
+    left: auto;
+    transform: none;
+  }
 }
 @media (max-width: 860px) {
   .dd-side--left { right: 16px; bottom: auto; width: auto; max-height: 46vh; }
