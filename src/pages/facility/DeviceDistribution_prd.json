@@ -1,13 +1,13 @@
 {
   "pageName": "DeviceDistribution",
   "pageId": "DeviceDistribution",
-  "version": "1.2.1",
-  "lastUpdated": "2026-09-17T03:04:00Z",
+  "version": "1.3.0",
+  "lastUpdated": "2026-09-20T03:43:00Z",
   "intent": {
     "type": "analysis",
     "summary": "在园区平面图上查看各类设备的空间分布与运行状态，并按设备分类、运行状态筛选，辅助掌握设备在线情况。"
   },
-  "overview": "设备分布页面面向园区运维与管理人员，以园区平面图为载体展示设备所在空间的分布情况，支持按设备分类（一个设备定义即一类）、按运行状态（在线、离线）筛选，查看单台设备的位置与状态信息，查看某个分类的设备清单，并通过分布概览与分类在线率掌握整体运行水平。设备分类与设备数据分别取自设备定义表与设备实例表，详见「数据来源」模块。",
+  "overview": "设备分布页面面向园区运维与管理人员，以园区平面图为载体展示设备所在空间的分布情况，支持按设备分类（一个设备定义即一类）、按运行状态（在线、离线）筛选，查看单台设备的位置与状态信息，查看某个分类的设备清单，并通过分布概览与分类在线率掌握整体运行水平。页面设备数据每分钟自动刷新一次并支持手动刷新，刷新只更新数据、不影响用户当前已选定的筛选与视图状态。设备分类与设备数据分别取自设备定义表与设备实例表，详见「数据来源」模块。",
   "modules": [
     {
       "id": "device-category-filter",
@@ -168,6 +168,37 @@
       "interactions": [
         {"trigger":"切换排序方向","action":"重新排列分类","description":"按在线率从高到低或从低到高排列各分类。","source":"ai","status":"generated"},
         {"trigger":"悬停分类条形","action":"查看分类设备构成","description":"展示该分类的设备总数、在线台数与离线台数。","source":"ai","status":"generated"}
+      ],
+      "source":"ai",
+      "status":"generated"
+    },
+    {
+      "id": "data-refresh",
+      "title": "数据刷新",
+      "purpose": "提供手动刷新与自动刷新能力，保证页面展示的设备数据保持最新，并让用户知道本页数据是动态更新的。",
+      "summary": "页面提供手动刷新入口，点击后重新获取设备数据并更新地图点位、分布概览、在线率与分类设备清单；同时每分钟自动刷新一次设备数据。刷新只更新数据，不改变用户当前选定的分类、运行状态、排序与已选设备，并展示最近一次数据更新时间。",
+      "requirements": [
+        {"title":"手动刷新设备数据","priority":"P0","details":"提供手动刷新入口，点击后重新获取设备数据，并更新地图点位、分布概览、在线率与分类设备清单。","source":"ai","status":"generated"},
+        {"title":"刷新不改变当前视图状态","priority":"P0","details":"刷新只更新设备数据，不改变当前选中的设备分类、运行状态筛选、在线率排序方向、地图上已选中的设备、分类设备清单的展开状态以及清单内的搜索条件、运行状态过滤与页码。","source":"ai","status":"generated"},
+        {"title":"每分钟自动刷新","priority":"P0","details":"页面每分钟自动刷新一次设备数据，自动刷新过程中不打断用户当前操作、不弹出提示。","source":"ai","status":"generated"},
+        {"title":"说明数据动态刷新机制","priority":"P1","details":"在页面上说明数据为自动更新的动态数据，展示自动刷新频率以及最近一次数据更新时间。","source":"ai","status":"generated"},
+        {"title":"刷新进行中不可重复触发","priority":"P2","details":"刷新进行中刷新入口不可再次点击，并在刷新进行中给出进行中的状态反馈。","source":"ai","status":"generated"}
+      ],
+      "fields": [
+        {"name":"refreshStatus","label":"刷新状态","type":"枚举","required":true,"description":"设备数据当前是否正在刷新，刷新进行中时手动刷新入口不可重复触发。","source":"ai","status":"generated"},
+        {"name":"autoRefreshInterval","label":"自动刷新频率","type":"数值","required":true,"description":"设备数据自动刷新的频率，固定为每分钟一次。","source":"ai","status":"generated"},
+        {"name":"lastRefreshTime","label":"最新数据时间","type":"时间","required":true,"description":"最近一次成功刷新设备数据的时间，展示为「最新数据：时:分:秒」。","source":"ai","status":"generated"}
+      ],
+      "rules": [
+        "刷新只更新设备数据，不重置用户当前已选定的筛选与视图状态。",
+        "设备数据每分钟自动刷新一次，自动刷新静默完成，不弹出提示。",
+        "刷新进行中不可重复触发刷新。",
+        "最新数据时间在每次刷新完成后更新，用于表明本页数据为动态更新的数据。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {"trigger":"点击手动刷新","action":"重新获取设备数据","description":"重新获取设备数据并更新地图点位、分布概览、在线率与分类设备清单，完成后给出刷新结果提示，当前筛选与已选设备保持不变。","source":"ai","status":"generated"},
+        {"trigger":"页面自动刷新","action":"静默更新设备数据","description":"每分钟自动获取一次设备数据并更新页面展示，不弹出提示、不改变当前视图状态。","source":"ai","status":"generated"}
       ],
       "source":"ai",
       "status":"generated"

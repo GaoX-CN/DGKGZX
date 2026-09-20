@@ -71,8 +71,6 @@
 
     <!-- ===================== 数据状态条：手动刷新 + 自动刷新机制说明 ===================== -->
     <div class="dd-livestatus">
-      <span class="dd-livestatus__pulse" />
-      <span class="dd-livestatus__label">实时数据</span>
       <button
         type="button"
         class="dd-livestatus__btn"
@@ -81,10 +79,10 @@
         @click="manualRefresh"
       >
         <el-icon :class="{ 'is-spinning': refreshing }"><Refresh /></el-icon>
-        {{ refreshing ? '刷新中' : '数据刷新' }}
+        {{ refreshing ? '刷新中' : '手动刷新' }}
       </button>
       <span class="dd-livestatus__meta">
-        每 1 分钟自动刷新 · 更新于 <b>{{ lastRefreshText }}</b>
+        每分钟自动刷新（最新数据：<b>{{ lastRefreshText }}</b>）
       </span>
     </div>
 
@@ -1334,34 +1332,6 @@ function resetFilter() {
   transform: translateX(-50%);
   backdrop-filter: blur(6px);
 }
-.dd-livestatus__pulse {
-  position: relative;
-  flex: none;
-  width: 8px;
-  height: 8px;
-  background: #35b37e;
-  border-radius: 50%;
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: #35b37e;
-    border-radius: 50%;
-    animation: dd-pulse 1.8s ease-out infinite;
-  }
-}
-@keyframes dd-pulse {
-  0% { transform: scale(1); opacity: .5; }
-  70%, 100% { transform: scale(2.6); opacity: 0; }
-}
-.dd-livestatus__label {
-  flex: none;
-  color: #2f4a78;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: .3px;
-}
 .dd-livestatus__btn {
   display: inline-flex;
   align-items: center;
@@ -1414,7 +1384,6 @@ function resetFilter() {
   .dd-side--right { width: 288px; }
   .dd-overview__item strong { font-size: 15px; }
   .dd-slidepanel { left: 292px; width: 320px; }
-  .dd-livestatus__label { display: none; }
 }
 @media (max-width: 1100px) {
   .dd-side--right { display: none; }
