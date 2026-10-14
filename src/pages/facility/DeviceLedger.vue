@@ -2,18 +2,10 @@
   <div class="dl-page">
     <!-- ===================== 搜索栏 ===================== -->
     <el-form :model="filters" inline class="dl-search">
-      <el-form-item label="启用状态">
-        <el-select v-model="filters.enabled" placeholder="请选择" clearable style="width: 130px">
-          <el-option label="启用" value="enabled" />
-          <el-option label="停用" value="disabled" />
-          <el-option label="报废" value="scrapped" />
-        </el-select>
-      </el-form-item>
       <el-form-item label="设备状态">
         <el-select v-model="filters.status" placeholder="请选择" clearable style="width: 130px">
           <el-option label="在线" value="online" />
           <el-option label="离线" value="offline" />
-          <el-option label="未激活" value="unactivated" />
           <el-option label="报废" value="scrapped" />
         </el-select>
       </el-form-item>
@@ -211,6 +203,10 @@
  *   · 设备状态  ← status（在线 / 离线 / 未激活），完成报废登记后在本系统呈现为「报废」
  *   · 空间归属  ← space_full_name（已去顶层前缀）
  *
+ * 筛选口径：
+ *   · 设备状态：在线 / 离线 / 报废（列表仍可能出现「未激活」，筛选项中暂不单列）
+ *   · 设备名称模糊匹配；设备分类按 def_code 等值过滤；空间位置按所选空间及其下级空间过滤
+ *
  * 设备报废（对应《设备设施系统业务场景应用手册》Q8，操作位置＝设备管理-设备台账-报废）：
  *   · 须填写报废方式、报废原因、报废时间，并填写报废说明；报废后设备状态在本系统呈现为「报废」
  *   · 仅为本系统业务记录，不回写 IOT 及设备所属各弱电子系统，不影响设备实际运行与在线状态
@@ -289,14 +285,6 @@ const ledgerRows = computed<LedgerRow[]>(() =>
 /** 设备状态取值：已报废优先，其次取实例表原始状态 */
 function statusKey(item: LedgerRow): keyof typeof statusMeta {
   return item.scrap ? 'scrapped' : item.rawStatus
-}
-
-// ==================== 启用状态 ====================
-// ⚠️ 实例表未单独登记启用标记，原型按「已报废＝报废、未激活＝停用、其余＝启用」的示例口径呈现；
-//    报废优先于停用（已报废设备不再属于启用状态）。
-function enabledOf(item: LedgerRow): 'enabled' | 'disabled' | 'scrapped' {
-  if (item.scrap) return 'scrapped'
-  return item.rawStatus === 'unactivated' ? 'disabled' : 'enabled'
 }
 
 const scrapVisible = ref(false)
@@ -401,8 +389,8 @@ const spaceOptions = computed<SpaceOption[]>(() => {
 })
 
 // ==================== 筛选与分页 ====================
+// ==================== 筛选与分页 ====================
 const filters = reactive({
-  enabled: '',
   status: '',
   keyword: '',
   category: '',
@@ -411,7 +399,6 @@ const filters = reactive({
 
 const filteredDevices = computed(() => {
   let list = ledgerRows.value
-  if (filters.enabled) list = list.filter((d) => enabledOf(d) === filters.enabled)
   if (filters.status) list = list.filter((d) => statusKey(d) === filters.status)
   if (filters.keyword) list = list.filter((d) => d.name.includes(filters.keyword))
   if (filters.category) list = list.filter((d) => d.category === filters.category)
@@ -439,7 +426,6 @@ function handleSearch() {
 }
 
 function handleReset() {
-  filters.enabled = ''
   filters.status = ''
   filters.keyword = ''
   filters.category = ''
