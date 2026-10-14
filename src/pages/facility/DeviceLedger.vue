@@ -6,6 +6,7 @@
         <el-select v-model="filters.enabled" placeholder="请选择" clearable style="width: 130px">
           <el-option label="启用" value="enabled" />
           <el-option label="停用" value="disabled" />
+          <el-option label="报废" value="scrapped" />
         </el-select>
       </el-form-item>
       <el-form-item label="设备状态">
@@ -256,12 +257,6 @@ function subsystemOf(item: DeviceItem): string {
   return SUBSYSTEM_BY_CATEGORY[item.category] || UNCLASSIFIED
 }
 
-// ==================== 启用状态 ====================
-// ⚠️ 实例表未单独登记启用标记，原型按「未激活＝停用，其余＝启用」的示例口径呈现。
-function enabledOf(item: DeviceItem): 'enabled' | 'disabled' {
-  return item.rawStatus === 'unactivated' ? 'disabled' : 'enabled'
-}
-
 // ==================== 设备报废登记（仅本系统业务记录） ====================
 interface ScrapRecord {
   /** 报废方式 */
@@ -294,6 +289,14 @@ const ledgerRows = computed<LedgerRow[]>(() =>
 /** 设备状态取值：已报废优先，其次取实例表原始状态 */
 function statusKey(item: LedgerRow): keyof typeof statusMeta {
   return item.scrap ? 'scrapped' : item.rawStatus
+}
+
+// ==================== 启用状态 ====================
+// ⚠️ 实例表未单独登记启用标记，原型按「已报废＝报废、未激活＝停用、其余＝启用」的示例口径呈现；
+//    报废优先于停用（已报废设备不再属于启用状态）。
+function enabledOf(item: LedgerRow): 'enabled' | 'disabled' | 'scrapped' {
+  if (item.scrap) return 'scrapped'
+  return item.rawStatus === 'unactivated' ? 'disabled' : 'enabled'
 }
 
 const scrapVisible = ref(false)
