@@ -77,8 +77,8 @@
             </template>
             <el-tag type="warning" size="small" effect="light">{{ statusMeta.scrapped.label }}</el-tag>
           </el-tooltip>
-          <el-tag v-else :type="statusMeta[row.rawStatus].tag" size="small" effect="light">
-            {{ statusMeta[row.rawStatus].label }}
+          <el-tag v-else :type="statusMetaOf(row).tag" size="small" effect="light">
+            {{ statusMetaOf(row).label }}
           </el-tag>
         </template>
       </el-table-column>
@@ -144,7 +144,7 @@
         </el-descriptions-item>
         <el-descriptions-item label="空间归属">{{ scrapTarget?.location }}</el-descriptions-item>
         <el-descriptions-item label="当前状态">
-          {{ scrapTarget ? statusMeta[scrapTarget.rawStatus].label : '—' }}
+          {{ scrapTarget ? statusMetaOf(scrapTarget).label : '—' }}
         </el-descriptions-item>
       </el-descriptions>
 
@@ -285,6 +285,15 @@ const ledgerRows = computed<LedgerRow[]>(() =>
 /** 设备状态取值：已报废优先，其次取实例表原始状态 */
 function statusKey(item: LedgerRow): keyof typeof statusMeta {
   return item.scrap ? 'scrapped' : item.rawStatus
+}
+
+/**
+ * 取设备状态的展示元数据。
+ * ⚠️ el-table 插槽的 row 是 any，直接写 `statusMeta[row.rawStatus]` 会因「以 any 索引 Record<联合字面量, …>」
+ * 触发 TS7053（vue-tsc 会失败），因此统一用本函数包一层；参数按 LedgerRow 标注，传入 any 也合法。
+ */
+function statusMetaOf(item: LedgerRow) {
+  return statusMeta[item.rawStatus]
 }
 
 const scrapVisible = ref(false)
