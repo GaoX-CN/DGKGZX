@@ -397,6 +397,16 @@ const defaultPages: PrototypePage[] = [
         ],
       },
       {
+        pageId: 'DeviceLedger',
+        pageName: '设备台账',
+        pagePath: '/facility/device-ledger',
+        modules: [
+          { moduleId: 'dl-search', moduleName: '搜索栏（含设备分类过滤）', moduleType: 'form', pageId: 'DeviceLedger', requirementId: 'dl-search', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+          { moduleId: 'dl-actions', moduleName: '操作栏', moduleType: 'form', pageId: 'DeviceLedger', requirementId: 'dl-actions', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+          { moduleId: 'dl-table', moduleName: '设备台账列表', moduleType: 'table', pageId: 'DeviceLedger', requirementId: 'dl-table', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+        ],
+      },
+      {
         pageId: '设备巡检',
         pageName: '设备巡检',
         isFolder: true,
@@ -488,6 +498,25 @@ const defaultPages: PrototypePage[] = [
           { moduleId: 'ew-map', moduleName: '全屏地图电表/水表撒点', moduleType: 'unknown', pageId: 'EnergyWorkbench', requirementId: 'ew-map', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
           { moduleId: 'ew-cost-ranking', moduleName: '成本排名（园区/租户）', moduleType: 'table', pageId: 'EnergyWorkbench', requirementId: 'ew-cost-ranking', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
           { moduleId: 'ew-energy-ranking', moduleName: '能耗排名（园区/租户）', moduleType: 'table', pageId: 'EnergyWorkbench', requirementId: 'ew-energy-ranking', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+        ],
+      },
+    ],
+  },
+  {
+    pageId: '移动端',
+    pageName: '移动端',
+    isFolder: true,
+    children: [
+      {
+        pageId: 'MobileInspectionOrders',
+        pageName: '巡检工单',
+        pagePath: '/mobile/inspection/orders',
+        modules: [
+          { moduleId: 'mio-list', moduleName: '我的工单列表', moduleType: 'table', pageId: 'MobileInspectionOrders', requirementId: 'mio-list', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+          { moduleId: 'mio-filter', moduleName: '工单查询与筛选', moduleType: 'form', pageId: 'MobileInspectionOrders', requirementId: 'mio-filter', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+          { moduleId: 'mio-devices', moduleName: '处置设备清单', moduleType: 'table', pageId: 'MobileInspectionOrders', requirementId: 'mio-devices', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+          { moduleId: 'mio-items', moduleName: '巡检项评定', moduleType: 'form', pageId: 'MobileInspectionOrders', requirementId: 'mio-items', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+          { moduleId: 'mio-detail', moduleName: '工单详情', moduleType: 'card', pageId: 'MobileInspectionOrders', requirementId: 'mio-detail', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
         ],
       },
     ],

@@ -95,6 +95,11 @@ const router = createRouter({
           component: () => import('@/pages/facility/DeviceDistribution.vue'),
         },
         {
+          path: '/facility/device-ledger',
+          name: 'DeviceLedger',
+          component: () => import('@/pages/facility/DeviceLedger.vue'),
+        },
+        {
           path: '/facility/inspection/items',
           name: 'InspectionItems',
           component: () => import('@/pages/facility/inspection/InspectionItems.vue'),
@@ -113,6 +118,11 @@ const router = createRouter({
           path: '/facility/inspection/orders',
           name: 'InspectionOrders',
           component: () => import('@/pages/facility/inspection/InspectionOrders.vue'),
+        },
+        {
+          path: '/mobile/inspection/orders',
+          name: 'MobileInspectionOrders',
+          component: () => import('@/pages/mobile/inspection/MobileInspectionOrders.vue'),
         },
         {
           path: '/energy/high-voltage-inlet-management',
