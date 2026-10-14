@@ -404,6 +404,7 @@ const defaultPages: PrototypePage[] = [
           { moduleId: 'dl-search', moduleName: '搜索栏（含设备分类过滤）', moduleType: 'form', pageId: 'DeviceLedger', requirementId: 'dl-search', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
           { moduleId: 'dl-actions', moduleName: '操作栏', moduleType: 'form', pageId: 'DeviceLedger', requirementId: 'dl-actions', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
           { moduleId: 'dl-table', moduleName: '设备台账列表', moduleType: 'table', pageId: 'DeviceLedger', requirementId: 'dl-table', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
+          { moduleId: 'dl-scrap', moduleName: '设备报废（含撤回报废）', moduleType: 'form', pageId: 'DeviceLedger', requirementId: 'dl-scrap', bounds: { x: 0, y: 0, width: 0, height: 0 }, props: {} },
         ],
       },
       {
