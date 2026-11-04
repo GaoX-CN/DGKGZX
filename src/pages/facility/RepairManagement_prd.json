@@ -1,19 +1,19 @@
 {
   "pageName": "RepairManagement",
   "pageId": "RepairManagement",
-  "version": "3.2.0",
-  "lastUpdated": "2026-08-26T07:45:00Z",
+  "version": "3.3.0",
+  "lastUpdated": "2026-11-04T07:28:42Z",
   "intent": {
     "type": "workflow",
-    "summary": "管理园区设备设施报修全生命周期：报修→派发核查→完成核查→提交维修方案→审核方案→下发维修工单→完成维修→完成验收，集成巡检异常设备转报修"
+    "summary": "管理园区设备设施报修全生命周期：报修 → 处置（现场核查／直接维修）→ 提交维修方案 → 审核方案 → 下发维修工单 → 完成维修 → 完成验收；核查工单、维修工单与方案审核流程由外部引擎承载，报修单保留单据索引。"
   },
-  "overview": "报修管理页面覆盖设备设施报修的完整业务流程。支持三种报修类型：物联设备报修（通过弹窗按空间树、类型、名称筛选后多选设备）、月台报修（选择建筑-月台）、其他资产报修（支持从已导入资产库中多选，也可手动填写，二选一）。新建报修为两步流程（选类型-填信息）。提交后进入待处理状态。报修对象统一展示为「名称（建筑 楼层 位置）」格式。支持删除、编辑、核查、维修、验收等全生命周期操作。详情页面按分区展示完整字段和操作日志。操作栏设有巡检异常设备统计入口，汇聚巡检工单中标记为需维修的设备，支持忽略或一键转报修。",
+  "overview": "报修管理页面覆盖设备设施报修的完整业务流程。支持三种报修类型：物联设备报修（通过弹窗按空间树、类型、名称筛选后多选设备）、月台报修（选择建筑-月台）、其他资产报修（支持从已导入资产库中多选，也可手动填写，二选一）。新建报修为两步流程（选类型-填信息）。提交后进入待处理状态。报修对象统一展示为「名称（建筑 楼层 位置）」格式。支持编辑、删除、处置（现场核查／直接维修）、提交方案、审核方案、下发维修工单、验收等全生命周期操作。详情以页签组织：报修单信息、核查工单、维修方案审核、维修工单，后三者嵌入工单引擎／流程引擎的详情页。操作栏设有巡检异常设备统计入口，汇聚巡检工单中标记为需维修的设备，支持忽略或一键转报修。",
   "modules": [
     {
       "id": "rm-search",
       "title": "搜索栏",
       "purpose": "帮助运营人员快速筛选目标报修工单",
-      "summary": "支持按报修单号（模糊匹配）、报修类型、负责人（模糊搜索）、当前状态（核查中/待处理/待提交方案/方案待审核/方案已驳回/待维修/维修中/待验收/已完成）、紧急程度、报修日期范围多维度筛选，提供查询和重置按钮。",
+      "summary": "支持按报修单号（模糊匹配）、报修类型、维修负责人（模糊搜索）、当前状态（核查中/待处理/待提交方案/方案待审核/方案已驳回/待维修/维修中/待验收/已完成）、紧急程度、报修日期范围多维度筛选，提供查询和重置按钮。",
       "requirements": [
         {
           "title": "报修单号查询",
@@ -30,9 +30,9 @@
           "status": "generated"
         },
         {
-          "title": "负责人搜索",
+          "title": "维修负责人搜索",
           "priority": "P2",
-          "details": "支持输入负责人姓名关键词进行模糊搜索。",
+          "details": "支持输入维修负责人姓名关键词进行模糊搜索。",
           "source": "ai",
           "status": "generated"
         },
@@ -79,7 +79,7 @@
         },
         {
           "name": "chargePerson",
-          "label": "负责人",
+          "label": "维修负责人",
           "type": "string",
           "required": false,
           "description": "维修负责人姓名模糊搜索",
@@ -122,7 +122,7 @@
         {
           "trigger": "点击查询",
           "action": "执行筛选",
-          "description": "根据当前筛选条件重新加载列表数据并回到第���页。",
+          "description": "根据当前筛选条件重新加载列表数据并回到第一页。",
           "source": "ai",
           "status": "generated"
         },
@@ -142,19 +142,19 @@
       "id": "rm-table",
       "title": "报修工单列表",
       "purpose": "展示所有报修工单数据并根据状态提供对应操作",
-      "summary": "列包含序号、报修单号、报修类型（标签）、报修对象（超长省略悬浮）、报修内容（超长省略）、紧急程度（彩色标签）、负责人、当前状态（彩色标签）、报修人、报修时间、操作。待处理提供核查/维修/编辑/删除；核查中仅详情；待提交方案可提交方案；方案待审核可审核方案；方案已驳回可修改方案；待维修可下发维修工单；其余状态仅详情。操作栏上方展示巡检异常设备统计按钮。",
+      "summary": "列包含序号、报修单号、报修类型（标签）、报修对象（超长省略悬浮）、报修内容（超长省略）、紧急程度（彩色标签）、当前状态（彩色标签）、维修负责人、报修人、报修时间、创建人、操作。待处理提供详情／处置（现场核查、直接维修）／编辑／删除；核查中仅详情；待提交方案可提交方案；方案待审核可审核方案；方案已驳回可修改方案；待维修可下发维修工单；其余状态仅详情。操作栏上方展示巡检异常设备统计按钮。",
       "requirements": [
         {
           "title": "展示报修列表",
           "priority": "P1",
-          "details": "列表展示所有报修工单，包含序号、报修单号（BX+年月日+序号）、报修类型（标签）、报修对象、报修内容、紧急程度（标签）、负责人、当前状态（标签）、报修人、报修时间。支持分页导航。",
+          "details": "列表展示所有报修工单，包含序号、报修单号（BX+年月日+序号）、报修类型（标签）、报修对象、报修内容、紧急程度（标签）、当前状态（标签）、维修负责人、报修人、报修时间、创建人。支持分页导航。",
           "source": "ai",
           "status": "generated"
         },
         {
           "title": "动态操作按钮",
           "priority": "P1",
-          "details": "待处理：核查/维修/编辑/删除；核查中：仅详情；待提交方案：提交方案；方案待审核：审核方案；方案已驳回：修改方案；待维修：下发维修工单。其余（维修中/待验收/已完成）仅详情。",
+          "details": "待处理：详情／处置（现场核查、直接维修）／编辑／删除；核查中：仅详情；待提交方案：提交方案；方案待审核：审核方案；方案已驳回：修改方案；待维修：下发维修工单。其余（维修中／待验收／已完成）仅详情。",
           "source": "ai",
           "status": "generated"
         },
@@ -220,20 +220,20 @@
           "status": "generated"
         },
         {
-          "name": "chargePerson",
-          "label": "负责人",
-          "type": "string",
-          "required": true,
-          "description": "维修负责人姓名",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
           "name": "status",
           "label": "当前状态",
           "type": "string",
           "required": true,
           "description": "checking/pending_review/approved/plan_pending/plan_rejected/plan_approved/executing/pending_acceptance/completed",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "chargePerson",
+          "label": "维修负责人",
+          "type": "string",
+          "required": true,
+          "description": "负责该单维修的人员",
           "source": "ai",
           "status": "generated"
         },
@@ -254,6 +254,15 @@
           "description": "报修提交时间",
           "source": "ai",
           "status": "generated"
+        },
+        {
+          "name": "creator",
+          "label": "创建人",
+          "type": "string",
+          "required": true,
+          "description": "报修单创建人：本人提报时为报修人，受理人代建时为代建人",
+          "source": "ai",
+          "status": "generated"
         }
       ],
       "rules": [
@@ -263,16 +272,23 @@
       ],
       "interactions": [
         {
-          "trigger": "点击核查",
-          "action": "打开核查单页面",
-          "description": "打开发核查单页面，填写后下发，状态变为核查中。",
+          "trigger": "点击处置",
+          "action": "展开处置操作",
+          "description": "待处理状态下展开两个处置动作：现场核查、直接维修。",
           "source": "ai",
           "status": "generated"
         },
         {
-          "trigger": "点击维修",
+          "trigger": "点击现场核查",
+          "action": "打开发放核查单页面",
+          "description": "填写核查单后下发，状态变为核查中。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击直接维修",
           "action": "打开提交维修方案页面",
-          "description": "打开提交维修方案页面，状态变为方案待审核。",
+          "description": "填写并提交维修方案后，状态变为方案待审核。",
           "source": "ai",
           "status": "generated"
         },
@@ -293,7 +309,7 @@
         {
           "trigger": "点击详情",
           "action": "打开详情页面",
-          "description": "查看报修单完整生命周期信息和操作日志。",
+          "description": "查看报修单信息，以及该单关联的核查工单、维修方案审核与维修工单。",
           "source": "ai",
           "status": "generated"
         },
@@ -536,7 +552,7 @@
       "id": "rm-abnormal",
       "title": "巡检异常设备",
       "purpose": "汇聚巡检工单中标记为需维修的设备，支持一键转报修",
-      "summary": "操作栏显示巡检异常设备数量统计按钮。点击后右侧滑出页面展示异常设备明细：巡检工单编号、设备名称、设备位置、设备类型（标签）、异常描述（每台设备可有多条异常��检项，逐条展示巡检项名称和异常说明）。支持多选操作：忽略（从列表中移除，不再提示）和报修（自动跳转到新建报修页面，将选中设备名称代入报修设备字段，直接进入填写信息步骤）。",
+      "summary": "操作栏显示巡检异常设备数量统计按钮。点击后右侧滑出页面展示异常设备明细：巡检工单编号、设备名称、设备位置、设备类型（标签）、异常描述（每台设备可有多条异常巡检项，逐条展示巡检项名称和异常说明）。支持多选操作：忽略（从列表中移除，不再提示）和报修（自动跳转到新建报修页面，将选中设备名称代入报修设备字段，直接进入填写信息步骤）。",
       "requirements": [
         {
           "title": "异常设备明细展示",
@@ -704,9 +720,9 @@
       ],
       "interactions": [
         {
-          "trigger": "点击核查",
+          "trigger": "点击处置 → 现场核查",
           "action": "打开核查单页面",
-          "description": "默认填充相关内容。",
+          "description": "从待处理行的处置动作中选择现场核查，默认填充核查单内容。",
           "source": "ai",
           "status": "generated"
         },
@@ -729,7 +745,7 @@
       "summary": "填写维修方案、预计开始和结束时间、费用明细表格（可增删行：人工费/材料费/设备费/运输费/其他+金额+备注，底部自动合计）、附件。方案已驳回时可打开回填数据重新提交。",
       "requirements": [
         {
-          "title": "费用���细表格",
+          "title": "费用明细表格",
           "priority": "P1",
           "details": "可增删行的费用表格，类型下拉+金额+备注，底部合计。",
           "source": "ai",
@@ -784,13 +800,21 @@
       "rules": [
         "维修方案和时间必填",
         "提交后状态变为方案待审核",
-        "方案已驳回重新提交后状态恢复为方案待审核"
+        "方案已驳回重新提交后状态恢复为方案待审核",
+        "每次提交（含被驳回后修改重新提交）都会发起一轮新的维修方案审核流程，历史轮次保留可追溯"
       ],
       "interactions": [
         {
+          "trigger": "点击处置 → 直接维修",
+          "action": "打开提交维修方案页面",
+          "description": "待处理时可直接维修，跳过核查进入方案提交；提交后状态变为方案待审核。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
           "trigger": "点击提交方案",
           "action": "打开方案填写页面",
-          "description": "空白或回填。",
+          "description": "待提交方案时空白填写；方案已驳回时回填最近一次方案内容与费用明细。",
           "source": "ai",
           "status": "generated"
         },
@@ -810,7 +834,7 @@
       "id": "rm-plan-audit",
       "title": "审核维修方案",
       "purpose": "审核已提交的维修方案",
-      "summary": "展示方案详情和费用明细表格，通过→待维修，驳回→方案已驳回。",
+      "summary": "展示最新一轮待审核的方案内容与费用明细，选择通过或驳回并填写审核意见。通过→待维修；驳回→方案已驳回，维修负责人可修改方案重新提交并生成新一轮审核流程。",
       "fields": [
         {
           "name": "result",
@@ -833,7 +857,8 @@
       ],
       "rules": [
         "通过→待维修",
-        "驳回→方案已驳回"
+        "驳回→方案已驳回",
+        "审核只作用于最新一轮方案；方案被驳回后重新提交会形成新的一轮审核流程"
       ],
       "interactions": [
         {
@@ -851,7 +876,22 @@
           "status": "generated"
         }
       ],
-      "requirements": [],
+      "requirements": [
+        {
+          "title": "审核最新一轮方案",
+          "priority": "P1",
+          "details": "审核对象为当前处于待审核的最新一轮维修方案，展示其方案内容、时间计划与费用明细。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "驳回后重新审核",
+          "priority": "P1",
+          "details": "方案被驳回后，维修负责人修改方案重新提交即发起新一轮审核流程，此前轮次的审核记录保留在流程引擎中可追溯。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
       "ruleImages": [],
       "source": "ai",
       "status": "generated"
@@ -954,83 +994,184 @@
     {
       "id": "rm-detail",
       "title": "报修单详情",
-      "purpose": "查看报修单全生命周期信息含操作日志",
-      "summary": "分区展示：基本信息、现场核查情况、维修方案（含费用明细表格）、维修工单信息、验收记录。底部八节点操作日志（操作人+事项+时间）。所有字段始终展示，无值显示'-'。",
-      "requirements": [],
+      "purpose": "查看报修单信息，以及该单关联的核查工单、维修方案审核与维修工单",
+      "summary": "详情以页签组织：报修单信息（本平台维护的报修数据）、核查工单（工单引擎）、维修方案审核（流程引擎，可切换历史轮次）、维修工单（工单引擎）。引擎页签按单据编号／流程实例编号带参进入并嵌入展示；不存在对应单据时页签展示缺省说明，提示需先完成哪个动作。平台不落地引擎内的审批结果与审批时间。",
+      "requirements": [
+        {
+          "title": "页签式详情",
+          "priority": "P1",
+          "details": "详情固定四个页签：报修单信息、核查工单、维修方案审核、维修工单；头部展示报修单号与当前状态。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "引擎详情嵌入",
+          "priority": "P1",
+          "details": "核查工单、维修工单取自工单引擎，维修方案审核取自流程引擎，均以引擎详情页嵌入展示，平台按单据编号／流程实例编号带参进入。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "无单据缺省说明",
+          "priority": "P2",
+          "details": "页签对应的单据尚未产生时展示缺省说明，并提示需执行的动作（现场核查／直接维修／下发维修工单）。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "审核轮次可追溯",
+          "priority": "P1",
+          "details": "维修方案每提交一次生成一轮审核流程，被驳回后重新提交新增一轮；维修方案审核页签可按轮次切换查看历史流程，默认展示最新一轮。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
       "fields": [
         {
+          "name": "orderNo",
+          "label": "报修单号",
+          "type": "string",
+          "required": true,
+          "description": "报修单唯一编号",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "repairType",
+          "label": "报修类型",
+          "type": "string",
+          "required": true,
+          "description": "物联设备／月台／其他资产",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "urgency",
+          "label": "紧急程度",
+          "type": "string",
+          "required": true,
+          "description": "一般／紧急／非常紧急",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "targetName",
+          "label": "报修对象",
+          "type": "string",
+          "required": true,
+          "description": "名称（建筑 楼层 位置）",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "content",
+          "label": "维修内容",
+          "type": "string",
+          "required": true,
+          "description": "故障或损坏现象描述",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "reporter",
+          "label": "报修人",
+          "type": "string",
+          "required": true,
+          "description": "提交报修的人员",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "phone",
+          "label": "联系方式",
+          "type": "string",
+          "required": true,
+          "description": "报修人联系电话",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "chargePerson",
+          "label": "维修负责人",
+          "type": "string",
+          "required": false,
+          "description": "负责该单维修的人员",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "reportTime",
+          "label": "报修时间",
+          "type": "datetime",
+          "required": true,
+          "description": "报修提交时间",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "creator",
+          "label": "创建人",
+          "type": "string",
+          "required": true,
+          "description": "报修单创建人，本人提报时与报修人一致",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
           "name": "checkOrderNo",
-          "label": "核查工单号",
+          "label": "核查工单编号",
           "type": "string",
           "required": false,
-          "description": "HC开头",
+          "description": "工单引擎中的核查工单编号，用于带入核查工单详情",
           "source": "ai",
           "status": "generated"
         },
         {
-          "name": "checker",
-          "label": "核查人",
+          "name": "flowNo",
+          "label": "流程实例编号",
           "type": "string",
           "required": false,
-          "description": "核查人员姓名",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "checkResult",
-          "label": "核查结果",
-          "type": "string",
-          "required": false,
-          "description": "已现场处置/需要维修",
+          "description": "流程引擎中维修方案审核的流程实例编号，每轮一个",
           "source": "ai",
           "status": "generated"
         },
         {
           "name": "workOrderNo",
-          "label": "维修工单号",
+          "label": "维修工单编号",
           "type": "string",
           "required": false,
-          "description": "GX开头",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "worker",
-          "label": "工单处理人",
-          "type": "string",
-          "required": false,
-          "description": "工单处理人员",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "processResult",
-          "label": "处理结果",
-          "type": "string",
-          "required": false,
-          "description": "已完成/需维修",
-          "source": "ai",
-          "status": "generated"
-        },
-        {
-          "name": "acceptanceBy",
-          "label": "验收人",
-          "type": "string",
-          "required": false,
-          "description": "验收人员",
+          "description": "工单引擎中的维修工单编号，用于带入维修工单详情",
           "source": "ai",
           "status": "generated"
         }
       ],
       "rules": [
-        "所有分区和字段始终展示，无值显示'-'",
-        "操作日志按流程顺序展示"
+        "详情页签固定为：报修单信息、核查工单、维修方案审核、维修工单",
+        "核查工单、维修工单由工单引擎承载，维修方案审核由流程引擎承载；平台仅保存单据编号／流程实例编号，不落地引擎内的审批结果与审批时间",
+        "仅当存在对应单据时才展示引擎内容，否则展示缺省说明",
+        "维修方案每提交一次生成一轮审核流程，被驳回后重新提交新增一轮，历史轮次保留可切换查看",
+        "维修方案审核页签默认展示最新一轮",
+        "详情不提供操作日志"
       ],
       "interactions": [
         {
           "trigger": "点击详情",
-          "action": "打开详情页面",
-          "description": "查看报修单全生命周期信息。",
+          "action": "打开报修单详情",
+          "description": "默认停留在报修单信息页签。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "切换页签",
+          "action": "查看对应单据详情",
+          "description": "切换至核查工单／维修方案审核／维修工单，查看对应引擎详情。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "切换审核轮次",
+          "action": "查看历史审核流程",
+          "description": "在维修方案审核页签内按轮次切换，查看历次提交对应的审批流程。",
           "source": "ai",
           "status": "generated"
         }

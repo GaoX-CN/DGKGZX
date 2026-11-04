@@ -20,6 +20,16 @@ const router = createRouter({
           component: () => import('@/pages/park/MaintenanceVehicle.vue'),
         },
         {
+          path: '/park/access-authorization',
+          name: 'AccessAuthorization',
+          component: () => import('@/pages/park/AccessAuthorization.vue'),
+        },
+        {
+          path: '/park/access-review-rule',
+          name: 'AccessReviewRule',
+          component: () => import('@/pages/park/AccessReviewRule.vue'),
+        },
+        {
           path: '/security/people-flow',
           name: 'PeopleFlowReport',
           component: () => import('@/pages/security/PeopleFlowReport.vue'),

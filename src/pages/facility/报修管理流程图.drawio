@@ -1,10 +1,10 @@
-<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.3.0 Chrome/140.0.7339.249 Electron/38.7.2 Safari/537.36" version="29.3.0">
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.3.0 Chrome/140.0.7339.249 Electron/38.7.2 Safari/537.36">
   <diagram id="repair-management-flow" name="报修管理流程图">
-    <mxGraphModel dx="1501" dy="885" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1200" math="0" shadow="0">
+    <mxGraphModel dx="1178" dy="701" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1200" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="lane-reporter" parent="1" style="swimlane;horizontal=0;startSize=110;fillColor=#f5f5f5;strokeColor=#b7b7b7;html=1;fontStyle=1;" value="巡检/值班人员" vertex="1">
+        <mxCell id="lane-reporter" parent="1" style="swimlane;horizontal=0;startSize=110;fillColor=#f5f5f5;strokeColor=#b7b7b7;html=1;fontStyle=1;" value="巡检/报修登记人员" vertex="1">
           <mxGeometry height="150" width="2100" as="geometry">
             <mxRectangle height="110" width="40" as="alternateBounds" />
           </mxGeometry>
@@ -53,7 +53,7 @@
         <mxCell id="e26" edge="1" parent="lane-owner" source="acceptance" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" target="acceptance-pass">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="lane-inspector" parent="1" style="swimlane;horizontal=0;startSize=110;fillColor=#fff9e6;strokeColor=#d6b656;html=1;fontStyle=1;" value="核查人员" vertex="1">
+        <mxCell id="lane-inspector" parent="1" style="swimlane;horizontal=0;startSize=110;fillColor=#fff9e6;strokeColor=#d6b656;html=1;fontStyle=1;" value="巡检（核查）人员" vertex="1">
           <mxGeometry height="150" width="2100" y="360" as="geometry" />
         </mxCell>
         <mxCell id="perform-check" parent="lane-inspector" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" value="执行现场核查" vertex="1">
@@ -62,7 +62,7 @@
         <mxCell id="resolved" parent="lane-inspector" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="能现场解决？" vertex="1">
           <mxGeometry height="80" width="140" x="460" y="40" as="geometry" />
         </mxCell>
-        <mxCell id="lane-leader" parent="1" style="swimlane;horizontal=0;startSize=110;fillColor=#fce4ec;strokeColor=#b85450;html=1;fontStyle=1;" value="审批领导" vertex="1">
+        <mxCell id="lane-leader" parent="1" style="swimlane;horizontal=0;startSize=110;fillColor=#fce4ec;strokeColor=#b85450;html=1;fontStyle=1;" value="审批人员" vertex="1">
           <mxGeometry height="150" width="2100" y="510" as="geometry" />
         </mxCell>
         <mxCell id="review-plan" parent="lane-leader" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;" value="审核维修方案" vertex="1">

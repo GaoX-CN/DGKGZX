@@ -17,7 +17,7 @@
             <el-option v-for="s in statusOptions" :key="s.value" :label="s.label" :value="s.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="负责人">
+        <el-form-item label="维修负责人">
           <el-input v-model="query.chargePerson" placeholder="请输入" clearable style="width: 120px" />
         </el-form-item>
         <el-form-item label="紧急程度">
@@ -74,16 +74,33 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="reporter" label="报修人" width="90" />
-        <el-table-column prop="chargePerson" label="负责人" width="90">
+        <el-table-column prop="chargePerson" label="维修负责人" width="100">
           <template #default="{ row }">{{ row.chargePerson || '-' }}</template>
         </el-table-column>
+        <el-table-column prop="reporter" label="报修人" width="90" />
         <el-table-column prop="reportTime" label="报修时间" width="165" />
+        <el-table-column prop="creator" label="创建人" width="90">
+          <template #default="{ row }">{{ row.creator || '-' }}</template>
+        </el-table-column>
         <el-table-column label="操作" width="300" align="center" fixed="right">
           <template #default="{ row }">
             <el-button link type="primary" size="small" @click="openDetail(row)">详情</el-button>
-            <el-button v-if="row.status === 'pending_review'" link type="primary" size="small" @click="openCheck(row)">核查</el-button>
-            <el-button v-if="row.status === 'pending_review'" link type="warning" size="small" @click="openSubmitPlan(row)">维修</el-button>
+            <el-dropdown
+              v-if="row.status === 'pending_review'"
+              class="rm-dispose"
+              trigger="click"
+              @command="(command: string) => handleDispose(command, row)"
+            >
+              <el-button link type="warning" size="small">
+                处置<el-icon class="el-icon--right"><ArrowDown /></el-icon>
+              </el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="check">现场核查</el-dropdown-item>
+                  <el-dropdown-item command="repair">直接维修</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
             <el-button v-if="row.status === 'pending_review'" link type="primary" size="small" @click="openEdit(row)">编辑</el-button>
             <el-button v-if="row.status === 'pending_review'" link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
             <el-button v-if="row.status === 'approved'" link type="warning" size="small" @click="openSubmitPlan(row)">提交方案</el-button>
@@ -852,117 +869,91 @@
       </template>
     </el-drawer>
 
-    <!-- ==================== 详情抽屉 ==================== -->
-    <el-drawer v-model="detailVisible" title="报修单详情" direction="rtl" size="680px">
+    <!-- ==================== 详情抽屉（外部引擎页以 iframe 嵌入各页签） ==================== -->
+    <el-drawer v-model="detailVisible" title="报修单详情" direction="rtl" size="900px">
       <template #header>
         <span class="rm-drawer-header__title">报修单详情</span>
+        <span v-if="detailOrder" class="rm-drawer-subtitle">
+          {{ detailOrder.orderNo }} · {{ statusLabel(detailOrder.status) }}
+        </span>
       </template>
-      <div class="rm-drawer-body">
+      <div class="rm-drawer-body rm-drawer-body--detail">
         <template v-if="detailOrder">
-          <div class="rm-detail">
-            <div class="rm-detail__section">
-              <h4 class="rm-detail__title">基本信息</h4>
-              <el-descriptions :column="3" border size="small">
-                <el-descriptions-item label="报修单号">{{ detailOrder.orderNo }}</el-descriptions-item>
-                <el-descriptions-item label="报修类型">{{ repairTypeLabel(detailOrder.repairType) }}</el-descriptions-item>
-                <el-descriptions-item label="紧急程度">
-                  <el-tag :type="urgencyType(detailOrder.urgency)" size="small">{{ urgencyLabel(detailOrder.urgency) }}</el-tag>
-                </el-descriptions-item>
-                <el-descriptions-item label="报修对象" span="3">{{ detailOrder.targetName }}</el-descriptions-item>
-                <el-descriptions-item label="维修内容" span="3">{{ detailOrder.content }}</el-descriptions-item>
-                <el-descriptions-item label="报修人">{{ detailOrder.reporter }}</el-descriptions-item>
-                <el-descriptions-item label="联系方式">{{ detailOrder.phone }}</el-descriptions-item>
-                <el-descriptions-item label="维修负责人">{{ detailOrder.chargePerson || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="报修时间">{{ detailOrder.reportTime }}</el-descriptions-item>
-              </el-descriptions>
-            </div>
+          <el-tabs v-model="detailTab" class="rm-detail-tabs">
+            <el-tab-pane label="报修单信息" name="info">
+              <div class="rm-detail__section">
+                <h4 class="rm-detail__title">基本信息</h4>
+                <el-descriptions :column="3" border size="small">
+                  <el-descriptions-item label="报修单号">{{ detailOrder.orderNo }}</el-descriptions-item>
+                  <el-descriptions-item label="报修类型">{{ repairTypeLabel(detailOrder.repairType) }}</el-descriptions-item>
+                  <el-descriptions-item label="紧急程度">
+                    <el-tag :type="urgencyType(detailOrder.urgency)" size="small">{{ urgencyLabel(detailOrder.urgency) }}</el-tag>
+                  </el-descriptions-item>
+                  <el-descriptions-item label="报修对象" span="3">{{ detailOrder.targetName }}</el-descriptions-item>
+                  <el-descriptions-item label="维修内容" span="3">{{ detailOrder.content }}</el-descriptions-item>
+                  <el-descriptions-item label="报修人">{{ detailOrder.reporter }}</el-descriptions-item>
+                  <el-descriptions-item label="联系方式">{{ detailOrder.phone }}</el-descriptions-item>
+                  <el-descriptions-item label="维修负责人">{{ detailOrder.chargePerson || '-' }}</el-descriptions-item>
+                  <el-descriptions-item label="报修时间">{{ detailOrder.reportTime }}</el-descriptions-item>
+                  <el-descriptions-item label="创建人">{{ detailOrder.creator || '-' }}</el-descriptions-item>
+                </el-descriptions>
+              </div>
+            </el-tab-pane>
 
-            <div class="rm-detail__section">
-              <h4 class="rm-detail__title">现场核查情况</h4>
-              <el-descriptions :column="2" border size="small">
-                <el-descriptions-item label="核查工单号">{{ detailOrder.checkOrderNo || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="核查人">{{ detailOrder.checker || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="核查结果" span="2">
-                  <el-tag v-if="detailOrder.checkResult === 'onsite'" type="success" size="small">已现场处置</el-tag>
-                  <el-tag v-else-if="detailOrder.checkResult === 'repair'" type="warning" size="small">需要维修</el-tag>
-                  <span v-else>-</span>
-                </el-descriptions-item>
-                <el-descriptions-item label="核查描述" span="2">{{ detailOrder.checkDesc || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="核查时间" span="2">{{ detailOrder.checkTime || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="核查附件" span="2">{{ detailOrder.checkAttachments || '-' }}</el-descriptions-item>
-              </el-descriptions>
-            </div>
+            <!-- 核查工单：工单引擎 -->
+            <el-tab-pane label="核查工单" name="check">
+              <div v-if="checkWo" class="rm-frame">
+                <iframe class="rm-frame__view" :src="ENGINE_PAGES.check.page" :title="`核查工单 ${checkWo.no} 详情`" />
+              </div>
+              <div v-else class="rm-frame-empty">
+                <div class="rm-frame-empty__title">暂无核查工单</div>
+                <p class="rm-frame-empty__desc">
+                  该报修单尚未下发核查工单，暂无工单引擎详情。在列表执行【处置 → 现场核查】提交后，此页签将嵌入引擎的核查工单详情页。
+                </p>
+              </div>
+            </el-tab-pane>
 
-            <div class="rm-detail__section">
-              <h4 class="rm-detail__title">维修方案</h4>
-              <el-descriptions :column="2" border size="small">
-                <el-descriptions-item label="维修方案" span="2">{{ detailOrder.planContent || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="预计开始时间" span="1">{{ detailOrder.planStartTime || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="预计结束时间" span="1">{{ detailOrder.planEndTime || '-' }}</el-descriptions-item>
-              </el-descriptions>
-              <div v-if="detailOrder.planCostItems?.length" class="rm-cost-table" style="margin-top: 12px">
-                <span class="rm-cost-table__title">费用明细</span>
-                <el-table :data="detailOrder.planCostItems" border size="small" style="width: 100%; margin-top: 8px">
-                  <el-table-column prop="type" label="费用类型" width="100" />
-                  <el-table-column prop="amount" label="金额（元）" width="120" align="right">
-                    <template #default="{ row }">{{ row.amount }}</template>
-                  </el-table-column>
-                  <el-table-column prop="remark" label="备注" min-width="160" show-overflow-tooltip />
-                </el-table>
-                <div class="rm-cost-total" style="margin-top: 8px">
-                  <span>费用合计：</span>
-                  <strong>{{ detailOrder.estimatedCost }} 元</strong>
+            <!-- 维修方案审核：流程引擎（驳回后重新提交会发起新一轮，可切换查看历史轮次） -->
+            <!-- 说明：平台侧只能拿到流程实例 ID，审批结果与审批时间取不到，故本轮次切换只按「第几次」区分，详情看嵌入的引擎页 -->
+            <el-tab-pane label="维修方案审核" name="plan">
+              <div v-if="planRounds.length" class="rm-rounds">
+                <div class="rm-rounds__bar">
+                  <span class="rm-rounds__label">审核轮次</span>
+                  <el-radio-group v-model="planRoundIndex" size="small">
+                    <el-radio-button v-for="(r, idx) in planRounds" :key="r.flowNo" :value="idx" :title="r.flowNo">
+                      第 {{ r.round }} 次
+                    </el-radio-button>
+                  </el-radio-group>
+                </div>
+                <div class="rm-frame">
+                  <iframe
+                    class="rm-frame__view"
+                    :src="planFrameSrc"
+                    :title="`维修方案审核 第 ${currentRound?.round || 1} 次 详情`"
+                  />
                 </div>
               </div>
-              <div v-else style="margin-top: 4px; font-size: 13px; color: #909399">-</div>
-            </div>
+              <div v-else class="rm-frame-empty">
+                <div class="rm-frame-empty__title">暂无维修方案审核</div>
+                <p class="rm-frame-empty__desc">
+                  该报修单尚未提交维修方案，暂无流程引擎审批详情。在执行【处置 → 直接维修】或【提交方案】后，此页签将嵌入引擎的审批详情页。
+                </p>
+              </div>
+            </el-tab-pane>
 
-            <div class="rm-detail__section">
-              <h4 class="rm-detail__title">维修工单信息</h4>
-              <el-descriptions :column="2" border size="small">
-                <el-descriptions-item label="维修工单号">{{ detailOrder.workOrderNo || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="工单处理人">{{ detailOrder.worker || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="处理结果">
-                  <el-tag v-if="detailOrder.processResult === 'completed'" type="success" size="small">已完成</el-tag>
-                  <el-tag v-else-if="detailOrder.processResult === 'repair'" type="warning" size="small">需维修</el-tag>
-                  <span v-else>-</span>
-                </el-descriptions-item>
-                <el-descriptions-item label="处理时间">{{ detailOrder.handleTime || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="处理总结" span="2">{{ detailOrder.repairDescription || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="附件" span="2">{{ detailOrder.processAttachments || '-' }}</el-descriptions-item>
-              </el-descriptions>
-            </div>
-
-            <div class="rm-detail__section">
-              <h4 class="rm-detail__title">验收记录</h4>
-              <el-descriptions :column="2" border size="small">
-                <el-descriptions-item label="验收人">{{ detailOrder.acceptanceBy || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="验收结果" span="1">
-                  <el-tag v-if="detailOrder.acceptanceResult === 'pass'" type="success" size="small">通过</el-tag>
-                  <el-tag v-else-if="detailOrder.acceptanceResult === 'fail'" type="danger" size="small">不通过</el-tag>
-                  <span v-else>-</span>
-                </el-descriptions-item>
-                <el-descriptions-item label="验收时间">{{ detailOrder.acceptanceTime || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="验收意见" span="2">{{ detailOrder.acceptanceOpinion || '-' }}</el-descriptions-item>
-              </el-descriptions>
-            </div>
-
-            <div class="rm-detail__section">
-              <h4 class="rm-detail__title">操作日志</h4>
-              <el-timeline style="padding: 12px 0 0 8px">
-                <el-timeline-item
-                  v-for="(log, idx) in detailLogs"
-                  :key="idx"
-                  :timestamp="log.time"
-                  :type="log.type"
-                  placement="top"
-                >
-                  <span style="font-weight: 600; margin-right: 8px">{{ log.operator }}</span>
-                  <span>{{ log.action }}</span>
-                </el-timeline-item>
-              </el-timeline>
-            </div>
-          </div>
+            <!-- 维修工单：工单引擎 -->
+            <el-tab-pane label="维修工单" name="work">
+              <div v-if="workWo" class="rm-frame">
+                <iframe class="rm-frame__view" :src="ENGINE_PAGES.work.page" :title="`维修工单 ${workWo.no} 详情`" />
+              </div>
+              <div v-else class="rm-frame-empty">
+                <div class="rm-frame-empty__title">暂无维修工单</div>
+                <p class="rm-frame-empty__desc">
+                  该报修单尚未下发维修工单，暂无工单引擎详情。方案审核通过后执行【下发维修工单】，此页签将嵌入引擎的维修工单详情页。
+                </p>
+              </div>
+            </el-tab-pane>
+          </el-tabs>
         </template>
       </div>
       <template #footer>
@@ -976,7 +967,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, nextTick, watch } from 'vue'
-import { Plus, Search, Refresh, Tools, Van, OfficeBuilding } from '@element-plus/icons-vue'
+import { Plus, Search, Refresh, Tools, Van, OfficeBuilding, ArrowDown } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessageBox } from 'element-plus'
 import { useOtherAssetStore } from '@/stores/otherAssetStore'
@@ -995,6 +986,8 @@ interface RepairOrder {
   reporter: string
   phone: string
   reportTime: string
+  /** 报修单创建人（报修人自建或受理人员代建） */
+  creator?: string
   deviceBuilding?: string
   deviceFloor?: string
   deviceName?: string
@@ -1013,6 +1006,12 @@ interface RepairOrder {
   checkDesc?: string
   checkTime?: string
   checkAttachments?: string
+  /** 以下为工单引擎侧字段（报修单只读引用，详情页以嵌入方式展示） */
+  checkWoTitle?: string
+  checkWoDesc?: string
+  checkDueTime?: string
+  checkHandler?: string
+  checkLaunchTime?: string
   chargePerson?: string
   repairDescription?: string
   actualCost?: number
@@ -1022,16 +1021,35 @@ interface RepairOrder {
   acceptanceTime?: string
   acceptanceBy?: string
   workOrderNo?: string
+  workWoTitle?: string
+  workWoDesc?: string
+  workDueTime?: string
+  workRemark?: string
+  workLaunchTime?: string
   processResult?: string
   processAttachments?: string
   handleTime?: string
+  /** 以下为流程引擎侧字段（维修方案审核流程，镜像「当前轮」数据） */
+  flowNo?: string
+  planSubmitTime?: string
+  planApprover?: string
+  planAuditOpinion?: string
+  planAuditTime?: string
+  /** 维修方案审核流程的全部轮次（每提交一次生成一轮，驳回后重新提交即新增一轮，历史保留） */
+  planFlows?: PlanFlowRound[]
 }
 
-interface LogItem {
-  time: string
-  type: string
-  operator: string
-  action: string
+/** 维修方案审核流程的一轮：一次提交对应的一个流程实例（平台侧只拿得到流程实例 ID） */
+interface PlanFlowRound {
+  /** 第几次提交，从 1 开始 */
+  round: number
+  flowNo: string
+  planContent: string
+  planStartTime: string
+  planEndTime: string
+  estimatedCost: number
+  costItems: CostItem[]
+  submitTime: string
 }
 
 const statusOptions = [
@@ -1187,6 +1205,11 @@ function statusLabel(v: string): string {
 }
 
 // ==================== Mock 数据 ====================
+/** 当前时间戳（YYYY-MM-DD HH:mm:ss） */
+function nowStamp(): string {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`
+}
 let nextId = 100
 function mockOrders(): RepairOrder[] {
   const statuses = ['pending_review', 'checking', 'approved', 'plan_pending', 'plan_rejected', 'plan_approved', 'executing', 'pending_acceptance', 'completed']
@@ -1219,6 +1242,7 @@ function mockOrders(): RepairOrder[] {
       reporter: ['张伟', '李明', '王芳'][i % 3],
       phone: `138****${String(8001 + i).slice(-4)}`,
       reportTime: `${baseDate}${day} 08:00:00`,
+      creator: i % 3 === 0 ? ['张伟', '李明', '王芳'][i % 3] : ['陈静', '黄晓明'][i % 2],
       deviceBuilding: tgt.deviceBuilding,
       deviceFloor: tgt.deviceFloor,
       deviceName: tgt.deviceName,
@@ -1232,18 +1256,78 @@ function mockOrders(): RepairOrder[] {
       order.checkDesc = i % 2 === 0 ? '故障已现场修复' : '需协调维修人员和备件'
       order.checkTime = `${baseDate}${day} 10:00:00`
       order.checkAttachments = i % 2 === 0 ? '核查报告.pdf, 现场照片.jpg' : ''
+      order.checkWoTitle = `【核查】${order.targetName}`
+      order.checkWoDesc = `${order.content}。报修人：${order.reporter}-${order.phone}`
+      order.checkDueTime = `${baseDate}${day} 16:41:53`
+      order.checkHandler = order.checker
+      order.checkLaunchTime = `${baseDate}${day} 09:30:00`
     }
 
     if (['plan_pending', 'plan_rejected', 'plan_approved', 'executing', 'pending_acceptance', 'completed'].includes(status)) {
-      order.planContent = '维修方案：关闭设备电源后进行拆解检查，更换损坏电路板，使用备件库中储备件进行替换，完成后通电测试恢复正常运行。'
-      order.estimatedCost = (i + 1) * 150
-      order.planCostItems = [
+      const planStart = `${baseDate}${day} 09:00:00`
+      const planEnd = `${baseDate}${day} 15:00:00`
+      const costItems: CostItem[] = [
         { type: '人工费', amount: (i + 1) * 80, remark: '维修技师工时费用' },
         { type: '材料费', amount: (i + 1) * 50, remark: i % 2 === 0 ? '原厂配件' : '通用备件' },
         { type: '运输费', amount: (i + 1) * 20, remark: '设备调配运费' },
       ]
-      order.planStartTime = `${baseDate}${day} 09:00:00`
-      order.planEndTime = `${baseDate}${day} 15:00:00`
+      order.planContent = '维修方案：关闭设备电源后进行拆解检查，更换损坏电路板，使用备件库中储备件进行替换，完成后通电测试恢复正常运行。'
+      order.estimatedCost = (i + 1) * 150
+      order.planCostItems = costItems
+      order.planStartTime = planStart
+      order.planEndTime = planEnd
+
+      order.flowNo = `ff0fcdca-d666-11f1-98a8-e226a044c1${String(64 + i).slice(-2)}`
+      order.planSubmitTime = `${baseDate}${day} 09:30:00`
+      if (['plan_approved', 'executing', 'pending_acceptance', 'completed'].includes(status)) {
+        order.planApprover = '李品'
+        order.planAuditOpinion = '同意'
+        order.planAuditTime = `${baseDate}${day} 10:20:00`
+      } else if (status === 'plan_rejected') {
+        order.planApprover = '李品'
+        order.planAuditOpinion = '费用偏高，请补充材料清单后重新提交'
+        order.planAuditTime = `${baseDate}${day} 10:20:00`
+      }
+
+      // 审核流程轮次：一次提交 = 流程引擎里一个流程实例（平台侧只拿得到流程实例 ID）
+      // 样例：「方案待审核」的部分单据与「已完成」单据演示 3 轮审核（前两轮被驳回后重新提交，当前为第 3 轮）
+      const rounds: PlanFlowRound[] = []
+      const multiRound = (status === 'plan_pending' && i % 2 === 1) || status === 'completed'
+      const flowBase = `ff0fcdca-d666-11f1-98a8-e226a044c1${String(64 + i).slice(-2)}`
+      if (multiRound) {
+        const historyPlans = [
+          { content: '初步方案：断电拆检后更换损坏电路板，材料由现场备件库领用。', cut: 80, fee: 20, submitTime: '10:10:00' },
+          { content: '修订方案：更换损坏电路板，明确使用原厂备件，报废件回收登记。', cut: 40, fee: 40, submitTime: '10:25:00' },
+        ]
+        historyPlans.forEach((p, idx) => {
+          rounds.push({
+            round: idx + 1,
+            flowNo: `${flowBase}-0${idx + 1}`,
+            planContent: p.content,
+            planStartTime: planStart,
+            planEndTime: planEnd,
+            estimatedCost: (order.estimatedCost || 0) - p.cut,
+            costItems: [
+              { type: '人工费', amount: (i + 1) * 80, remark: '维修技师工时费用' },
+              { type: '材料费', amount: (i + 1) * p.fee, remark: '通用备件' },
+            ],
+            submitTime: `${baseDate}${day} ${p.submitTime}`,
+          })
+        })
+      }
+      const currentSubmit = multiRound ? '10:40:00' : '09:30:00'
+      rounds.push({
+        round: rounds.length + 1,
+        flowNo: `${flowBase}-0${rounds.length + 1}`,
+        planContent: order.planContent,
+        planStartTime: planStart,
+        planEndTime: planEnd,
+        estimatedCost: order.estimatedCost,
+        costItems: costItems.map(c => ({ ...c })),
+        submitTime: `${baseDate}${day} ${currentSubmit}`,
+      })
+      order.planFlows = rounds
+      if (multiRound) order.planSubmitTime = `${baseDate}${day} ${currentSubmit}`
     }
 
     if (['executing', 'pending_acceptance', 'completed'].includes(status)) {
@@ -1251,6 +1335,11 @@ function mockOrders(): RepairOrder[] {
       order.dispatchUrgency = order.urgency
       order.workOrderNo = `GX${order.orderNo.slice(2)}`
       order.processResult = i % 2 === 0 ? 'completed' : 'repair'
+      order.workWoTitle = `【维修】${order.targetName}`
+      order.workWoDesc = `${order.content}。报修人：${order.reporter}-${order.phone}`
+      order.workDueTime = `${baseDate}${day} 16:41:53`
+      order.workRemark = order.targetName
+      order.workLaunchTime = `${baseDate}${day} 11:00:00`
     }
 
     if (['pending_acceptance', 'completed'].includes(status)) {
@@ -1659,6 +1748,7 @@ function confirmCreate() {
     reporter: createForm.reporter,
     phone: createForm.phone,
     reportTime: ts,
+    creator: '当前用户',
     deviceBuilding,
     deviceFloor,
     deviceName,
@@ -1683,6 +1773,12 @@ const checkRules: FormRules = {
 }
 let checkingOrder: RepairOrder | null = null
 
+/** 待处理状态【处置】下拉：现场核查 / 直接维修 */
+function handleDispose(command: string, row: RepairOrder) {
+  if (command === 'check') openCheck(row)
+  else if (command === 'repair') openSubmitPlan(row)
+}
+
 function openCheck(row: RepairOrder) {
   checkingOrder = row
   checkForm.title = `核查${row.targetName}`
@@ -1697,7 +1793,17 @@ function openCheck(row: RepairOrder) {
 function confirmCheck() {
   checkFormRef.value?.validate((valid: boolean) => {
     if (!valid || !checkingOrder) return
-    checkingOrder.status = 'checking'
+    const row = checkingOrder
+    const ts = nowStamp()
+    row.status = 'checking'
+    // 核查工单实际由工单引擎创建，报修单只留索引与关键字段，详情页嵌入引擎页面展示
+    row.checkOrderNo = row.checkOrderNo || `HC${row.orderNo.slice(2)}`
+    row.checkWoTitle = checkForm.title
+    row.checkWoDesc = checkForm.content
+    row.checkDueTime = checkForm.dueTime
+    row.checkHandler = Array.isArray(checkForm.handler) ? checkForm.handler[checkForm.handler.length - 1] : checkForm.handler
+    row.checkLaunchTime = ts
+    row.checkTime = ts
     checkVisible.value = false
     applyFilters()
   })
@@ -1844,6 +1950,28 @@ function handleDelete(row: RepairOrder) {
   }).catch(() => {})
 }
 
+// ==================== 维修方案审核流程（多轮） ====================
+/** 取某单据的审核流程轮次；早期只有扁平字段的数据，就地合成一轮 */
+function planRoundsOf(row: RepairOrder): PlanFlowRound[] {
+  if (row.planFlows?.length) return row.planFlows
+  if (!row.planContent) return []
+  return [{
+    round: 1,
+    flowNo: row.flowNo || '-',
+    planContent: row.planContent,
+    planStartTime: row.planStartTime || '',
+    planEndTime: row.planEndTime || '',
+    estimatedCost: row.estimatedCost || 0,
+    costItems: row.planCostItems ? row.planCostItems.map(c => ({ ...c })) : [],
+    submitTime: row.planSubmitTime || '',
+  }]
+}
+/** 取（必要时初始化）轮次数组，供提交时就地追加 */
+function ensurePlanFlows(row: RepairOrder): PlanFlowRound[] {
+  if (!row.planFlows) row.planFlows = planRoundsOf(row)
+  return row.planFlows
+}
+
 // ==================== 提交维修方案 ====================
 interface CostItem { type: string; amount: number; remark: string }
 
@@ -1880,15 +2008,36 @@ function openSubmitPlan(row: RepairOrder) {
   planUploadList.value = []
   planVisible.value = true
 }
+
 function confirmPlan() {
   planFormRef.value?.validate((valid: boolean) => {
     if (!valid || !currentOrder.value) return
-    currentOrder.value.planContent = planForm.planContent
-    currentOrder.value.planStartTime = planForm.planStartTime
-    currentOrder.value.planEndTime = planForm.planEndTime
-    currentOrder.value.estimatedCost = planTotalCost.value
-    currentOrder.value.planCostItems = planForm.costItems.map(c => ({ ...c }))
-    currentOrder.value.status = 'plan_pending'
+    const row = currentOrder.value
+    row.planContent = planForm.planContent
+    row.planStartTime = planForm.planStartTime
+    row.planEndTime = planForm.planEndTime
+    row.estimatedCost = planTotalCost.value
+    row.planCostItems = planForm.costItems.map(c => ({ ...c }))
+    // 每次提交都发起一轮新的「维修方案审核」流程（驳回后重新提交也不例外），历史轮次保留
+    const flows = ensurePlanFlows(row)
+    const ts = nowStamp()
+    const round: PlanFlowRound = {
+      round: flows.length + 1,
+      flowNo: `flow-${row.orderNo.slice(2)}-${Date.now().toString().slice(-4)}`,
+      planContent: planForm.planContent,
+      planStartTime: planForm.planStartTime,
+      planEndTime: planForm.planEndTime,
+      estimatedCost: planTotalCost.value,
+      costItems: planForm.costItems.map(c => ({ ...c })),
+      submitTime: ts,
+    }
+    flows.push(round)
+    row.status = 'plan_pending'
+    row.flowNo = round.flowNo
+    row.planSubmitTime = ts
+    row.planApprover = ''
+    row.planAuditOpinion = ''
+    row.planAuditTime = ''
     planVisible.value = false
     applyFilters()
   })
@@ -1905,12 +2054,15 @@ function openPlanAudit(row: RepairOrder) {
   planAuditVisible.value = true
 }
 function confirmPlanAudit() {
-  if (!currentOrder.value) return
-  if (planAuditForm.result === 'approve') {
-    currentOrder.value.status = 'plan_approved'
-  } else {
-    currentOrder.value.status = 'plan_rejected'
-  }
+  const row = currentOrder.value
+  if (!row) return
+  const approved = planAuditForm.result === 'approve'
+  const ts = nowStamp()
+  const opinion = planAuditForm.opinion || (approved ? '同意' : '')
+  row.status = approved ? 'plan_approved' : 'plan_rejected'
+  row.planApprover = '李品'
+  row.planAuditOpinion = opinion
+  row.planAuditTime = ts
   planAuditVisible.value = false
   applyFilters()
 }
@@ -1939,11 +2091,19 @@ function openDispatch(row: RepairOrder) {
 function confirmDispatch() {
   dispatchFormRef.value?.validate((valid: boolean) => {
     if (!valid || !currentOrder.value) return
-    currentOrder.value.worker = Array.isArray(dispatchForm.worker) ? dispatchForm.worker[dispatchForm.worker.length - 1] : dispatchForm.worker
-    currentOrder.value.workerPhone = ''
-    currentOrder.value.dispatchUrgency = dispatchForm.urgency
-    currentOrder.value.planStartTime = dispatchForm.planStartTime
-    currentOrder.value.status = 'executing'
+    const row = currentOrder.value
+    row.worker = Array.isArray(dispatchForm.worker) ? dispatchForm.worker[dispatchForm.worker.length - 1] : dispatchForm.worker
+    row.workerPhone = ''
+    row.dispatchUrgency = dispatchForm.urgency
+    row.planStartTime = dispatchForm.planStartTime
+    row.status = 'executing'
+    // 维修工单实际由工单引擎创建，报修单只留索引与关键字段，详情页嵌入引擎页面展示
+    row.workOrderNo = row.workOrderNo || `GX${row.orderNo.slice(2)}`
+    row.workWoTitle = dispatchForm.workOrderName
+    row.workWoDesc = dispatchForm.workOrderDesc
+    row.workDueTime = dispatchForm.planStartTime
+    row.workRemark = dispatchForm.remark
+    row.workLaunchTime = nowStamp()
     dispatchVisible.value = false
     applyFilters()
   })
@@ -1952,32 +2112,49 @@ function confirmDispatch() {
 // ==================== 详情 ====================
 const detailVisible = ref(false)
 const detailOrder = ref<RepairOrder | null>(null)
-const detailLogs = ref<LogItem[]>([])
+/** 详情页签：info / check / plan / work */
+const detailTab = ref('info')
+
+/**
+ * 外部引擎详情页（iframe 嵌入）
+ * 核查工单、维修工单由工单引擎承载，维修方案审核由流程引擎承载；报修单只保留单号等索引字段。
+ * 原型阶段 page 指向 public/engine 下的占位页（引擎详情页截图），开发时替换为引擎真实地址并按单号带参进入。
+ */
+const ENGINE_PAGES = {
+  check: { page: '/engine/check-workorder.html' },
+  plan: { page: '/engine/plan-audit.html' },
+  work: { page: '/engine/repair-workorder.html' },
+}
+
+/** 已有核查工单（工单引擎） */
+const checkWo = computed(() => {
+  const row = detailOrder.value
+  return row && row.checkOrderNo ? { no: row.checkOrderNo } : null
+})
+
+/** 已发起的维修方案审核流程（流程引擎，可能有多轮） */
+const planRounds = computed<PlanFlowRound[]>(() => (detailOrder.value ? planRoundsOf(detailOrder.value) : []))
+/** 当前查看的轮次下标，默认最新一轮 */
+const planRoundIndex = ref(0)
+const currentRound = computed<PlanFlowRound | null>(() => planRounds.value[planRoundIndex.value] || null)
+/** 每轮是流程引擎里独立的流程实例，按流程编号带参进入 */
+const planFrameSrc = computed(() => {
+  const round = currentRound.value
+  if (!round) return ENGINE_PAGES.plan.page
+  return `${ENGINE_PAGES.plan.page}?flowNo=${encodeURIComponent(round.flowNo)}&round=${round.round}`
+})
+
+/** 已有维修工单（工单引擎） */
+const workWo = computed(() => {
+  const row = detailOrder.value
+  return row && row.workOrderNo ? { no: row.workOrderNo } : null
+})
 
 function openDetail(row: RepairOrder) {
   detailOrder.value = row
-
-  const logs: LogItem[] = [
-    { time: row.reportTime, type: 'primary', operator: row.reporter, action: '报修' },
-  ]
-  if (row.checkOrderNo) {
-    logs.push({ time: row.checkTime || row.reportTime, type: 'primary', operator: row.chargePerson || '-', action: '派发核查' })
-    logs.push({ time: row.checkTime || '', type: 'success', operator: row.checker || '-', action: `完成核查：${row.checkResult === 'onsite' ? '已现场处置' : '需要维修'}` })
-  }
-  if (row.planContent) {
-    logs.push({ time: row.planStartTime || row.reportTime, type: 'primary', operator: row.chargePerson || '-', action: '提交维修方案' })
-    logs.push({ time: row.planStartTime || '', type: 'primary', operator: '-', action: '审核维修方案' })
-  }
-  if (row.worker) {
-    logs.push({ time: row.planStartTime || row.reportTime, type: 'warning', operator: row.chargePerson || '-', action: '下发维修工单' })
-  }
-  if (row.repairDescription) {
-    logs.push({ time: row.handleTime || '', type: 'success', operator: row.worker || '-', action: '完成维修' })
-  }
-  if (row.acceptanceResult) {
-    logs.push({ time: row.acceptanceTime || '', type: 'success', operator: row.acceptanceBy || '-', action: '完成验收' })
-  }
-  detailLogs.value = logs
+  detailTab.value = 'info'
+  const rounds = planRoundsOf(row)
+  planRoundIndex.value = rounds.length ? rounds.length - 1 : 0
   detailVisible.value = true
 }
 
@@ -2115,6 +2292,20 @@ function removeEditSelectedAsset(index: number) {
   margin-top: 16px;
 }
 
+/* 表格操作列内的【处置】下拉：元素默认 vertical-align:top / margin-top:-1px，
+   与并排的 link 按钮基线不一致，这里统一为行内居中对齐 */
+.rm-dispose {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  line-height: 1;
+  margin: 0 12px;
+}
+.rm-dispose :deep(.el-button) {
+  margin-left: 0;
+  vertical-align: middle;
+}
+
 /* ===== 新建报修抽屉 ===== */
 .rm-drawer-header {
   display: flex;
@@ -2223,6 +2414,80 @@ function removeEditSelectedAsset(index: number) {
   line-height: 1.2;
 }
 
+/* ===== 外部引擎详情（工单引擎 / 流程引擎）iframe 嵌入 ===== */
+.rm-drawer-subtitle {
+  margin-left: 10px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #909399;
+}
+.rm-drawer-body--detail {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.rm-detail-tabs {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+.rm-detail-tabs :deep(.el-tabs__header) {
+  margin-bottom: 12px;
+}
+.rm-detail-tabs :deep(.el-tabs__content) {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+/* 维修方案审核：轮次切换条（详情页内，仅一行，尽量轻量） */
+.rm-rounds__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.rm-rounds__label {
+  font-size: 13px;
+  color: #606266;
+}
+.rm-frame {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #fff;
+}
+.rm-frame__view {
+  display: block;
+  width: 100%;
+  height: calc(100vh - 300px);
+  min-height: 400px;
+  border: 0;
+  background: #fff;
+}
+.rm-frame-empty {
+  padding: 64px 24px;
+  text-align: center;
+  border: 1px dashed #dcdfe6;
+  border-radius: 4px;
+  background: #fafbfc;
+}
+.rm-frame-empty__title {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #606266;
+}
+.rm-frame-empty__desc {
+  max-width: 520px;
+  margin: 0 auto;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #909399;
+}
 .rm-device-select-section { margin-top: 0; }
 .rm-device-select-section__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .rm-device-select-section__count { font-size: 13px; color: #606266; }
