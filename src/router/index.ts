@@ -30,6 +30,11 @@ const router = createRouter({
           component: () => import('@/pages/park/AccessReviewRule.vue'),
         },
         {
+          path: '/park/access-review-pending',
+          name: 'AccessReviewPending',
+          component: () => import('@/pages/park/AccessReviewPending.vue'),
+        },
+        {
           path: '/security/people-flow',
           name: 'PeopleFlowReport',
           component: () => import('@/pages/security/PeopleFlowReport.vue'),

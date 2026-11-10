@@ -1,0 +1,864 @@
+{
+  "pageName": "AccessReviewRule",
+  "pageId": "AccessReviewRule",
+  "version": "1.0.0",
+  "lastUpdated": "2026-11-10T06:11:00Z",
+  "intent": {
+    "type": "manage",
+    "summary": "维护门禁授权审核配置，定义哪些机构的哪些门禁点位在人员授权时需经物业审批，并提供受控点位组与门禁点位选择能力作为配置的配套支撑。"
+  },
+  "overview": "门禁授权审核配置用于回答「谁的哪些门禁权限需要物业先审后发」。园区通行管理员按机构范围（可按机构类型整体纳入，也可按具体机构逐个纳入）与受控门禁点位两个维度建立配置：命中配置的人员门禁授权先进入待审核，审批通过后才下发至门禁设备；未命中任何启用配置的授权直接下发。为便于重复配置，页面提供受控点位组，把常一起受控的门禁点位归组，配置时可按组或按空间定位并多选点位。配置支持查询、新增、编辑、启用、停用与删除，并记录更新人与更新时间，停用或删除后对应范围的授权不再触发审批。",
+  "modules": [
+    {
+      "id": "arr-search",
+      "title": "审核配置查询",
+      "purpose": "帮助审核配置管理人员快速定位需要查看或调整的配置。",
+      "summary": "支持按受控类型、受控机构、受控门禁点位与启用状态组合筛选，并支持清空全部筛选条件。",
+      "requirements": [
+        {
+          "title": "多条件筛选审核配置",
+          "priority": "P0",
+          "details": "支持按受控类型、受控机构、受控门禁点位和启用状态组合查询审核配置，任一条件可单独使用。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "按机构范围交叉匹配",
+          "priority": "P1",
+          "details": "无论配置是以机构类型整体受控还是以具体机构受控，都应能被同一机构维度的筛选条件命中，避免按类型配置的规则在按机构查询时查不到。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "按门禁点位定位配置",
+          "priority": "P1",
+          "details": "选择任意一个门禁点位，可查出所有把该点位纳入受控范围的配置。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "orgType",
+          "label": "受控类型",
+          "type": "枚举",
+          "required": false,
+          "description": "机构类型，取值包含租户、监管单位、内部单位、物业单位、服务外包单位。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "org",
+          "label": "受控机构",
+          "type": "枚举",
+          "required": false,
+          "description": "具体机构，按所属机构类型分组提供选择。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "gateId",
+          "label": "受控门禁点位",
+          "type": "枚举",
+          "required": false,
+          "description": "单个门禁点位，按受控点位组分组提供选择。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "enabled",
+          "label": "状态",
+          "type": "枚举",
+          "required": false,
+          "description": "配置的启用状态，可取启用或停用。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "受控机构按所属机构类型分组展示，可选择任一具体机构参与筛选。",
+        "按受控类型筛选时，既命中以该类型整体受控的配置，也命中以属于该类型的机构单独受控的配置。",
+        "按受控机构筛选时，既命中明确包含该机构的配置，也命中以该机构所属类型整体受控的配置。",
+        "受控门禁点位按受控点位组分组展示，未被任何受控点位组纳入的点位归入「未分组点位」。",
+        "执行查询或重置后，列表回到第一页展示。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击查询",
+          "action": "按条件筛选审核配置",
+          "description": "按当前填写的筛选条件展示匹配的审核配置，并提示本次查询的配置条数。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击重置",
+          "action": "清空筛选条件",
+          "description": "清空全部筛选条件，恢复展示所有审核配置并回到第一页。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "arr-actions",
+      "title": "配置操作入口",
+      "purpose": "提供建立新配置与维护受控点位组的入口。",
+      "summary": "操作栏提供新增审核配置，以及进入受控点位组维护。",
+      "requirements": [
+        {
+          "title": "新增审核配置",
+          "priority": "P0",
+          "details": "提供新增审核配置的入口，进入后填写受控机构范围与受控门禁点位。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "维护受控点位组",
+          "priority": "P0",
+          "details": "提供受控点位组维护入口，作为审核配置的配套能力，可在配置过程中随时打开维护。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [],
+      "rules": [
+        "受控点位组维护不单独成页，统一从审核配置页进入。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击新增审核配置",
+          "action": "打开新增配置",
+          "description": "打开空白配置，受控机构范围默认为按机构类型，状态默认为启用。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击受控点位组",
+          "action": "打开受控点位组维护",
+          "description": "展示已维护的受控点位组清单，可在此新增、编辑或删除分组。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "arr-table",
+      "title": "审核配置列表",
+      "purpose": "完整呈现每条配置的受控机构范围与受控点位，并支持启停、编辑与删除。",
+      "summary": "展示配置名称、受控机构/机构类型、受控门禁点位、说明、更新时间与更新人，提供启用、停用、编辑、删除与分页。",
+      "requirements": [
+        {
+          "title": "查看配置及其受控范围",
+          "priority": "P0",
+          "details": "列表需同时呈现配置名称、受控机构范围、受控门禁点位、说明以及最近一次更新的时间与操作人。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "启用或停用配置",
+          "priority": "P0",
+          "details": "支持对单条配置切换启用状态，切换前需二次确认，并说明切换后对审批链路的影响。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "编辑配置",
+          "priority": "P0",
+          "details": "支持修改配置名称、受控机构范围、受控门禁点位、状态与说明。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "删除配置",
+          "priority": "P0",
+          "details": "支持删除配置，删除前需二次确认，并说明删除后该受控范围不再触发审批。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "分页浏览",
+          "priority": "P1",
+          "details": "配置较多时分页展示，可调整每页条数。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "label": "配置名称",
+          "type": "文本",
+          "required": true,
+          "description": "配置的业务名称，用于区分不同受控范围，例如「租户类机构 · 园区大门授权审核」。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "orgScopeText",
+          "label": "受控机构/机构类型",
+          "type": "文本",
+          "required": true,
+          "description": "该配置覆盖的机构范围，可能是机构类型整体，也可能是若干具体机构，多个对象以顿号分隔。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "gatePoints",
+          "label": "受控门禁点位",
+          "type": "集合",
+          "required": true,
+          "description": "该配置覆盖的门禁点位集合，列表中展示前两个点位名称，其余以数量收起。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "remark",
+          "label": "说明",
+          "type": "多行文本",
+          "required": false,
+          "description": "配置的补充说明，例如依据的管理办法条款或适用范围。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "updatedAt",
+          "label": "更新时间",
+          "type": "时间",
+          "required": true,
+          "description": "该配置最近一次变更的时间。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "updatedBy",
+          "label": "更新人",
+          "type": "文本",
+          "required": true,
+          "description": "该配置最近一次变更的操作人。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "enabled",
+          "label": "启用状态",
+          "type": "枚举",
+          "required": true,
+          "description": "配置当前是否生效，启用时触发审批，停用时不触发审批。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "列表按配置的新增顺序展示，新增的配置排在列表首位。",
+        "受控机构与机构类型以一行文字展示，多个受控对象之间以顿号分隔。",
+        "受控门禁点位默认展示前两个点位名称，超出部分以数量收起，悬停后可查看该配置下的全部点位名称。",
+        "受控机构/机构类型与说明内容超出一行时以省略号呈现，悬停后可查看完整内容。",
+        "未填写说明时展示「—」。",
+        "启用状态仅在配置的编辑入口修改，列表中的启停操作为快捷切换，同样需要二次确认。",
+        "启用配置时提示启用后该机构授权其受控门禁点位需经物业审批通过后下发；停用配置时提示停用后相关授权直接下发、不再进入物业审批。",
+        "删除配置时提示删除后该受控范围内门禁点位的授权不再触发物业审批，确认后才执行删除；删除后列表与分页同步刷新，当前页无数据时回退一页。",
+        "启停、编辑与删除操作成功后，更新人与更新时间记录为当前操作人及操作时间。",
+        "列表每页可选 10、20、50 条，默认每页 10 条。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击停用或启用",
+          "action": "切换配置的启用状态",
+          "description": "二次确认后切换状态，并刷新该配置的更新时间与更新人；取消则不做任何变更。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击编辑",
+          "action": "修改配置",
+          "description": "载入该配置的现有内容，可调整受控机构范围、受控门禁点位、状态与说明。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击删除",
+          "action": "删除配置",
+          "description": "二次确认后删除该配置，删除后该受控范围不再触发审批。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "切换页码或每页条数",
+          "action": "翻页浏览",
+          "description": "按当前筛选条件展示对应页的配置。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "arr-form",
+      "title": "审核配置新增与编辑",
+      "purpose": "建立或调整一条审核配置的受控机构范围、受控门禁点位与生效状态。",
+      "summary": "填写配置名称，选择受控机构口径（按机构类型或按具体机构）、受控门禁点位、启用状态与配置说明后保存。",
+      "requirements": [
+        {
+          "title": "新增审核配置",
+          "priority": "P0",
+          "details": "填写名称、受控机构范围、受控门禁点位后保存，保存成功即参与审批规则匹配。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "按机构类型设定受控范围",
+          "priority": "P0",
+          "details": "选择机构类型即可覆盖该类型下的全部机构，后续新增机构自动纳入，无需再次配置。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "按具体机构设定受控范围",
+          "priority": "P0",
+          "details": "逐个选择需要受控的机构，仅对所选机构生效，可多选。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "选择受控门禁点位",
+          "priority": "P0",
+          "details": "通过门禁点位选择能力挑选点位，已选点位以清单形式回显，可单条移除。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "设置启用状态",
+          "priority": "P1",
+          "details": "配置可保存为启用或停用，停用状态下不参与审批匹配。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "填写配置说明",
+          "priority": "P2",
+          "details": "可补充配置依据、适用范围等说明信息，便于后续核对。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "label": "配置名称",
+          "type": "文本",
+          "required": true,
+          "description": "配置的业务名称，需能体现受控机构与受控点位范围。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "orgMode",
+          "label": "受控机构口径",
+          "type": "枚举",
+          "required": true,
+          "description": "受控机构的设定方式，可取按机构类型或按具体机构，默认按机构类型。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "orgTypes",
+          "label": "受控机构类型",
+          "type": "集合",
+          "required": false,
+          "description": "按机构类型口径时选择的机构类型，可多选；该口径下必填。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "orgs",
+          "label": "受控机构",
+          "type": "集合",
+          "required": false,
+          "description": "按具体机构口径时选择的机构，可多选；该口径下必填。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "gateIds",
+          "label": "受控门禁点位",
+          "type": "集合",
+          "required": true,
+          "description": "该配置覆盖的门禁点位集合，至少选择一个。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "enabled",
+          "label": "状态",
+          "type": "枚举",
+          "required": true,
+          "description": "配置是否立即生效，默认启用。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "remark",
+          "label": "配置说明",
+          "type": "多行文本",
+          "required": false,
+          "description": "选填，用于记录配置依据或适用范围。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "配置名称必填，最多 30 个字。",
+        "受控机构提供按机构类型与按具体机构两种口径，二者只能选其一；切换口径时清空另一种口径已选内容。",
+        "按机构类型：该类型下现有机构与未来新增机构自动纳入受控范围，例如新租户入驻即生效，无需再次配置。",
+        "按具体机构：仅对所选机构生效。",
+        "按机构类型时至少选择一个机构类型，按具体机构时至少选择一个机构，否则不允许保存。",
+        "受控门禁点位至少选择一个，否则不允许保存。",
+        "状态默认启用；停用后该配置不再触发审批，相关门禁授权直接下发。",
+        "配置说明选填，最多 80 个字。",
+        "保存成功后记录更新人与更新时间；新增的配置排在列表首位且列表回到第一页，编辑不改变该配置在列表中的位置。",
+        "未保存直接退出时不做任何变更。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击新增审核配置",
+          "action": "打开新增配置",
+          "description": "打开空白配置，受控机构口径默认为按机构类型，状态默认为启用。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击编辑",
+          "action": "载入已有配置",
+          "description": "按配置中机构的设定方式回显受控机构口径，并载入受控机构、受控门禁点位、状态与说明。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "切换受控机构口径",
+          "action": "清空另一侧已选内容",
+          "description": "切换为按机构类型时清空已选具体机构，切换为按具体机构时清空已选机构类型。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击机构类型",
+          "action": "选中或取消该机构类型",
+          "description": "支持多选，已选类型以选中状态呈现。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "选择具体机构",
+          "action": "选中或取消机构",
+          "description": "支持多选与按名称检索，机构按所属类型分组展示。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击选择门禁点位",
+          "action": "打开门禁点位选择",
+          "description": "打开选择能力，已选点位自动带入选中的状态，确认后回填到受控门禁点位。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "在已选点位清单中点击移除",
+          "action": "移除单个点位",
+          "description": "从受控范围中移除该门禁点位，并同步更新已选数量。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击保存",
+          "action": "保存配置",
+          "description": "校验名称、受控机构范围与受控门禁点位，通过后写入配置并刷新列表。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击取消",
+          "action": "放弃本次编辑",
+          "description": "关闭当前配置，不做任何变更。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "arr-group-list",
+      "title": "受控点位组维护",
+      "purpose": "把经常一起受控的门禁点位归为一组，降低重复挑选点位的成本。",
+      "summary": "列出已维护的受控点位组，展示组名称、包含门禁点位数与说明，支持新增、编辑、删除与分页。",
+      "requirements": [
+        {
+          "title": "查看受控点位组",
+          "priority": "P0",
+          "details": "展示全部受控点位组的组名称、包含门禁点位数与说明。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "新增受控点位组",
+          "priority": "P0",
+          "details": "提供新增入口，建立新的点位分组。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "编辑受控点位组",
+          "priority": "P0",
+          "details": "支持修改组名称、包含点位与说明。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "删除受控点位组",
+          "priority": "P0",
+          "details": "支持删除分组，删除前需二次确认，并说明对该组点位的影响。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "分页浏览",
+          "priority": "P1",
+          "details": "分组较多时分页展示，可调整每页条数。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "label": "组名称",
+          "type": "文本",
+          "required": true,
+          "description": "分组的业务名称，例如园区大门、CT楼电梯厅。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "gateCount",
+          "label": "包含门禁点位",
+          "type": "数值",
+          "required": true,
+          "description": "该组包含的门禁点位数，组内无点位时为 0。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "remark",
+          "label": "说明",
+          "type": "多行文本",
+          "required": false,
+          "description": "分组的用途或纳入范围说明。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "组列表按新增顺序展示，新增的组排在首位。",
+        "包含门禁点位以数量展示，悬停后可查看该组下的全部门禁点位名称。",
+        "说明内容超出一行时以省略号呈现，悬停后可查看完整内容；未填写说明时展示「—」。",
+        "删除受控点位组需二次确认，提示删除后该组点位不再可批量选取；删除后列表与分页同步刷新，当前页无数据时回退一页。",
+        "受控点位组每页可选 10、20、50 个，默认每页 10 个。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击新增受控点位组",
+          "action": "打开新增分组",
+          "description": "打开空白分组，填写组名称并选择点位。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击编辑",
+          "action": "修改分组",
+          "description": "载入该组的名称、包含点位与说明供修改。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击删除",
+          "action": "删除分组",
+          "description": "二次确认后删除该受控点位组。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "切换页码或每页条数",
+          "action": "翻页浏览",
+          "description": "展示对应页的受控点位组。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "arr-group-form",
+      "title": "受控点位组新增与编辑",
+      "purpose": "维护一个受控点位组的组成与用途。",
+      "summary": "填写组名称，选择该组包含的门禁点位，并可补充说明后保存。",
+      "requirements": [
+        {
+          "title": "新增受控点位组",
+          "priority": "P0",
+          "details": "填写组名称并选择点位后保存，新组可用于后续配置时快速取用。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "编辑受控点位组",
+          "priority": "P0",
+          "details": "支持调整组名称、增删组内点位与修改说明。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "补充分组说明",
+          "priority": "P2",
+          "details": "可说明分组用途或纳入范围，便于他人理解分组口径。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "label": "组名称",
+          "type": "文本",
+          "required": true,
+          "description": "分组的业务名称，在受控点位组范围内不可重复。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "gateIds",
+          "label": "包含门禁点位",
+          "type": "集合",
+          "required": true,
+          "description": "该组包含的门禁点位集合，至少选择一个。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "remark",
+          "label": "说明",
+          "type": "多行文本",
+          "required": false,
+          "description": "选填，说明分组的用途或纳入范围。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "组名称必填，最多 30 个字，且在受控点位组范围内不可重名。",
+        "至少选择一个门禁点位，否则不允许保存。",
+        "说明选填，最多 100 个字。",
+        "新增成功后回到分组列表第一页；编辑不改变该组在列表中的位置。",
+        "取消或直接关闭时不做任何变更。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "点击选择门禁点位",
+          "action": "打开门禁点位选择",
+          "description": "打开选择能力，组内已选点位自动带入选中状态，确认后回填。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "在已选点位清单中点击移除",
+          "action": "移除单个点位",
+          "description": "从分组中移除该门禁点位，并同步更新已选数量。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击保存",
+          "action": "保存分组",
+          "description": "校验组名称唯一性与点位必选，通过后写入分组并刷新分组列表。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击取消",
+          "action": "放弃本次编辑",
+          "description": "关闭当前分组，不做任何变更。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    },
+    {
+      "id": "arr-gate-select",
+      "title": "门禁点位选择",
+      "purpose": "为审核配置与受控点位组挑选门禁点位。",
+      "summary": "可从受控点位组或空间层级两个角度定位点位，右侧支持按点位名称筛选并多选，确认后回填到发起选择的配置或分组。",
+      "requirements": [
+        {
+          "title": "按分组选择点位",
+          "priority": "P0",
+          "details": "列出已维护的受控点位组及各自点位数，选中一个组后展示该组下的门禁点位，便于整组取用。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "按空间选择点位",
+          "priority": "P0",
+          "details": "按楼栋到区域的层级逐级定位，选择上级空间时包含其下区域的全部点位。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "按点位名称筛选",
+          "priority": "P1",
+          "details": "在当前定位范围内按点位名称检索，缩小勾选范围。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "title": "跨范围保留已选点位",
+          "priority": "P1",
+          "details": "切换选择方式或切换分组时，之前勾选的点位仍然保留并累计，最终一次性确认。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "fields": [
+        {
+          "name": "pickMode",
+          "label": "选择方式",
+          "type": "枚举",
+          "required": true,
+          "description": "定位点位的方式，可取按分组选择或按空间选择，默认按分组选择。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "groupId",
+          "label": "受控点位组",
+          "type": "枚举",
+          "required": false,
+          "description": "按分组选择方式下当前选中的分组。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "spacePath",
+          "label": "空间范围",
+          "type": "文本",
+          "required": false,
+          "description": "按空间选择方式下当前定位的楼栋与区域，可选择全部门禁点位。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "keyword",
+          "label": "点位名称",
+          "type": "文本",
+          "required": false,
+          "description": "按门禁点位名称筛选当前范围内的点位。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "name": "selectedCount",
+          "label": "已选门禁点位",
+          "type": "数值",
+          "required": true,
+          "description": "当前已勾选的门禁点位数量，随勾选变化实时更新。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "rules": [
+        "按分组选择：左侧列出已维护的受控点位组及各自点位数，选中一个组后右侧展示该组下的门禁点位；尚未维护任何受控点位组时给出提示。",
+        "按空间选择：按楼栋到区域的层级逐级定位，默认定位在全部点位；可按空间名称搜索定位。",
+        "右侧点位清单只展示点位名称与所属位置（楼层 · 区域）。",
+        "点位名称筛选作用于当前选择方式下的点位范围，查询后刷新清单。",
+        "切换选择方式或切换受控点位组时，已勾选的点位保留并累计，不做清空。",
+        "在某个范围内取消全选，只取消该范围内的点位，不影响其他范围已勾选的点位。",
+        "某个受控点位组下没有点位时，提示该组暂无门禁点位。",
+        "确认选择后，所选点位回填到发起选择的审核配置或受控点位组，并刷新已选点位数量。",
+        "取消时不做任何变更，原已选点位保持不变。"
+      ],
+      "ruleImages": [],
+      "interactions": [
+        {
+          "trigger": "切换按分组选择或按空间选择",
+          "action": "切换定位方式",
+          "description": "按所选方式展示对应的定位区域，右侧点位清单随之联动。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击受控点位组",
+          "action": "查看该组点位",
+          "description": "右侧展示该组包含的门禁点位，已勾选状态保持一致。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击空间层级",
+          "action": "查看该空间下的点位",
+          "description": "右侧展示所选楼栋或区域下的门禁点位。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "输入点位名称并查询",
+          "action": "筛选点位清单",
+          "description": "在当前定位范围内按点位名称检索匹配的点位。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "勾选或取消勾选点位",
+          "action": "加入或移出已选范围",
+          "description": "实时更新已选点位数量，跨范围累计。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "全选或取消全选",
+          "action": "批量勾选当前范围点位",
+          "description": "对当前清单内的点位批量勾选或取消勾选，不影响清单外的已选点位。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击确认选择",
+          "action": "回填所选点位",
+          "description": "把所选点位写回发起选择的审核配置或受控点位组并刷新数量。",
+          "source": "ai",
+          "status": "generated"
+        },
+        {
+          "trigger": "点击取消",
+          "action": "放弃本次选择",
+          "description": "关闭选择，不做任何变更。",
+          "source": "ai",
+          "status": "generated"
+        }
+      ],
+      "source": "ai",
+      "status": "generated"
+    }
+  ]
+}
