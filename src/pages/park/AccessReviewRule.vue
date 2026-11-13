@@ -301,7 +301,7 @@
           <div class="ar-grp-gate-section">
             <div class="ar-grp-gate-section__head">
               <span class="ar-grp-gate-section__count">已选门禁点位（{{ groupSelectedGates.length }}）</span>
-              <el-button size="small" type="primary" @click="openGateDialog">选择门禁点位</el-button>
+              <el-button size="small" type="primary" @click="openGateDialog('group')">选择门禁点位</el-button>
             </div>
             <el-table
               v-if="groupSelectedGates.length > 0"
@@ -352,7 +352,12 @@
     >
       <div class="ar-gate-select">
         <div class="ar-gate-select__side">
-          <el-radio-group v-model="gatePickMode" size="small" class="ar-gate-select__mode">
+          <el-radio-group
+            v-if="gatePickTarget === 'rule'"
+            v-model="gatePickMode"
+            size="small"
+            class="ar-gate-select__mode"
+          >
             <el-radio-button label="group">按分组选择</el-radio-button>
             <el-radio-button label="space">按空间选择</el-radio-button>
           </el-radio-group>
@@ -1371,15 +1376,17 @@ function onGateSelectAll(selection: GatePoint[]) {
 }
 
 function openGateDialog(target: 'group' | 'rule' = 'group') {
-  gatePickTarget.value = target
-  gatePickMode.value = 'group'
+  // 兜底：避免事件对象等非预期入参导致入口判定失效
+  const scope: 'group' | 'rule' = target === 'rule' ? 'rule' : 'group'
+  gatePickTarget.value = scope
+  gatePickMode.value = scope === 'group' ? 'space' : 'group'
   selectedGroupId.value = groupRows.value[0]?.id ?? 0
   gateFilter.keyword = ''
   appliedGateFilter.keyword = ''
   spaceKeyword.value = ''
   selectedSpaceKey.value = 'all'
   tempSelectedIds.value = [
-    ...(target === 'group' ? groupForm.gateIds : form.gateIds),
+    ...(scope === 'group' ? groupForm.gateIds : form.gateIds),
   ]
   gateDialogVisible.value = true
   nextTick(() => syncGateSelection())
